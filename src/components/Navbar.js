@@ -23,7 +23,6 @@ const Navbar = () => {
 
   const ownerLinks = [
     { name: "Dashboard", path: "/dashboard" },
-    { name: "Manage Menus", path: "/manage-menus" },
     { name: "Profile", path: "/profile" }, // Already included
   ];
 

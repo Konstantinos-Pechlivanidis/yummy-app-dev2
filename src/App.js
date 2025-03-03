@@ -14,6 +14,7 @@ import ConfirmationPage from "./pages/Confirmation";
 import ScrollToTop from "./lib/ScrollToTop";
 import ProfilePage from "./pages/ProfilePage";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import NotFound from "./pages/NotFound";
 
 // import Login from "./pages/Login";
 // import NotFound from "./pages/NotFound";
@@ -26,7 +27,7 @@ function App() {
   // **Auto-login με έναν προκαθορισμένο χρήστη**
   useEffect(() => {
     if (!isAuthenticated) {
-      const testUser = users.find((u) => u.role === "owner"); // Επιλογή ενός τυχαίου πελάτη
+      const testUser = users.find((u) => u.role === "customer"); // Επιλογή ενός τυχαίου πελάτη
       if (testUser) {
         dispatch(login({ email: testUser.email, password: testUser.password }));
       }
@@ -60,7 +61,7 @@ function App() {
             </>
           )}
 
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
       <Footer />
