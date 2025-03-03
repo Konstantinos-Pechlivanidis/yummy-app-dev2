@@ -163,7 +163,9 @@ const RestaurantDetailsPage = () => {
             onClick={handleToggleWatchlist}
           >
             <Heart className="w-5 h-5 mr-2" />
-            {isInWatchlist ? "Αφαίρεση από Watchlist" : "Προσθήκη στη Watchlist"}
+            {isInWatchlist
+              ? "Αφαίρεση από Watchlist"
+              : "Προσθήκη στη Watchlist"}
           </Button>
         </div>
       </section>
@@ -243,45 +245,77 @@ const RestaurantDetailsPage = () => {
       {/* Special Menus */}
       <section>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          🍽️ Ειδικά Μενού
+          🍽️ Special Menus
         </h2>
         {restaurantSpecialMenus.length === 0 ? (
           <p className="text-gray-600">
-            ❌ Δεν υπάρχουν ειδικά μενού αυτή τη στιγμή.
+            ❌ Δεν υπάρχουν διαθέσιμα Special Menus.
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {restaurantSpecialMenus.map((menu) => (
-              <Card
-                key={menu.id}
-                className="shadow-md hover:shadow-lg transition-all"
-              >
-                <img
-                  src={menu.photoUrl}
-                  alt={menu.name}
-                  className="w-full h-40 object-cover rounded-t-lg"
-                />
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold">
-                    {menu.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">{menu.description}</p>
-                  <div className="mt-3 flex justify-between text-sm">
-                    <span className="text-gray-600 line-through">
-                      €{menu.originalPrice}
-                    </span>
-                    <span className="text-primary font-bold">
-                      €{menu.discountedPrice}
-                    </span>
-                  </div>
-                  <Badge className="bg-yellow-500 text-white mt-3">
-                    -{menu.discountPercentage}% έκπτωση!
-                  </Badge>
-                </CardContent>
-              </Card>
-            ))}
+            {restaurantSpecialMenus.map((menu) => {
+              const selectedDishes = menu.selectedItems.map((itemId) =>
+                menuItems.find((item) => item.id === itemId)
+              );
+
+              return (
+                <Card
+                  key={menu.id}
+                  className="shadow-md hover:shadow-lg transition-all"
+                >
+                  <img
+                    src={menu.photoUrl}
+                    alt={menu.name}
+                    className="w-full h-40 object-cover rounded-t-lg"
+                  />
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">
+                      {menu.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700">{menu.description}</p>
+                    <div className="mt-3 flex justify-start">
+                      <span className="text-lg text-gray-600 line-through">
+                        €{menu.originalPrice}
+                      </span>
+                      <span className="text-xl text-primary font-bold ml-2">
+                        €{menu.discountedPrice}
+                      </span>
+                    </div>
+
+                    {/* Center Aligned Badge */}
+                    <div className="flex justify-start mt-3">
+                      <Badge className="text-md bg-yellow-500 text-white px-3 py-4 w-fit text-center">
+                        -{menu.discountPercentage}% έκπτωση!
+                      </Badge>
+                    </div>
+
+                    {/* Εμφάνιση των επιλεγμένων πιάτων */}
+                    <h3 className="mt-4 text-md font-semibold text-gray-900">
+                      📋 Περιλαμβάνει:
+                    </h3>
+                    <ul className="mt-2 space-y-2">
+                      {selectedDishes.map((dish) => (
+                        <li
+                          key={dish.id}
+                          className="flex items-center space-x-3"
+                        >
+                          <img
+                            src={dish.photoUrl}
+                            alt={dish.name}
+                            className="w-12 h-12 object-cover rounded-md shadow-sm"
+                          />
+                          <span className="text-gray-700 ">
+                            {dish.name} - €{dish.price}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </section>

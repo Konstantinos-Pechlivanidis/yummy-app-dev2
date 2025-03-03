@@ -210,9 +210,9 @@ export const specialMenus = [
     restaurantId: "resto001",
     name: "Πλήρες Γεύμα - Ιταλικό",
     description: "Ορεκτικό, κυρίως πιάτο και επιδόρπιο",
-    originalPrice: 40,
-    discountedPrice: 30,
-    discountPercentage: 25,
+    originalPrice: 30,
+    discountedPrice: 15,
+    discountPercentage: 50,
     photoUrl: "/images/mobile3.jpg",
     selectedItems: ["item001", "item002", "item003"],
     availableItems: menuItems.filter(item => item.restaurantId === "resto001"), // Όλα τα διαθέσιμα πιάτα του resto001
