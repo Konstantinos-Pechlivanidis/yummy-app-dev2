@@ -1,8 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "./store/authSlice"; // Το slice του auth
-import { users } from "./data/dummyData"; // Οι χρήστες από το dummy data
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { login } from "./store/authSlice";
+import { users } from "./data/dummyData";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
@@ -14,28 +21,81 @@ import ConfirmationPage from "./pages/Confirmation";
 import ScrollToTop from "./lib/ScrollToTop";
 import ProfilePage from "./pages/ProfilePage";
 import OwnerDashboard from "./pages/OwnerDashboard";
-import NotFound from "./pages/NotFound";
 import OwnerProfile from "./pages/OwnerProfile";
+import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
 
-// import Login from "./pages/Login";
-// import NotFound from "./pages/NotFound";
-
-function App() {
-  // const { isAuthenticated, user } = useSelector((state) => state.auth);
+// ✅ Περιλαμβάνει redirect λογική και προστατευμένα routes
+const AppRoutes = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  // **Auto-login με έναν προκαθορισμένο χρήστη**
+  const [loading, setLoading] = useState(true);
+
+  // Auto-login για testing
   useEffect(() => {
     if (!isAuthenticated) {
-      const testUser = users.find((u) => u.role === "owner"); // Επιλογή ενός τυχαίου πελάτη
+      const testUser = users.find((u) => u.role === "customer");
       if (testUser) {
         dispatch(login({ email: testUser.email, password: testUser.password }));
       }
     }
+
+    const timeout = setTimeout(() => setLoading(false), 200);
+    return () => clearTimeout(timeout);
   }, [dispatch, isAuthenticated]);
 
+  // ✅ Redirect owner από public routes
+  useEffect(() => {
+    if (isAuthenticated && user?.role === "owner") {
+      const publicPaths = ["/", "/reserve", "/restaurant"];
+      const isPublicPath = publicPaths.some(
+        (path) =>
+          location.pathname === path || location.pathname.startsWith(`${path}/`)
+      );
+      if (isPublicPath) {
+        navigate("/dashboard", { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, location, navigate]);
+
+  // Προστασία από flash 404
+  if (loading) return null;
+
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/reserve" element={<ReserveTablePage />} />
+      <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
+
+      {/* Customer-only routes */}
+      {isAuthenticated && user?.role === "customer" && (
+        <>
+          <Route path="/loyalty" element={<LoyaltyPage />} />
+          <Route path="/my-reservations" element={<MyReservationsPage />} />
+          <Route path="/confirmation" element={<ConfirmationPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </>
+      )}
+
+      {/* Owner-only routes */}
+      {isAuthenticated && user?.role === "owner" && (
+        <>
+          <Route path="/dashboard" element={<OwnerDashboard />} />
+          <Route path="/profile" element={<OwnerProfile />} />
+        </>
+      )}
+
+      {/* Fallback */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
+function App() {
   return (
     <Router>
       <Toaster
@@ -44,8 +104,8 @@ function App() {
           duration: 4000,
           style: {
             background: "#ffffff",
-            color: "#1f2937", // Gray-800
-            border: "1px solid #e5e7eb", // Gray-200
+            color: "#1f2937",
+            border: "1px solid #e5e7eb",
             padding: "16px",
             fontSize: "16px",
             borderRadius: "12px",
@@ -55,7 +115,7 @@ function App() {
             icon: "✅",
             style: {
               background: "#ecfdf5",
-              border: "1px solid #10b981", // Green-500
+              border: "1px solid #10b981",
               color: "#065f46",
             },
           },
@@ -63,40 +123,17 @@ function App() {
             icon: "❌",
             style: {
               background: "#fef2f2",
-              border: "1px solid #ef4444", // Red-500
+              border: "1px solid #ef4444",
               color: "#991b1b",
             },
           },
         }}
       />
+
       <ScrollToTop />
       <Navbar />
       <div className="pt-16">
-        <Routes>
-          
-          {/* <Route path="/login" element={<Login />} /> */}
-
-          {isAuthenticated && user.role === "customer" && (
-            <>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/reserve" element={<ReserveTablePage />} />
-              <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
-              <Route path="/loyalty" element={<LoyaltyPage />} />
-              <Route path="/my-reservations" element={<MyReservationsPage />} />
-              <Route path="/confirmation" element={<ConfirmationPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-            </>
-          )}
-
-          {isAuthenticated && user.role === "owner" && (
-            <>
-              <Route path="/" element={<OwnerDashboard />} />
-              <Route path="/profile" element={<OwnerProfile />} />
-            </>
-          )}
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppRoutes />
       </div>
       <Footer />
     </Router>

@@ -7,18 +7,29 @@ import { useSelector } from "react-redux";
 const Footer = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  // Links ανά ρόλο
-  const customerLinks = [
+  const publicLinks = [
     { name: "Home", path: "/" },
     { name: "Reserve a Table", path: "/reserve" },
+  ];
+
+  const customerLinks = [
+    ...publicLinks,
     { name: "My Reservations", path: "/my-reservations" },
     { name: "Profile", path: "/profile" },
   ];
 
   const ownerLinks = [
-    { name: "Dashboard", path: "/" },
+    { name: "Dashboard", path: "/dashboard" },
     { name: "Profile", path: "/profile" },
   ];
+
+  const resolvedLinks = !isAuthenticated
+    ? publicLinks
+    : user?.role === "customer"
+    ? customerLinks
+    : user?.role === "owner"
+    ? ownerLinks
+    : [];
 
   return (
     <footer className="bg-gray-900 text-white py-10 mt-10">
@@ -27,12 +38,7 @@ const Footer = () => {
         <div>
           <h2 className="text-xl font-semibold">Quick Links</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {(isAuthenticated && user?.role === "customer"
-              ? customerLinks
-              : isAuthenticated && user?.role === "owner"
-              ? ownerLinks
-              : []
-            ).map((link) => (
+            {resolvedLinks.map((link) => (
               <li key={link.name}>
                 <Link to={link.path}>
                   {link.name}
@@ -47,7 +53,7 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Newsletter Subscription */}
+        {/* Newsletter */}
         <div>
           <h2 className="text-xl font-semibold">Join Our Newsletter</h2>
           <p className="mt-2 text-sm text-gray-400">
@@ -63,7 +69,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Social Media */}
+        {/* Socials */}
         <div>
           <h2 className="text-xl font-semibold">Follow Us</h2>
           <p className="mt-2 text-sm text-gray-400">

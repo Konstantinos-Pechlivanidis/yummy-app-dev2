@@ -2,62 +2,59 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../store/authSlice";
-import { Menu, X } from "lucide-react"; // Icons
-import { Button } from "./ui/button"; // Shadcn UI
+import { Menu, X } from "lucide-react";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
-  // Links for different user roles
-  const publicLinks = [];
+  const publicLinks = [
+    { name: "Home", path: "/" },
+    { name: "Reserve a Table", path: "/reserve" },
+  ];
 
   const customerLinks = [
     { name: "Home", path: "/" },
     { name: "Reserve a Table", path: "/reserve" },
     { name: "My Reservations", path: "/my-reservations" },
-    { name: "Profile", path: "/profile" }, // Already included
+    { name: "Profile", path: "/profile" },
   ];
 
   const ownerLinks = [
-    { name: "Dashboard", path: "/" },
-    { name: "Profile", path: "/profile" }, // Already included
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Profile", path: "/profile" },
   ];
 
   const handleLogout = () => {
     dispatch(logout());
   };
 
+  const renderLinks = () => {
+    if (!isAuthenticated) return publicLinks;
+    if (user.role === "customer") return customerLinks;
+    if (user.role === "owner") return ownerLinks;
+    return [];
+  };
+
+  const logoLink =
+    isAuthenticated && user?.role === "owner" ? "/dashboard" : "/";
+
   return (
     <nav className="bg-white shadow-md fixed w-full top-0 z-50">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-        {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-primary">
+        <Link to={logoLink} className="text-2xl font-bold text-primary">
           🍽️ Yummy
         </Link>
 
-        {/* Desktop Menu */}
+        {/* Desktop Links */}
         <div className="hidden md:flex space-x-6">
-          {publicLinks.map((link) => (
+          {renderLinks().map((link) => (
             <Link key={link.name} to={link.path} className="hover:text-primary">
               {link.name}
             </Link>
           ))}
-
-          {isAuthenticated && user.role === "customer" &&
-            customerLinks.map((link) => (
-              <Link key={link.name} to={link.path} className="hover:text-primary">
-                {link.name}
-              </Link>
-            ))}
-
-          {isAuthenticated && user.role === "owner" &&
-            ownerLinks.map((link) => (
-              <Link key={link.name} to={link.path} className="hover:text-primary">
-                {link.name}
-              </Link>
-            ))}
         </div>
 
         {/* User Menu */}
@@ -68,10 +65,10 @@ const Navbar = () => {
                 <span>{user.name}</span>
               </Button>
               <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
+                <Link to="/profile" className="block px-4 py-2">
                   Profile
                 </Link>
-                <Button onClick={handleLogout} className="block px-4 py-2 w-full text-left hover:bg-gray-100">
+                <Button onClick={handleLogout} className="block px-4 py-2 w-full text-left">
                   Logout
                 </Button>
               </div>
@@ -89,28 +86,14 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Links */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white shadow-lg">
-          {publicLinks.map((link) => (
+          {renderLinks().map((link) => (
             <Link key={link.name} to={link.path} className="block px-4 py-2 hover:bg-gray-100">
               {link.name}
             </Link>
           ))}
-
-          {isAuthenticated && user.role === "customer" &&
-            customerLinks.map((link) => (
-              <Link key={link.name} to={link.path} className="block px-4 py-2 hover:bg-gray-100">
-                {link.name}
-              </Link>
-            ))}
-
-          {isAuthenticated && user.role === "owner" &&
-            ownerLinks.map((link) => (
-              <Link key={link.name} to={link.path} className="block px-4 py-2 hover:bg-gray-100">
-                {link.name}
-              </Link>
-            ))}
 
           {isAuthenticated ? (
             <button onClick={handleLogout} className="block px-4 py-2 w-full text-left hover:bg-gray-100">
