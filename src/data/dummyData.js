@@ -216,6 +216,7 @@ export const specialMenus = [
     photoUrl: "/images/mobile3.jpg",
     selectedItems: ["item001", "item002", "item003"],
     availableItems: menuItems.filter(item => item.restaurantId === "resto001"), // Όλα τα διαθέσιμα πιάτα του resto001
+    selectedDate: "2025-03-31",
     timeRange: { start: "12:00", end: "16:00" },
     createdAt: "2024-03-01T00:00:00Z",
   },
@@ -230,6 +231,7 @@ export const specialMenus = [
     photoUrl: "/images/mobile3.jpg",
     selectedItems: ["item004", "item005"],
     availableItems: menuItems.filter(item => item.restaurantId === "resto002"), // Όλα τα διαθέσιμα πιάτα του resto002
+    selectedDate: "2025-03-31",
     timeRange: { start: "18:00", end: "22:00" },
     createdAt: "2024-03-01T00:00:00Z",
   }

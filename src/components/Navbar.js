@@ -11,18 +11,17 @@ const Navbar = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   // Links for different user roles
-  const publicLinks = [
-    { name: "Home", path: "/" },
-    { name: "Reserve a Table", path: "/reserve" },
-  ];
+  const publicLinks = [];
 
   const customerLinks = [
+    { name: "Home", path: "/" },
+    { name: "Reserve a Table", path: "/reserve" },
     { name: "My Reservations", path: "/my-reservations" },
     { name: "Profile", path: "/profile" }, // Already included
   ];
 
   const ownerLinks = [
-    { name: "Dashboard", path: "/dashboard" },
+    { name: "Dashboard", path: "/" },
     { name: "Profile", path: "/profile" }, // Already included
   ];
 
