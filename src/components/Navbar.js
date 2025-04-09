@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate  } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../store/authSlice";
+import { login, logout } from "../store/authSlice";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
+import { users } from "../data/dummyData";
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -41,6 +43,14 @@ const Navbar = () => {
   const logoLink =
     isAuthenticated && user?.role === "owner" ? "/dashboard" : "/";
 
+    const handleSwitchRole = (role) => {
+      const demoUser = users.find((u) => u.role === role);
+      if (demoUser) {
+        dispatch(login({ email: demoUser.email, password: demoUser.password }));
+        navigate(role === "owner" ? "/dashboard" : "/");
+      }
+    };
+
   return (
     <nav className="bg-white shadow-md fixed w-full top-0 z-50">
       <div className="container mx-auto px-6 py-3 flex justify-between items-center">
@@ -59,6 +69,16 @@ const Navbar = () => {
 
         {/* User Menu */}
         <div className="hidden md:flex items-center space-x-4">
+          {/* Demo Role Switcher */}
+          <select
+            value={user?.role || ""}
+            onChange={(e) => handleSwitchRole(e.target.value)}
+            className="border px-2 py-1 rounded-md text-sm bg-white"
+          >
+            <option disabled value="">Switch Role</option>
+            <option value="customer">Login as Customer</option>
+            <option value="owner">Login as Owner</option>
+          </select>
           {isAuthenticated ? (
             <div className="relative group">
               <Button variant="outline" className="flex items-center space-x-2">
