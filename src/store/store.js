@@ -7,6 +7,7 @@ import paymentSlice from "./paymentSlice";
 import specialMenuReducer from "./specialMenuSlice";
 import couponReducer from "./couponSlice";
 import restaurantReducer from "./restaurantSlice";
+import searchReducer from "./searchSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     specialMenus: specialMenuReducer,
     coupons: couponReducer,
     restaurants: restaurantReducer,
+    search: searchReducer,
   },
 });
 
