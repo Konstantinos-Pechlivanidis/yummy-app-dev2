@@ -50,7 +50,7 @@ const RestaurantDetailsPage = () => {
   const reduxSearchParams = useSelector((state) => state.search ?? {});
 
   const [reservation, setReservation] = useState({
-    date: reduxSearchParams.date ? new Date(reduxSearchParams.date) : null,
+    date: reduxSearchParams.date || "",
     time: reduxSearchParams.time || "",
     guests: reduxSearchParams.guests || "",
     specialMenu: null,
@@ -104,18 +104,15 @@ const RestaurantDetailsPage = () => {
     }
 
     // ✅ Sync με Redux store
-    dispatch(
-      setSearchParamsAction({
-        ...reduxSearchParams,
-        date: format(reservation.date, "yyyy-MM-dd"),
-        time: reservation.time,
-        guests: reservation.guests,
-      })
-    );
+    dispatch(setSearchParamsAction({
+      date: reservation.date,
+      time: reservation.time,
+      guests: reservation.guests,
+    }));
 
     const newReservation = {
       restaurantId: restaurant.id,
-      date: format(reservation.date, "yyyy-MM-dd"),
+      date: format(reservation.date, "dd/MM/yyyy"),
       time: reservation.time,
       guests: reservation.guests,
       specialMenu: reservation.specialMenu,
