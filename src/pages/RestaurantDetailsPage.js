@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { addToWatchlist, removeFromWatchlist } from "../store/authSlice";
 import {
   restaurants,
@@ -40,11 +39,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
+import { useSelector, useDispatch } from "react-redux";
+import { setSearchParams as setSearchParamsAction } from "../store/searchSlice";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const reduxSearchParams = useSelector((state) => state.search ?? {});
+
+  const [reservation, setReservation] = useState({
+    date: reduxSearchParams.date ? new Date(reduxSearchParams.date) : null,
+    time: reduxSearchParams.time || "",
+    guests: reduxSearchParams.guests || "",
+    specialMenu: null,
+    coupon: null,
+  });
 
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -72,14 +83,6 @@ const RestaurantDetailsPage = () => {
     (dish) => dish.category === selectedCategory
   );
 
-  const [reservation, setReservation] = useState({
-    date: null,
-    time: "",
-    guests: "",
-    specialMenu: null,
-    coupon: null,
-  });
-
   if (!restaurant) {
     return (
       <p className="text-center text-gray-600 mt-10">
@@ -96,9 +99,19 @@ const RestaurantDetailsPage = () => {
 
   const handleReserve = () => {
     if (!reservation.date || !reservation.time || !reservation.guests) {
-      setErrorDialog(true); // Εμφάνιση του Dialog
+      setErrorDialog(true);
       return;
     }
+
+    // ✅ Sync με Redux store
+    dispatch(
+      setSearchParamsAction({
+        ...reduxSearchParams,
+        date: format(reservation.date, "yyyy-MM-dd"),
+        time: reservation.time,
+        guests: reservation.guests,
+      })
+    );
 
     const newReservation = {
       restaurantId: restaurant.id,
