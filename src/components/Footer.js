@@ -8,19 +8,19 @@ const Footer = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
 
   const publicLinks = [
-    { name: "Home", path: "/" },
-    { name: "Reserve a Table", path: "/reserve" },
+    { name: "Αρχική", path: "/" },
+    { name: "Εστιατόρια", path: "/reserve" },
   ];
 
   const customerLinks = [
     ...publicLinks,
-    { name: "My Reservations", path: "/my-reservations" },
-    { name: "Profile", path: "/profile" },
+    { name: "Οι Κρατήσεις Μου", path: "/my-reservations" },
+    { name: "Προφίλ", path: "/profile" },
   ];
 
   const ownerLinks = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Profile", path: "/profile" },
+    { name: "Πίνακας Ελέγχου", path: "/dashboard" },
+    { name: "Προφίλ", path: "/profile" },
   ];
 
   const resolvedLinks = !isAuthenticated
@@ -32,22 +32,23 @@ const Footer = () => {
     : [];
 
   return (
-    <footer className="bg-gray-900 text-white py-10 mt-10">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Quick Links */}
+    <footer className="bg-gradient-to-b from-gray-900 to-black text-white py-12 mt-20">
+      <div className="max-w-screen-xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+        
+        {/* Γρήγοροι Σύνδεσμοι */}
         <div>
-          <h2 className="text-xl font-semibold">Quick Links</h2>
-          <ul className="mt-4 space-y-2 text-sm">
+          <h2 className="text-lg font-semibold tracking-wide">Γρήγοροι Σύνδεσμοι</h2>
+          <ul className="mt-4 space-y-2 text-sm text-gray-400">
             {resolvedLinks.map((link) => (
               <li key={link.name}>
-                <Link to={link.path}>
+                <Link to={link.path} className="hover:text-white transition">
                   {link.name}
                 </Link>
               </li>
             ))}
             <li>
-              <Link to="/privacy-policy">
-                Privacy Policy
+              <Link to="/privacy-policy" className="hover:text-white transition">
+                Πολιτική Απορρήτου
               </Link>
             </li>
           </ul>
@@ -55,43 +56,45 @@ const Footer = () => {
 
         {/* Newsletter */}
         <div>
-          <h2 className="text-xl font-semibold">Join Our Newsletter</h2>
+          <h2 className="text-lg font-semibold tracking-wide">Ενημερωτικό Δελτίο</h2>
           <p className="mt-2 text-sm text-gray-400">
-            Subscribe to receive the latest restaurant deals and updates.
+            Εγγράψου για να λαμβάνεις προσφορές και νέα για τα καλύτερα εστιατόρια!
           </p>
           <div className="flex mt-4">
             <Input
               type="email"
-              placeholder="Enter your email"
-              className="flex-1 bg-gray-800 border-none text-white"
+              placeholder="Το email σου"
+              className="flex-1 bg-gray-800 border-none text-white placeholder:text-gray-400"
             />
-            <Button className="ml-2 bg-primary text-white">Subscribe</Button>
+            <Button className="ml-2 bg-primary text-white hover:scale-105 transition">
+              Εγγραφή
+            </Button>
           </div>
         </div>
 
         {/* Socials */}
         <div>
-          <h2 className="text-xl font-semibold">Follow Us</h2>
+          <h2 className="text-lg font-semibold tracking-wide">Ακολούθησέ μας</h2>
           <p className="mt-2 text-sm text-gray-400">
-            Stay connected with us on social media.
+            Μείνε ενημερωμένος μέσω των κοινωνικών μας δικτύων.
           </p>
           <div className="flex mt-4 space-x-4">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <FaFacebook className="w-6 h-6" />
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <FaFacebook className="w-6 h-6 hover:text-blue-500 transition" />
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <FaInstagram className="w-6 h-6" />
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <FaInstagram className="w-6 h-6 hover:text-pink-500 transition" />
             </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              <FaTwitter className="w-6 h-6" />
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+              <FaTwitter className="w-6 h-6 hover:text-sky-400 transition" />
             </a>
           </div>
         </div>
       </div>
 
       {/* Copyright */}
-      <div className="mt-8 text-center text-gray-400 text-sm">
-        &copy; {new Date().getFullYear()} Yummy. All rights reserved.
+      <div className="mt-10 text-center text-xs text-gray-500">
+        &copy; {new Date().getFullYear()} Yummy. Όλα τα δικαιώματα διατηρούνται.
       </div>
     </footer>
   );

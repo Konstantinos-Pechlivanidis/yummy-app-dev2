@@ -18,11 +18,17 @@ import {
 } from "../components/ui/pagination";
 import { Link } from "react-router-dom";
 import { useFilteredRestaurants } from "../hooks/useDummyData";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import SearchBar from "../components/SearchBar";
 import Loading from "../components/Loading";
-import { useDispatch } from "react-redux";
 import { setSearchParams as setSearchParamsAction } from "../store/searchSlice";
+import { motion } from "framer-motion";
+
+const fadeIn = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 },
+};
 
 const ReserveTablePage = () => {
   const searchParams = useSelector((state) => state.search ?? {});
@@ -75,24 +81,25 @@ const ReserveTablePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
+      
       {/* Hero Section */}
-      <section
-        className="relative w-full h-[300px] flex items-center justify-center text-center bg-cover bg-center rounded-3xl shadow-lg overflow-hidden"
-        style={{ backgroundImage: "url('/images/wide4.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div>
-        <div className="relative z-10 px-6 text-white">
-          <h1 className="text-3xl sm:text-5xl font-bold drop-shadow-lg">
+      <section className="relative h-[400px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl">
+        <img
+          src="/images/wide4.jpg"
+          alt="hero"
+          className="absolute inset-0 object-cover w-full h-full"
+        />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+        <motion.div {...fadeIn} className="relative z-10 text-white px-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-xl">
             🍽️ Βρες το Ιδανικό Εστιατόριο
           </h1>
-          <p className="text-lg mt-4 drop-shadow-md">
+          <p className="text-xl mt-4 drop-shadow-md">
             Φιλτράρισε και βρες το τέλειο μέρος για την κράτησή σου!
           </p>
-        </div>
+        </motion.div>
       </section>
-
-      <Separator className="my-10" />
 
       <SearchBar
         searchParams={filters}
@@ -101,10 +108,8 @@ const ReserveTablePage = () => {
         onSearch={handleSearch}
       />
 
-      <Separator className="my-10" />
-
-      <section>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">
+      <motion.section {...fadeIn}>
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
           📍 Αποτελέσματα Αναζήτησης
         </h2>
 
@@ -122,11 +127,11 @@ const ReserveTablePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {visibleRestaurants.map((resto) => (
               <Link to={`/restaurant/${resto.id}`} key={resto.id}>
-                <Card className="hover:shadow-lg transition-shadow p-4">
+                <Card className="hover:shadow-2xl transition-transform hover:scale-[1.02] p-4 rounded-2xl">
                   <img
                     src={resto.photos[0]}
                     alt={resto.name}
-                    className="w-full h-40 object-cover rounded-lg"
+                    className="w-full h-40 object-cover rounded-xl"
                   />
                   <CardHeader className="mt-4">
                     <CardTitle className="text-lg font-semibold">
@@ -161,7 +166,7 @@ const ReserveTablePage = () => {
         )}
 
         {totalPages > 1 && (
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-10">
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
@@ -193,7 +198,7 @@ const ReserveTablePage = () => {
             </Pagination>
           </div>
         )}
-      </section>
+      </motion.section>
     </div>
   );
 };

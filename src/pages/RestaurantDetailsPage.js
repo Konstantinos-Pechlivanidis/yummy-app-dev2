@@ -166,29 +166,34 @@ const RestaurantDetailsPage = () => {
   );
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
       {/* Hero Section */}
       <section
-        className="relative w-full h-[400px] flex items-center justify-center text-center bg-cover bg-center rounded-3xl shadow-lg overflow-hidden"
+        className="relative h-[450px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl"
         style={{ backgroundImage: `url('${restaurant.photos[0]}')` }}
       >
-        <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-md"></div>
-        <div className="relative z-10 px-6 text-white">
-          <h1 className="text-3xl sm:text-5xl font-bold drop-shadow-lg">
+        <img
+          src={restaurant.photos[0]}
+          alt={restaurant.name}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+        <div className="relative z-10 text-white px-6">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-xl">
             {restaurant.name}
           </h1>
-          <p className="text-lg mt-4 drop-shadow-md">
+          <p className="text-xl mt-3 drop-shadow-md">
             {restaurant.location} | {restaurant.cuisine}
           </p>
-          <div className="flex justify-center items-center mt-2 text-lg">
-            <Star className="w-5 h-5 text-yellow-500" />
-            <span className="ml-1">{restaurant.rating}</span>
+          <div className="flex justify-center items-center gap-2 mt-2 text-lg drop-shadow">
+            <Star className="w-5 h-5 text-yellow-400" />
+            <span>{restaurant.rating}</span>
           </div>
-          {/* ❤️ Watchlist Button */}
+
           <Button
-            className={`mt-4 flex items-center px-9 py-6 rounded-lg transition-all ${
+            className={`mt-6 px-6 py-3 text-sm font-semibold rounded-full transition-all shadow-md ${
               isInWatchlist ? "bg-red-600" : "bg-gray-600"
-            } text-white font-bold`}
+            } text-white hover:scale-105`}
             onClick={handleToggleWatchlist}
           >
             <Heart className="w-5 h-5 mr-2" />
@@ -201,14 +206,160 @@ const RestaurantDetailsPage = () => {
 
       <Separator className="my-10" />
 
-      {/* Happy Hours & Coupons */}
+      <section className="space-y-6">
+        <h2 className="text-3xl font-extrabold text-gray-900">📜 Μενού</h2>
+
+        {/* Κατηγορίες Μενού */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {menuCategories.map((category) => (
+            <Button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+                selectedCategory === category
+                  ? "bg-primary text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+
+        {/* Λίστα πιάτων για την επιλεγμένη κατηγορία */}
+        {filteredDishes.length === 0 ? (
+          <p className="text-gray-500 text-center italic mt-6">
+            ❌ Δεν υπάρχουν διαθέσιμα πιάτα σε αυτή την κατηγορία.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {filteredDishes.map((dish) => (
+              <Card
+                key={dish.id}
+                className="rounded-xl overflow-hidden shadow hover:shadow-xl transition-all bg-white"
+              >
+                <img
+                  src={dish.photoUrl}
+                  alt={dish.name}
+                  className="w-full h-44 object-cover"
+                />
+
+                <CardHeader className="p-4 pb-2">
+                  <CardTitle className="text-lg font-semibold text-gray-900 tracking-tight">
+                    {dish.name}
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className="p-4 pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-primary font-bold text-base">
+                      €{dish.price}
+                    </span>
+                    {dish.discount > 0 && (
+                      <Badge className="bg-red-500 text-white text-xs">
+                        -{dish.discount}%
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <Separator className="my-10" />
+
+      <section className="space-y-6">
+        <h2 className="text-3xl font-extrabold text-gray-900">
+          🍽️ Special Menus
+        </h2>
+
+        {restaurantSpecialMenus.length === 0 ? (
+          <p className="text-gray-500 italic">
+            ❌ Δεν υπάρχουν διαθέσιμα Special Menus.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {restaurantSpecialMenus.map((menu) => {
+              const selectedDishes = menu.selectedItems.map((itemId) =>
+                menuItems.find((item) => item.id === itemId)
+              );
+
+              return (
+                <Card
+                  key={menu.id}
+                  className="rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all bg-white"
+                >
+                  <img
+                    src={menu.photoUrl}
+                    alt={menu.name}
+                    className="w-full h-48 object-cover"
+                  />
+
+                  <CardHeader className="p-5 pb-0">
+                    <CardTitle className="text-xl font-semibold tracking-tight text-gray-900">
+                      {menu.name}
+                    </CardTitle>
+                  </CardHeader>
+
+                  <CardContent className="px-5 pb-5 space-y-4">
+                    <p className="text-gray-700 text-sm">{menu.description}</p>
+
+                    {/* Price with discount */}
+                    <div className="flex items-center gap-3 text-lg">
+                      <span className="line-through text-gray-400">
+                        €{menu.originalPrice}
+                      </span>
+                      <span className="text-primary font-bold text-xl">
+                        €{menu.discountedPrice}
+                      </span>
+                    </div>
+
+                    {/* Discount badge */}
+                    <Badge className="bg-yellow-500 text-white w-fit px-3 py-1 text-sm">
+                      -{menu.discountPercentage}% έκπτωση!
+                    </Badge>
+
+                    {/* Selected Dishes */}
+                    <div>
+                      <h3 className="text-md font-semibold text-gray-800 mt-2">
+                        📋 Περιλαμβάνει:
+                      </h3>
+                      <ul className="mt-2 space-y-2">
+                        {selectedDishes.map((dish) => (
+                          <li key={dish.id} className="flex items-center gap-3">
+                            <img
+                              src={dish.photoUrl}
+                              alt={dish.name}
+                              className="w-12 h-12 object-cover rounded-md border shadow-sm"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {dish.name} – €{dish.price}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <Separator className="my-10" />
+
       {/* 🎁 Κουπόνια */}
-      <section className="mt-10">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+      <section className="space-y-6">
+        <h2 className="text-3xl font-extrabold text-gray-900">
           🎁 Τα Κουπόνια μου
         </h2>
-        <p className="mb-2 text-gray-700">
-          Έχεις <span className="font-semibold">{loyaltyPoints}</span> πόντους.
+
+        <p className="text-lg text-gray-700">
+          Έχεις <span className="font-bold text-primary">{loyaltyPoints}</span>{" "}
+          πόντους.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -218,24 +369,27 @@ const RestaurantDetailsPage = () => {
             return (
               <Card
                 key={coupon.id}
-                className={`p-4 ${
-                  isPurchased ? "bg-green-100" : "bg-blue-50"
-                } shadow`}
+                className={`p-5 rounded-xl shadow-md hover:shadow-xl transition-all ${
+                  isPurchased ? "bg-green-50" : "bg-blue-50"
+                }`}
               >
-                <CardHeader>
+                <CardHeader className="pb-2">
                   <CardTitle
-                    className={`text-lg font-semibold ${
-                      isPurchased ? "text-green-600" : "text-blue-600"
+                    className={`text-xl font-semibold tracking-tight ${
+                      isPurchased ? "text-green-700" : "text-blue-700"
                     }`}
                   >
                     🎟️ Κουπόνι
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">{coupon.description}</p>
-                  <p className="text-sm text-gray-500 mt-1">
+
+                <CardContent className="space-y-3">
+                  <p className="text-gray-800">{coupon.description}</p>
+                  <p className="text-sm text-gray-500">
                     Απαραίτητοι πόντοι:{" "}
-                    <span className="font-bold">{coupon.requiredPoints}</span>
+                    <span className="font-bold text-gray-700">
+                      {coupon.requiredPoints}
+                    </span>
                   </p>
 
                   {isPurchased ? (
@@ -246,7 +400,7 @@ const RestaurantDetailsPage = () => {
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
-                          className="mt-3 bg-blue-600 text-white w-full"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
                           disabled={loyaltyPoints < coupon.requiredPoints}
                         >
                           Αγορά Κουπονιού
@@ -261,12 +415,12 @@ const RestaurantDetailsPage = () => {
                           <strong>{coupon.requiredPoints} πόντους</strong> για
                           αυτό το κουπόνι;
                         </p>
-                        <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-3 mt-2">
                           <DialogTrigger asChild>
                             <Button variant="outline">Άκυρο</Button>
                           </DialogTrigger>
                           <Button
-                            className="bg-green-600 text-white"
+                            className="bg-green-600 hover:bg-green-700 text-white"
                             onClick={() =>
                               purchaseCoupon(
                                 {
@@ -302,156 +456,16 @@ const RestaurantDetailsPage = () => {
 
       <Separator className="my-10" />
 
-      {/* Special Menus */}
-      <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          🍽️ Special Menus
+      <section className="space-y-8 bg-gray-50 border border-gray-300 rounded-2xl p-6 md:p-8 shadow-sm">
+      <h2 className="text-3xl font-extrabold text-gray-900">
+          📅 Κάνε την κράτησή σου
         </h2>
-        {restaurantSpecialMenus.length === 0 ? (
-          <p className="text-gray-600">
-            ❌ Δεν υπάρχουν διαθέσιμα Special Menus.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {restaurantSpecialMenus.map((menu) => {
-              const selectedDishes = menu.selectedItems.map((itemId) =>
-                menuItems.find((item) => item.id === itemId)
-              );
 
-              return (
-                <Card
-                  key={menu.id}
-                  className="shadow-md hover:shadow-lg transition-all"
-                >
-                  <img
-                    src={menu.photoUrl}
-                    alt={menu.name}
-                    className="w-full h-40 object-cover rounded-t-lg"
-                  />
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold">
-                      {menu.name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-700">{menu.description}</p>
-                    <div className="mt-3 flex justify-start">
-                      <span className="text-lg text-gray-600 line-through">
-                        €{menu.originalPrice}
-                      </span>
-                      <span className="text-xl text-primary font-bold ml-2">
-                        €{menu.discountedPrice}
-                      </span>
-                    </div>
-
-                    {/* Center Aligned Badge */}
-                    <div className="flex justify-start mt-3">
-                      <Badge className="text-md bg-yellow-500 text-white px-3 py-4 w-fit text-center">
-                        -{menu.discountPercentage}% έκπτωση!
-                      </Badge>
-                    </div>
-
-                    {/* Εμφάνιση των επιλεγμένων πιάτων */}
-                    <h3 className="mt-4 text-md font-semibold text-gray-900">
-                      📋 Περιλαμβάνει:
-                    </h3>
-                    <ul className="mt-2 space-y-2">
-                      {selectedDishes.map((dish) => (
-                        <li
-                          key={dish.id}
-                          className="flex items-center space-x-3"
-                        >
-                          <img
-                            src={dish.photoUrl}
-                            alt={dish.name}
-                            className="w-12 h-12 object-cover rounded-md shadow-sm"
-                          />
-                          <span className="text-gray-700 ">
-                            {dish.name} - €{dish.price}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      <Separator className="my-10" />
-
-      {/* Dynamic Menu */}
-      <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">📜 Μενού</h2>
-
-        {/* Κατηγορίες Μενού */}
-        <div className="flex flex-wrap justify-center gap-4 mb-6">
-          {menuCategories.map((category) => (
-            <Button
-              key={category}
-              className={`px-4 py-2 rounded-full ${
-                selectedCategory === category
-                  ? "bg-primary text-white"
-                  : "bg-gray-800 text-gray-400"
-              }`}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-
-        {/* Λίστα πιάτων για την επιλεγμένη κατηγορία */}
-        {filteredDishes.length === 0 ? (
-          <p className="text-gray-600 text-center">
-            ❌ Δεν υπάρχουν διαθέσιμα πιάτα σε αυτή την κατηγορία.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredDishes.map((dish) => (
-              <Card
-                key={dish.id}
-                className="shadow-md hover:shadow-lg transition-all"
-              >
-                <img
-                  src={dish.photoUrl}
-                  alt={dish.name}
-                  className="w-full h-40 object-cover rounded-t-lg"
-                />
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold">
-                    {dish.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-primary font-bold">
-                      €{dish.price}
-                    </span>
-                    {dish.discount > 0 && (
-                      <Badge className="bg-red-500 text-white">
-                        -{dish.discount}%
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <Separator className="my-10" />
-
-      {/* 📅 Φόρμα Κράτησης */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">📅 Κάνε την κράτησή σου</h2>
+        {/* Date, Time, Guests */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full justify-between">
                 {isValid(reservation.date)
                   ? format(reservation.date, "dd/MM/yyyy")
                   : "Ημερομηνία"}
@@ -476,7 +490,6 @@ const RestaurantDetailsPage = () => {
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Ώρα" />
-              {/* <Clock className="ml-2 h-5 w-5" /> */}
             </SelectTrigger>
             <SelectContent>
               {timeSlots.map((time) => (
@@ -499,17 +512,15 @@ const RestaurantDetailsPage = () => {
           />
         </div>
 
-        {/* Special Menus & Coupons (Μόνο ένα επιτρεπτό) */}
-        <div className="mt-6">
-          {/* Special Menus Selection */}
-          <h3 className="text-lg font-semibold mt-6">🍽️ Special Menu</h3>
-
+        {/* Special Menu Selection */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">🍽️ Special Menu</h3>
           {restaurantSpecialMenus.length === 0 ? (
-            <p className="text-gray-500 text-sm">
+            <p className="text-sm text-gray-500 italic">
               ❌ Δεν υπάρχουν διαθέσιμα Special Menus για αυτό το εστιατόριο.
             </p>
           ) : !isValid(reservation.date) || !reservation.time ? (
-            <p className="text-gray-500 text-sm italic">
+            <p className="text-sm text-gray-500 italic">
               ⏳ Επιλέξτε πρώτα ημερομηνία και ώρα για να δείτε διαθέσιμα
               Special Menus.
             </p>
@@ -524,7 +535,7 @@ const RestaurantDetailsPage = () => {
               );
 
               return validMenus.length === 0 ? (
-                <p className="text-gray-500 text-sm italic">
+                <p className="text-sm text-gray-500 italic">
                   ❌ Δεν υπάρχουν διαθέσιμα Special Menus για την επιλεγμένη
                   ημερομηνία και ώρα.
                 </p>
@@ -533,7 +544,7 @@ const RestaurantDetailsPage = () => {
                   value={reservation.specialMenu}
                   onValueChange={handleSpecialMenuChange}
                 >
-                  <SelectTrigger className="w-full mt-2">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Επιλέξτε Special Menu" />
                   </SelectTrigger>
                   <SelectContent>
@@ -548,27 +559,27 @@ const RestaurantDetailsPage = () => {
               );
             })()
           )}
+        </div>
 
-          {/* Coupon Selection */}
-          <h3 className="text-lg font-semibold mt-4">🎟️ Χρήση Κουπονιού</h3>
-
-          {userCoupons.filter((coupon) => coupon.restaurantId === restaurant.id)
+        {/* Coupon Selection */}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold mt-2">🎟️ Χρήση Κουπονιού</h3>
+          {userCoupons.filter((c) => c.restaurantId === restaurant.id)
             .length === 0 ? (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 italic">
               💰 Δεν έχεις αγοράσει κουπόνια για αυτό το εστιατόριο.
-              Χρησιμοποίησε loyalty points για να αποκτήσεις εκπτώσεις!
             </p>
           ) : (
             <Select
               value={reservation.coupon}
               onValueChange={handleCouponChange}
             >
-              <SelectTrigger className="w-full mt-2">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Επιλέξτε Κουπόνι" />
               </SelectTrigger>
               <SelectContent>
                 {userCoupons
-                  .filter((coupon) => coupon.restaurantId === restaurant.id)
+                  .filter((c) => c.restaurantId === restaurant.id)
                   .map((coupon) => (
                     <SelectItem key={coupon.id} value={coupon.id}>
                       {coupon.description}
@@ -578,10 +589,11 @@ const RestaurantDetailsPage = () => {
             </Select>
           )}
         </div>
+
         {/* Notes Section */}
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">📝 Σημειώσεις</h3>
-          <div className="flex flex-wrap gap-2 mb-4">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">📝 Σημειώσεις</h3>
+          <div className="flex flex-wrap gap-2">
             {[
               "Έχουμε καροτσάκι για το μωρό.",
               "Θα θέλαμε τραπέζι κοντά στο παράθυρο.",
@@ -597,7 +609,7 @@ const RestaurantDetailsPage = () => {
                     notes: prev.notes ? `${prev.notes}\n${note}` : note,
                   }))
                 }
-                className="bg-gray-100 hover:bg-gray-100 text-sm px-3 py-1 rounded-md border border-gray-300"
+                className="bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1 rounded-md border border-gray-300"
               >
                 {note}
               </button>
@@ -611,17 +623,20 @@ const RestaurantDetailsPage = () => {
             onChange={(e) =>
               setReservation({ ...reservation, notes: e.target.value })
             }
-            className="w-full border border-gray-300 rounded-md p-2 text-sm"
+            className="w-full border border-gray-300 rounded-md p-3 text-sm"
           />
         </div>
 
-        <Button
-          className="w-full px-9 py-6 mt-6 bg-primary text-white"
-          onClick={handleReserve}
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Υποβολή..." : "✅ Επιβεβαίωση Κράτησης"}
-        </Button>
+        {/* Submit Button */}
+        <div className="pt-4">
+          <Button
+            className="w-full bg-primary text-white text-lg py-4 font-semibold hover:shadow-lg transition"
+            onClick={handleReserve}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Υποβολή..." : "✅ Επιβεβαίωση Κράτησης"}
+          </Button>
+        </div>
       </section>
 
       <Separator className="my-10" />
