@@ -250,59 +250,62 @@ export const useUserCoupons = (userId) =>
     },
     enabled: !!userId,
   });
-  
-  export const usePurchaseCoupon = () => {
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: async ({ userId, couponId, points }) => {
-        try {
-          // 🔁 Real API Call
-          await axiosInstance.post("/coupons/purchase", {
-            userId,
-            couponId,
-            points,
-          });
-          return { userId, couponId };
-        } catch (error) {
-          console.warn("⚠️ Backend unreachable. Using dummy fallback.");
-  
-          const alreadyPurchased = purchasedCoupons.some(
-            (p) => p.userId === userId && p.couponId === couponId
-          );
-          if (alreadyPurchased) throw new Error("Already purchased");
-  
-          // ➕ Add to dummy
-          purchasedCoupons.push({
-            userId,
-            couponId,
-            purchasedAt: new Date().toISOString(),
-          });
-  
-          // ➖ Subtract points
-          const user = users.find((u) => u.id === userId);
-          if (user) {
-            user.loyaltyPoints = Math.max(0, user.loyaltyPoints - points);
-          }
-  
-          return { userId, couponId };
+
+export const usePurchaseCoupon = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, couponId, points }) => {
+      try {
+        // 🔁 Real API Call
+        await axiosInstance.post("/coupons/purchase", {
+          userId,
+          couponId,
+          points,
+        });
+        return { userId, couponId };
+      } catch (error) {
+        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+
+        const alreadyPurchased = purchasedCoupons.some(
+          (p) => p.userId === userId && p.couponId === couponId
+        );
+        if (alreadyPurchased) throw new Error("Already purchased");
+
+        // ➕ Add to dummy
+        purchasedCoupons.push({
+          userId,
+          couponId,
+          purchasedAt: new Date().toISOString(),
+        });
+
+        // ➖ Subtract points
+        const user = users.find((u) => u.id === userId);
+        if (user) {
+          user.loyaltyPoints = Math.max(0, user.loyaltyPoints - points);
         }
-      },
-  
-      onSuccess: (_data, variables) => {
-        toast.success("Κουπόνι αγοράστηκε!");
-        queryClient.invalidateQueries(["userCoupons", variables.userId]);
-        queryClient.invalidateQueries(["availableCoupons", variables.couponId, variables.userId]);
-        queryClient.invalidateQueries(["loyaltyPoints", variables.userId]);
-      },
-  
-      onError: (error) => {
-        console.error("❌ Αποτυχία αγοράς κουπονιού:", error);
-        toast.error("Η αγορά απέτυχε!");
-      },
-    });
-  };
-  
+
+        return { userId, couponId };
+      }
+    },
+
+    onSuccess: (_data, variables) => {
+      toast.success("Κουπόνι αγοράστηκε!");
+      queryClient.invalidateQueries(["userCoupons", variables.userId]);
+      queryClient.invalidateQueries([
+        "availableCoupons",
+        variables.couponId,
+        variables.userId,
+      ]);
+      queryClient.invalidateQueries(["loyaltyPoints", variables.userId]);
+    },
+
+    onError: (error) => {
+      console.error("❌ Αποτυχία αγοράς κουπονιού:", error);
+      toast.error("Η αγορά απέτυχε!");
+    },
+  });
+};
 
 export const useUserById = (userId) =>
   useQuery({
@@ -376,3 +379,80 @@ export const useDeleteReservation = () => {
     },
   });
 };
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, updates }) => {
+      try {
+        const { data } = await axiosInstance.patch(`/users/${userId}`, updates);
+        return data;
+      } catch (error) {
+        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        const user = users.find((u) => u.id === userId);
+        if (!user) throw new Error("User not found");
+        Object.assign(user, updates);
+        user.updatedAt = new Date().toISOString();
+        return user;
+      }
+    },
+    onSuccess: (data) => {
+      toast.success("Το προφίλ ενημερώθηκε");
+      queryClient.invalidateQueries(["user", data.id]);
+    },
+    onError: () => {
+      toast.error("Σφάλμα κατά την ενημέρωση προφίλ");
+    },
+  });
+};
+
+export const useFavoriteRestaurants = (userId) =>
+  useQuery({
+    queryKey: ["favoriteRestaurants", userId],
+    queryFn: async () => {
+      try {
+        const { data } = await axiosInstance.get(`/users/${userId}/favorites`);
+        return data; // expected: array of full restaurant objects
+      } catch (error) {
+        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        const user = users.find((u) => u.id === userId);
+        if (!user) throw new Error("User not found");
+        return restaurants.filter((r) => user.favoriteRestaurants.includes(r.id));
+      }
+    },
+    enabled: !!userId,
+  });
+
+
+  export const useToggleWatchlist = () => {
+    const queryClient = useQueryClient();
+  
+    return useMutation({
+      mutationFn: async ({ userId, restaurantId }) => {
+        try {
+          const { data } = await axiosInstance.post(`/users/${userId}/favorites/toggle`, { restaurantId });
+          return data; // expected: updated favorite list or success flag
+        } catch (error) {
+          console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+          const user = users.find((u) => u.id === userId);
+          if (!user) throw new Error("User not found");
+  
+          const index = user.favoriteRestaurants.indexOf(restaurantId);
+          if (index > -1) {
+            user.favoriteRestaurants.splice(index, 1); // remove
+          } else {
+            user.favoriteRestaurants.push(restaurantId); // add
+          }
+          return user.favoriteRestaurants;
+        }
+      },
+      onSuccess: (_, { userId }) => {
+        queryClient.invalidateQueries(["favoriteRestaurants", userId]);
+      },
+      onError: () => {
+        toast.error("⚠️ Δεν ήταν δυνατή η αλλαγή στη Watchlist");
+      },
+    });
+  };
+  

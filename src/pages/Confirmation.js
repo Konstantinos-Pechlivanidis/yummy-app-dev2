@@ -1,10 +1,18 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { CalendarIcon, Users, Mail, Clock } from "lucide-react";
-import { useReservationDetails, useRestaurantDetails } from "../hooks/useDummyData";
+import {
+  useReservationDetails,
+  useRestaurantDetails,
+} from "../hooks/useDummyData";
 import Loading from "../components/Loading";
 import { toast } from "react-hot-toast";
 
@@ -12,8 +20,16 @@ const ConfirmationPage = () => {
   const { id } = useParams(); // reservationId from route
   const navigate = useNavigate();
 
-  const { data: reservation, isLoading: isLoadingRes, isError: isErrorRes } = useReservationDetails(id);
-  const { data: restaurant, isLoading: isLoadingRest, isError: isErrorRest } = useRestaurantDetails(reservation?.restaurantId);
+  const {
+    data: reservation,
+    isLoading: isLoadingRes,
+    isError: isErrorRes,
+  } = useReservationDetails(id);
+  const {
+    data: restaurant,
+    isLoading: isLoadingRest,
+    isError: isErrorRest,
+  } = useRestaurantDetails(reservation?.restaurantId);
 
   useEffect(() => {
     if (!id) toast.error("Δεν βρέθηκε το ID της κράτησης.");
@@ -22,8 +38,13 @@ const ConfirmationPage = () => {
   if (!id || isErrorRes || isErrorRest) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-center">
-        <p className="text-red-500 text-lg">❌ Σφάλμα κατά τη φόρτωση των στοιχείων.</p>
-        <Button className="mt-4 bg-gray-500 text-white" onClick={() => navigate("/")}>
+        <p className="text-red-500 text-lg">
+          ❌ Σφάλμα κατά τη φόρτωση των στοιχείων.
+        </p>
+        <Button
+          className="mt-4 bg-gray-500 text-white"
+          onClick={() => navigate("/")}
+        >
           Επιστροφή στην Αρχική
         </Button>
       </div>
@@ -31,7 +52,11 @@ const ConfirmationPage = () => {
   }
 
   if (isLoadingRes || isLoadingRest || !reservation || !restaurant) {
-    return <Loading />;
+    return (
+      <section className="min-h-[60vh] flex items-center justify-center">
+        <Loading />
+      </section>
+    );
   }
 
   return (
@@ -51,7 +76,9 @@ const ConfirmationPage = () => {
 
           <CardContent>
             <p className="text-gray-600">
-              Η κράτησή σας βρίσκεται <strong>σε κατάσταση αναμονής (Pending)</strong> και θα απαντηθεί από το εστιατόριο σύντομα.
+              Η κράτησή σας βρίσκεται{" "}
+              <strong>σε κατάσταση αναμονής (Pending)</strong> και θα απαντηθεί
+              από το εστιατόριο σύντομα.
             </p>
 
             {/* Κάρτα με πληροφορίες κράτησης */}

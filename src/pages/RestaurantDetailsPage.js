@@ -9,6 +9,7 @@ import {
   useUserCoupons,
   useAvailableCouponsForRestaurant,
   usePurchaseCoupon,
+  useToggleWatchlist,
 } from "../hooks/useDummyData";
 import { Badge } from "../components/ui/badge";
 import {
@@ -67,6 +68,7 @@ const RestaurantDetailsPage = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const [errorDialog, setErrorDialog] = useState(false);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
   const { data: restaurant, isLoading, isError } = useRestaurantDetails(id);
   const menuItems = restaurant?.menuItems || [];
   const restaurantSpecialMenus = restaurant?.specialMenus || [];
@@ -82,6 +84,7 @@ const RestaurantDetailsPage = () => {
     useUserCoupons(user?.id);
   const { data: availableCoupons = [], isLoading: isLoadingAvailableCoupons } =
     useAvailableCouponsForRestaurant(id, user?.id);
+  const { mutate: toggleWatchlist } = useToggleWatchlist();
 
   const [selectedCategory, setSelectedCategory] = useState("");
   const menuCategories = [...new Set(menuItems.map((item) => item.category))];
@@ -102,7 +105,11 @@ const RestaurantDetailsPage = () => {
     isLoadingUserCoupons ||
     isLoadingAvailableCoupons
   ) {
-    return <Loading />;
+    return (
+      <section className="min-h-[60vh] flex items-center justify-center">
+        <Loading />
+      </section>
+    );
   }
 
   if (!restaurant) {
@@ -124,38 +131,7 @@ const RestaurantDetailsPage = () => {
       setErrorDialog(true);
       return;
     }
-
-    dispatch(
-      setSearchParamsAction({
-        date: reservation.date,
-        time: reservation.time,
-        guests: reservation.guests,
-      })
-    );
-
-    createReservation(
-      {
-        restaurantId: restaurant.id,
-        userId: user.id,
-        date: format(reservation.date, "yyyy-MM-dd"),
-        time: reservation.time,
-        guestCount: parseInt(reservation.guests, 10),
-        specialMenuId: reservation.specialMenu,
-        couponId: reservation.coupon,
-        notes: reservation.notes,
-      },
-      {
-        onSuccess: (created) => {
-          toast.success("Η κράτηση υποβλήθηκε!");
-          navigate(`/confirmation/${created.id}`);
-        },
-        onError: () => {
-          toast.error("⚠️ Κάτι πήγε στραβά κατά την υποβολή.");
-          // useDummyData
-          navigate(`/confirmation/reservation001`);
-        },
-      }
-    );
+    setConfirmSubmit(true);
   };
 
   const handleSpecialMenuChange = (value) => {
@@ -170,15 +146,11 @@ const RestaurantDetailsPage = () => {
 
   const handleToggleWatchlist = () => {
     if (!isAuthenticated) {
-      alert("Πρέπει να συνδεθείτε για να προσθέσετε στην watchlist!"); // Ideally replace with a modal
+      toast.error("Πρέπει να συνδεθείς για να χρησιμοποιήσεις τη Watchlist.");
       return;
     }
 
-    if (isInWatchlist) {
-      dispatch(removeFromWatchlist(restaurant.id));
-    } else {
-      dispatch(addToWatchlist(restaurant.id));
-    }
+    toggleWatchlist({ userId: user.id, restaurantId: restaurant.id });
   };
 
   const mergedCoupons = [
@@ -718,6 +690,59 @@ const RestaurantDetailsPage = () => {
           </DialogContent>
         </Dialog>
       </div>
+      <Dialog open={confirmSubmit} onOpenChange={setConfirmSubmit}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>✅ Επιβεβαίωση Κράτησης</DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-700 mb-4">
+            Είσαι σίγουρος/η ότι θέλεις να ολοκληρώσεις αυτή την κράτηση;
+          </p>
+          <div className="flex justify-end gap-4 mt-4">
+            <Button variant="outline" onClick={() => setConfirmSubmit(false)}>
+              ❌ Άκυρο
+            </Button>
+            <Button
+              className="bg-green-600 text-white"
+              onClick={() => {
+                setConfirmSubmit(false);
+                dispatch(
+                  setSearchParamsAction({
+                    date: reservation.date,
+                    time: reservation.time,
+                    guests: reservation.guests,
+                  })
+                );
+
+                createReservation(
+                  {
+                    restaurantId: restaurant.id,
+                    userId: user.id,
+                    date: format(reservation.date, "yyyy-MM-dd"),
+                    time: reservation.time,
+                    guestCount: parseInt(reservation.guests, 10),
+                    specialMenuId: reservation.specialMenu,
+                    couponId: reservation.coupon,
+                    notes: reservation.notes,
+                  },
+                  {
+                    onSuccess: (created) => {
+                      toast.success("Η κράτηση υποβλήθηκε!");
+                      navigate(`/confirmation/${created.id}`);
+                    },
+                    onError: () => {
+                      toast.error("⚠️ Κάτι πήγε στραβά κατά την υποβολή.");
+                      navigate(`/confirmation/reservation007`);
+                    },
+                  }
+                );
+              }}
+            >
+              ✅ Επιβεβαιώνω
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

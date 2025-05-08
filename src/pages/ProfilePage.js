@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { updateProfile } from "../store/authSlice";
 import { logout } from "../store/authSlice";
-import { restaurants } from "../data/dummyData";
+import {
+  useUpdateUser,
+  useFavoriteRestaurants,
+  useToggleWatchlist,
+} from "../hooks/useDummyData";
 import {
   Card,
   CardHeader,
@@ -12,18 +15,32 @@ import {
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
-import { Pencil, LogOut, Camera } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { Pencil, LogOut, Camera, Trash2 } from "lucide-react";
+import Loading from "../components/Loading";
 
 const ProfilePage = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    restaurantId: null,
+  });
   const [updatedUser, setUpdatedUser] = useState({
     name: user?.name,
     email: user?.email,
     phone: user?.phone,
   });
+
+  const { data: favoriteRestaurants = [], isLoading } = useFavoriteRestaurants(user?.id);
+  const { mutate: updateUser } = useUpdateUser();
+  const { mutate: toggleWatchlist } = useToggleWatchlist();
 
   if (!isAuthenticated) {
     return (
@@ -34,7 +51,10 @@ const ProfilePage = () => {
   }
 
   const handleUpdateProfile = () => {
-    dispatch(updateProfile(updatedUser));
+    updateUser({
+      userId: user.id,
+      updates: updatedUser,
+    });
     setIsEditing(false);
   };
 
@@ -42,9 +62,9 @@ const ProfilePage = () => {
     dispatch(logout());
   };
 
-  const favoriteRestaurants = restaurants.filter((resto) =>
-    user.favoriteRestaurants.includes(resto.id)
-  );
+  const handleRemoveFavorite = (restaurantId) => {
+    toggleWatchlist({ userId: user.id, restaurantId });
+  };
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -89,15 +109,35 @@ const ProfilePage = () => {
             <CardTitle className="text-xl font-bold">🍽️ Αγαπημένα Εστιατόρια</CardTitle>
           </CardHeader>
           <CardContent>
-            {favoriteRestaurants.length > 0 ? (
+            {isLoading ? (
+              <Loading />
+            ) : favoriteRestaurants.length > 0 ? (
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {favoriteRestaurants.map((resto) => (
-                  <li key={resto.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                    <img src={resto.photos[0]} alt={resto.name} className="w-12 h-12 rounded-full" />
-                    <div>
-                      <p className="font-semibold">{resto.name}</p>
-                      <p className="text-sm text-gray-500">{resto.location}</p>
+                  <li
+                    key={resto.id}
+                    className="flex items-center justify-between gap-3 p-3 border rounded-lg"
+                  >
+                    <div className="flex gap-3 items-center">
+                      <img
+                        src={resto.photos[0]}
+                        alt={resto.name}
+                        className="w-12 h-12 rounded-full"
+                      />
+                      <div>
+                        <p className="font-semibold">{resto.name}</p>
+                        <p className="text-sm text-gray-500">{resto.location}</p>
+                      </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      className="text-red-600 hover:bg-red-100"
+                      onClick={() =>
+                        setConfirmDialog({ open: true, restaurantId: resto.id })
+                      }
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -143,6 +183,40 @@ const ProfilePage = () => {
             </Button>
             <Button className="bg-green-600 text-white" onClick={handleUpdateProfile}>
               ✅ Αποθήκευση
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Watchlist Removal */}
+      <Dialog
+        open={confirmDialog.open}
+        onOpenChange={(open) =>
+          setConfirmDialog((prev) => ({ ...prev, open }))
+        }
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>❗ Επιβεβαίωση</DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-700">
+            Θέλεις σίγουρα να αφαιρέσεις το εστιατόριο από τα αγαπημένα;
+          </p>
+          <div className="flex justify-end gap-4 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDialog({ open: false, restaurantId: null })}
+            >
+              ❌ Άκυρο
+            </Button>
+            <Button
+              className="bg-red-600 text-white"
+              onClick={() => {
+                handleRemoveFavorite(confirmDialog.restaurantId);
+                setConfirmDialog({ open: false, restaurantId: null });
+              }}
+            >
+              ✅ Αφαίρεση
             </Button>
           </div>
         </DialogContent>
