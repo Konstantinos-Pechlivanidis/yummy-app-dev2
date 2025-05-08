@@ -120,11 +120,20 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
         <Input
           type="number"
           min="1"
+          inputMode="numeric"
+          pattern="[0-9]*"
           value={searchParams.guests}
           className="w-full border border-gray-300 rounded-lg px-3 py-2"
           onChange={(e) => {
-            const value = Math.max(1, parseInt(e.target.value) || 1);
+            const raw = e.target.value;
+            const parsed = parseInt(raw, 10);
+            const value = isNaN(parsed) || parsed < 1 ? "" : parsed;
             setSearchParams({ ...searchParams, guests: value });
+          }}
+          onBlur={() => {
+            if (!searchParams.guests || searchParams.guests < 1) {
+              setSearchParams({ ...searchParams, guests: 1 });
+            }
           }}
         />
       </div>

@@ -26,901 +26,434 @@ export const users = [
   },
 ];
 
+export const purchasedCoupons = [
+  {
+    userId: "user001",
+    couponId: "coupon003",
+    purchasedAt: "2024-06-15T11:30:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon002",
+    purchasedAt: "2024-07-10T09:20:00Z",
+  },
+];
+
 export const restaurants = [
   {
-    id: "resto001",
+    id: "resto006",
     ownerId: "owner001",
-    name: "La Pasteria",
-    location: "Αθήνα, Ελλάδα",
+    name: "The Cozy Taverna",
+    location: "Πλάκα, Αθήνα",
     address: {
-      street: "Ερμού 22",
-      number: 10,
-      postalCode: "10563",
-      area: "Σύνταγμα",
+      street: "Διονυσίου Αρεοπαγίτου 15",
+      number: 15,
+      postalCode: "10558",
+      area: "Πλάκα",
     },
-    coordinates: { lat: 37.9838, lng: 23.7275 },
-    cuisine: "Ιταλικό",
+    coordinates: { lat: 37.9715, lng: 23.7265 },
+    cuisine: "Ελληνική Παραδοσιακή",
+    rating: 4.9,
+    openingHours: { open: "11:00", close: "23:30" },
+    totalTables: 18,
+    tables: ["table034", "table035", "table036", "table037"],
+    menu: ["item025", "item026", "item027"],
+    specialMenus: ["menu003"],
+    photos: ["/images/mobile3.jpg"],
+    happyHours: [{ startTime: "15:00", endTime: "17:00", discountPercentage: 25 }],
+    coupons: ["coupon003"],
+    contact: {
+      phone: "+30 210 3210000",
+      email: "info@cozytaverna.gr",
+      socialMedia: {
+        facebook: "https://facebook.com/cozytaverna",
+        instagram: "https://instagram.com/cozytaverna",
+      },
+    },
+    createdAt: "2024-03-10T10:00:00Z",
+    updatedAt: "2024-04-10T14:00:00Z",
+  },
+  {
+    id: "resto007",
+    ownerId: "owner001",
+    name: "Burger Joint Deluxe",
+    location: "Γλυφάδα, Αθήνα",
+    address: {
+      street: "Λεωφ. Ποσειδώνος 81",
+      number: 81,
+      postalCode: "16675",
+      area: "Γλυφάδα",
+    },
+    coordinates: { lat: 37.9407, lng: 23.7402 },
+    cuisine: "Αμερικάνικη",
+    rating: 4.6,
+    openingHours: { open: "12:00", close: "00:00" },
+    totalTables: 22,
+    tables: ["table038", "table039", "table040", "table041", "table042"],
+    menu: ["item028", "item029", "item030", "item031"],
+    specialMenus: ["menu001"],
+    photos: ["/images/mobile1.jpg"],
+    happyHours: [{ startTime: "18:00", endTime: "20:00", discountPercentage: 15 }],
+    coupons: ["coupon001", "coupon004"],
+    contact: {
+      phone: "+30 210 8980000",
+      email: "contact@burgerdeluxe.gr",
+      socialMedia: {
+        facebook: "https://facebook.com/burgerjointdeluxe",
+        instagram: "https://instagram.com/burgerjointdeluxe",
+      },
+    },
+    createdAt: "2024-03-20T11:00:00Z",
+    updatedAt: "2024-04-20T15:00:00Z",
+  },
+  {
+    id: "resto008",
+    ownerId: "owner001",
+    name: "Vegan Garden Bistro",
+    location: "Εξάρχεια, Αθήνα",
+    address: {
+      street: "Καλλιδρομίου 70",
+      number: 70,
+      postalCode: "10682",
+      area: "Εξάρχεια",
+    },
+    coordinates: { lat: 37.9842, lng: 23.7331 },
+    cuisine: "Vegan",
     rating: 4.7,
-    openingHours: { open: "10:00", close: "23:00" },
-    totalTables: 20,
-    tables: ["table001", "table002", "table003", "table004"],
-    menu: ["item001", "item002", "item003"],
+    openingHours: { open: "13:00", close: "22:00" },
+    totalTables: 15,
+    tables: ["table043", "table044", "table045"],
+    menu: ["item032", "item033", "item034"],
+    specialMenus: ["menu002"],
+    photos: ["/images/mobile2.jpg"],
+    happyHours: [],
+    coupons: ["coupon002"],
+    contact: {
+      phone: "+30 210 3830000",
+      email: "hello@vegangarden.gr",
+      socialMedia: {
+        facebook: "https://facebook.com/vegangardenbistro",
+        instagram: "https://instagram.com/vegangardenbistro",
+      },
+    },
+    createdAt: "2024-04-01T12:00:00Z",
+    updatedAt: "2024-05-01T16:00:00Z",
+  },
+  {
+    id: "resto009",
+    ownerId: "owner001",
+    name: "Seafood Paradise Grill",
+    location: "Πειραιάς, Αθήνα",
+    address: {
+      street: "Ακτή Θεμιστοκλέους 18",
+      number: 18,
+      postalCode: "18537",
+      area: "Πειραιάς",
+    },
+    coordinates: { lat: 37.9445, lng: 23.6458 },
+    cuisine: "Θαλασσινά",
+    rating: 4.8,
+    openingHours: { open: "11:30", close: "00:30" },
+    totalTables: 25,
+    tables: ["table046", "table047", "table048", "table049", "table050"],
+    menu: ["item035", "item036", "item037", "item038"],
+    specialMenus: ["menu003"],
+    photos: ["/images/mobile3.jpg"],
+    happyHours: [{ startTime: "17:30", endTime: "19:30", discountPercentage: 20 }],
+    coupons: ["coupon005"],
+    contact: {
+      phone: "+30 210 4510000",
+      email: "seafood@paradise.gr",
+      socialMedia: {
+        facebook: "https://facebook.com/seafoodparadise",
+        instagram: "https://instagram.com/seafoodparadise",
+      },
+    },
+    createdAt: "2024-04-15T10:30:00Z",
+    updatedAt: "2024-05-08T14:30:00Z",
+  },
+  {
+    id: "resto010",
+    ownerId: "owner001",
+    name: "Spicy Noodles Bar",
+    location: "Μοναστηράκι, Αθήνα",
+    address: {
+      street: "Αθηνάς 12",
+      number: 12,
+      postalCode: "10551",
+      area: "Μοναστηράκι",
+    },
+    coordinates: { lat: 37.9762, lng: 23.7248 },
+    cuisine: "Ασιατική",
+    rating: 4.5,
+    openingHours: { open: "12:30", close: "23:00" },
+    totalTables: 16,
+    tables: ["table051", "table052", "table053", "table054"],
+    menu: ["item039", "item040", "item041"],
     specialMenus: ["menu001"],
     photos: ["/images/mobile1.jpg"],
     happyHours: [],
-    coupons: ["coupon001"],
+    coupons: ["coupon004"],
     contact: {
-      phone: "+30 210 1234567",
-      email: "contact@lapasteria.gr",
+      phone: "+30 210 3250000",
+      email: "spicy@noodles.gr",
       socialMedia: {
-        facebook: "https://facebook.com/lapasteria",
-        instagram: "https://instagram.com/lapasteria",
+        facebook: "https://facebook.com/spicynoodlesbar",
+        instagram: "https://instagram.com/spicynoodlesbar",
       },
     },
-    createdAt: "2023-10-01T12:00:00Z",
-    updatedAt: "2024-02-01T12:00:00Z",
+    createdAt: "2024-04-25T11:45:00Z",
+    updatedAt: "2024-05-05T15:45:00Z",
   },
-  {
-    id: "resto002",
-    ownerId: "owner002",
-    name: "Sushi Bar",
-    location: "Θεσσαλονίκη, Ελλάδα",
-    address: {
-      street: "Τσιμισκή 45",
-      number: 45,
-      postalCode: "54624",
-      area: "Θεσσαλονίκη Κέντρο",
-    },
-    coordinates: { lat: 40.6401, lng: 22.9444 },
-    cuisine: "Ιαπωνικό",
-    rating: 4.5,
-    openingHours: { open: "12:00", close: "22:00" },
-    totalTables: 15,
-    tables: ["table005", "table006", "table007"],
-    menu: ["item004", "item005", "item006"],
-    specialMenus: ["menu002"],
-    photos: ["/images/mobile2.jpg"],
-    happyHours: [{ startTime: "17:00", endTime: "19:00", discountPercentage: 20 }],
-    coupons: ["coupon002"],
-    contact: {
-      phone: "+30 2310 654321",
-      email: "info@sushibar.gr",
-      socialMedia: {
-        facebook: "https://facebook.com/sushibar",
-        instagram: "https://instagram.com/sushibar",
-      },
-    },
-    createdAt: "2023-11-15T12:00:00Z",
-    updatedAt: "2024-02-10T12:00:00Z",
-  },
-  {
-    id: "resto003",
-    ownerId: "owner003",
-    name: "Steakhouse Grill",
-    location: "Πάτρα, Ελλάδα",
-    address: {
-      street: "Ρήγα Φεραίου 88",
-      number: 88,
-      postalCode: "26221",
-      area: "Κέντρο Πάτρας",
-    },
-    coordinates: { lat: 38.2466, lng: 21.7346 },
-    cuisine: "Αμερικάνικο BBQ",
-    rating: 4.8,
-    openingHours: { open: "13:00", close: "01:00" },
-    totalTables: 25,
-    tables: ["table008", "table009", "table010"],
-    menu: ["item007", "item008", "item009"],
-    specialMenus: ["menu002"],
-    photos: ["/images/mobile2.jpg"],
-    happyHours: [{ startTime: "18:00", endTime: "20:00", discountPercentage: 30 }],
-    coupons: ["coupon002"],
-    contact: {
-      phone: "+30 2610 987654",
-      email: "info@steakhouse.gr",
-      socialMedia: {
-        facebook: "https://facebook.com/steakhousegrill",
-        instagram: "https://instagram.com/steakhousegrill",
-      },
-    },
-    createdAt: "2023-08-05T12:00:00Z",
-    updatedAt: "2024-02-15T12:00:00Z",
-  },
-  {
-    "id": "resto004",
-    "ownerId": "owner004",
-    "name": "Κινέζικο Delights 4",
-    "location": "Μαρούσι, Ελλάδα",
-    "address": {
-      "street": "Οδός E",
-      "number": 95,
-      "postalCode": "23101",
-      "area": "Μαρούσι"
-    },
-    "coordinates": {
-      "lat": 39.38394,
-      "lng": 21.538466
-    },
-    "cuisine": "Κινέζικο",
-    "rating": 4.8,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 20,
-    "tables": [
-      "table013",
-      "table014",
-      "table015"
-    ],
-    "menu": [
-      "item013",
-      "item014",
-      "item015"
-    ],
-    "specialMenus": [
-      "menu002"
-    ],
-    "photos": [
-      "/images/mobile2.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 20
-      }
-    ],
-    "coupons": [
-      "coupon003"
-    ],
-    "contact": {
-      "phone": "+30 210 6386777",
-      "email": "info4@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/κινέζικοdelights4",
-        "instagram": "https://instagram.com/κινέζικοdelights4"
-      }
-    },
-    "createdAt": "2023-08-10T12:00:00Z",
-    "updatedAt": "2023-10-09T12:00:00Z"
-  },
-  {
-    "id": "resto005",
-    "ownerId": "owner005",
-    "name": "Γαλλικό Delights 5",
-    "location": "Λάρισα Κέντρο, Ελλάδα",
-    "address": {
-      "street": "Οδός F",
-      "number": 13,
-      "postalCode": "21481",
-      "area": "Λάρισα Κέντρο"
-    },
-    "coordinates": {
-      "lat": 40.25205,
-      "lng": 23.618029
-    },
-    "cuisine": "Γαλλικό",
-    "rating": 4.8,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 29,
-    "tables": [
-      "table016",
-      "table017",
-      "table018"
-    ],
-    "menu": [
-      "item016",
-      "item017",
-      "item018"
-    ],
-    "specialMenus": [
-      "menu002"
-    ],
-    "photos": [
-      "/images/mobile2.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 20
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 7132948",
-      "email": "info5@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/γαλλικόdelights5",
-        "instagram": "https://instagram.com/γαλλικόdelights5"
-      }
-    },
-    "createdAt": "2023-08-20T12:00:00Z",
-    "updatedAt": "2023-10-19T12:00:00Z"
-  },
-  {
-    "id": "resto006",
-    "ownerId": "owner006",
-    "name": "Ελληνικό Delights 6",
-    "location": "Χανιά, Ελλάδα",
-    "address": {
-      "street": "Οδός G",
-      "number": 82,
-      "postalCode": "95247",
-      "area": "Χανιά"
-    },
-    "coordinates": {
-      "lat": 36.740625,
-      "lng": 21.201931
-    },
-    "cuisine": "Ελληνικό",
-    "rating": 4.4,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 27,
-    "tables": [
-      "table019",
-      "table020",
-      "table021"
-    ],
-    "menu": [
-      "item019",
-      "item020",
-      "item021"
-    ],
-    "specialMenus": [
-      "menu002"
-    ],
-    "photos": [
-      "/images/mobile3.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 25
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 9712851",
-      "email": "info6@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/ελληνικόdelights6",
-        "instagram": "https://instagram.com/ελληνικόdelights6"
-      }
-    },
-    "createdAt": "2023-08-30T12:00:00Z",
-    "updatedAt": "2023-10-29T12:00:00Z"
-  },
-  {
-    "id": "resto007",
-    "ownerId": "owner007",
-    "name": "Ινδικό Delights 7",
-    "location": "Ηράκλειο, Ελλάδα",
-    "address": {
-      "street": "Οδός H",
-      "number": 33,
-      "postalCode": "36177",
-      "area": "Ηράκλειο"
-    },
-    "coordinates": {
-      "lat": 39.919279,
-      "lng": 23.99999
-    },
-    "cuisine": "Ινδικό",
-    "rating": 4.2,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 28,
-    "tables": [
-      "table022",
-      "table023",
-      "table024"
-    ],
-    "menu": [
-      "item022",
-      "item023",
-      "item024"
-    ],
-    "specialMenus": [
-      "menu001"
-    ],
-    "photos": [
-      "/images/mobile1.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 20
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 4415804",
-      "email": "info7@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/ινδικόdelights7",
-        "instagram": "https://instagram.com/ινδικόdelights7"
-      }
-    },
-    "createdAt": "2023-09-09T12:00:00Z",
-    "updatedAt": "2023-11-08T12:00:00Z"
-  },
-  {
-    "id": "resto008",
-    "ownerId": "owner008",
-    "name": "Θαλασσινά Delights 8",
-    "location": "Ρόδος, Ελλάδα",
-    "address": {
-      "street": "Οδός I",
-      "number": 19,
-      "postalCode": "74960",
-      "area": "Ρόδος"
-    },
-    "coordinates": {
-      "lat": 37.852958,
-      "lng": 25.005693
-    },
-    "cuisine": "Θαλασσινά",
-    "rating": 4.5,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 30,
-    "tables": [
-      "table025",
-      "table026",
-      "table027"
-    ],
-    "menu": [
-      "item025",
-      "item026",
-      "item027"
-    ],
-    "specialMenus": [
-      "menu002"
-    ],
-    "photos": [
-      "/images/mobile1.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 10
-      }
-    ],
-    "coupons": [
-      "coupon003"
-    ],
-    "contact": {
-      "phone": "+30 210 8687298",
-      "email": "info8@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/θαλασσινάdelights8",
-        "instagram": "https://instagram.com/θαλασσινάdelights8"
-      }
-    },
-    "createdAt": "2023-09-19T12:00:00Z",
-    "updatedAt": "2023-11-18T12:00:00Z"
-  },
-  {
-    "id": "resto009",
-    "ownerId": "owner009",
-    "name": "Ασιατικό Delights 9",
-    "location": "Βόλος, Ελλάδα",
-    "address": {
-      "street": "Οδός J",
-      "number": 8,
-      "postalCode": "90376",
-      "area": "Βόλος"
-    },
-    "coordinates": {
-      "lat": 40.313008,
-      "lng": 21.973344
-    },
-    "cuisine": "Ασιατικό",
-    "rating": 4.6,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 30,
-    "tables": [
-      "table028",
-      "table029",
-      "table030"
-    ],
-    "menu": [
-      "item028",
-      "item029",
-      "item030"
-    ],
-    "specialMenus": [
-      "menu003"
-    ],
-    "photos": [
-      "/images/mobile2.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 15
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 6212994",
-      "email": "info9@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/ασιατικόdelights9",
-        "instagram": "https://instagram.com/ασιατικόdelights9"
-      }
-    },
-    "createdAt": "2023-09-29T12:00:00Z",
-    "updatedAt": "2023-11-28T12:00:00Z"
-  },
-  {
-    "id": "resto010",
-    "ownerId": "owner010",
-    "name": "Μεσογειακό Delights 10",
-    "location": "Γκάζι, Ελλάδα",
-    "address": {
-      "street": "Οδός K",
-      "number": 83,
-      "postalCode": "47103",
-      "area": "Γκάζι"
-    },
-    "coordinates": {
-      "lat": 38.360736,
-      "lng": 22.633645
-    },
-    "cuisine": "Μεσογειακό",
-    "rating": 4.5,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 30,
-    "tables": [
-      "table031",
-      "table032",
-      "table033"
-    ],
-    "menu": [
-      "item031",
-      "item032",
-      "item033"
-    ],
-    "specialMenus": [
-      "menu001"
-    ],
-    "photos": [
-      "/images/mobile2.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 15
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 6508631",
-      "email": "info10@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/μεσογειακόdelights10",
-        "instagram": "https://instagram.com/μεσογειακόdelights10"
-      }
-    },
-    "createdAt": "2023-10-09T12:00:00Z",
-    "updatedAt": "2023-12-08T12:00:00Z"
-  },
-  {
-    "id": "resto011",
-    "ownerId": "owner011",
-    "name": "Μεξικάνικο Delights 11",
-    "location": "Κολωνάκι, Ελλάδα",
-    "address": {
-      "street": "Οδός L",
-      "number": 15,
-      "postalCode": "98387",
-      "area": "Κολωνάκι"
-    },
-    "coordinates": {
-      "lat": 37.008022,
-      "lng": 21.80542
-    },
-    "cuisine": "Μεξικάνικο",
-    "rating": 4.5,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 29,
-    "tables": [
-      "table034",
-      "table035",
-      "table036"
-    ],
-    "menu": [
-      "item034",
-      "item035",
-      "item036"
-    ],
-    "specialMenus": [
-      "menu002"
-    ],
-    "photos": [
-      "/images/mobile1.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 25
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 3648695",
-      "email": "info11@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/μεξικάνικοdelights11",
-        "instagram": "https://instagram.com/μεξικάνικοdelights11"
-      }
-    },
-    "createdAt": "2023-10-19T12:00:00Z",
-    "updatedAt": "2023-12-18T12:00:00Z"
-  },
-  {
-    "id": "resto012",
-    "ownerId": "owner012",
-    "name": "Vegan Delights 12",
-    "location": "Ψυρρή, Ελλάδα",
-    "address": {
-      "street": "Οδός M",
-      "number": 60,
-      "postalCode": "95963",
-      "area": "Ψυρρή"
-    },
-    "coordinates": {
-      "lat": 35.858215,
-      "lng": 23.8068
-    },
-    "cuisine": "Vegan",
-    "rating": 4.8,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 14,
-    "tables": [
-      "table037",
-      "table038",
-      "table039"
-    ],
-    "menu": [
-      "item037",
-      "item038",
-      "item039"
-    ],
-    "specialMenus": [
-      "menu001"
-    ],
-    "photos": [
-      "/images/mobile2.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 20
-      }
-    ],
-    "coupons": [
-      "coupon001"
-    ],
-    "contact": {
-      "phone": "+30 210 4696711",
-      "email": "info12@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/vegandelights12",
-        "instagram": "https://instagram.com/vegandelights12"
-      }
-    },
-    "createdAt": "2023-10-29T12:00:00Z",
-    "updatedAt": "2023-12-28T12:00:00Z"
-  },
-  {
-    "id": "resto013",
-    "ownerId": "owner013",
-    "name": "Καφέ & Γλυκά Delights 13",
-    "location": "Νέα Σμύρνη, Ελλάδα",
-    "address": {
-      "street": "Οδός N",
-      "number": 10,
-      "postalCode": "61530",
-      "area": "Νέα Σμύρνη"
-    },
-    "coordinates": {
-      "lat": 39.910576,
-      "lng": 22.108464
-    },
-    "cuisine": "Καφέ & Γλυκά",
-    "rating": 4.5,
-    "openingHours": {
-      "open": "12:00",
-      "close": "23:00"
-    },
-    "totalTables": 10,
-    "tables": [
-      "table040",
-      "table041",
-      "table042"
-    ],
-    "menu": [
-      "item040",
-      "item041",
-      "item042"
-    ],
-    "specialMenus": [
-      "menu001"
-    ],
-    "photos": [
-      "/images/mobile2.jpg"
-    ],
-    "happyHours": [
-      {
-        "startTime": "16:00",
-        "endTime": "18:00",
-        "discountPercentage": 15
-      }
-    ],
-    "coupons": [
-      "coupon002"
-    ],
-    "contact": {
-      "phone": "+30 210 6193452",
-      "email": "info13@restaurant.gr",
-      "socialMedia": {
-        "facebook": "https://facebook.com/καφέ&γλυκάdelights13",
-        "instagram": "https://instagram.com/καφέ&γλυκάdelights13"
-      }
-    },
-    "createdAt": "2023-11-08T12:00:00Z",
-    "updatedAt": "2024-01-07T12:00:00Z"
-  }
 ];
 
 export const testimonials = [
   {
-    "id": "review001",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 7!"
+    id: "review021",
+    message: "Υπέροχο φαγητό και εξαιρετική εξυπηρέτηση στο The Cozy Taverna!"
   },
   {
-    "id": "review002",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 4!"
+    id: "review022",
+    message: "Τα burgers στο Burger Joint Deluxe είναι τα καλύτερα που έχω δοκιμάσει!"
   },
   {
-    "id": "review003",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 15!"
+    id: "review023",
+    message: "Φανταστικές vegan επιλογές στο Vegan Garden Bistro, το συστήνω ανεπιφύλακτα!"
   },
   {
-    "id": "review004",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 11!"
+    id: "review024",
+    message: "Φρέσκα και νόστιμα θαλασσινά στο Seafood Paradise Grill, άψογο!"
   },
   {
-    "id": "review005",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 7!"
+    id: "review025",
+    message: "Τα noodles στο Spicy Noodles Bar ήταν πικάντικα και γευστικά!"
   },
-  {
-    "id": "review006",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 7!"
-  },
-  {
-    "id": "review007",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 14!"
-  },
-  {
-    "id": "review008",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 4!"
-  },
-  {
-    "id": "review009",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 13!"
-  },
-  {
-    "id": "review010",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 15!"
-  },
-  {
-    "id": "review011",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 8!"
-  },
-  {
-    "id": "review012",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 13!"
-  },
-  {
-    "id": "review013",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 13!"
-  },
-  {
-    "id": "review014",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 12!"
-  },
-  {
-    "id": "review015",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 8!"
-  },
-  {
-    "id": "review016",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 4!"
-  },
-  {
-    "id": "review017",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 14!"
-  },
-  {
-    "id": "review018",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 13!"
-  },
-  {
-    "id": "review019",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 8!"
-  },
-  {
-    "id": "review020",
-    "message": "Εξαιρετική εμπειρία στο εστιατόριο Restaurant 6!"
-  }
 ];
 
 export const menuItems = [
-  { id: "item001", restaurantId: "resto001", name: "Bruschetta", price: 5.0, category: "Ορεκτικά", discount: 0, photoUrl: "/images/mobile1.jpg" },
-  { id: "item002", restaurantId: "resto001", name: "Pasta Carbonara", price: 9.5, category: "Κυρίως", discount: 10, photoUrl: "/images/mobile1.jpg" },
-  { id: "item003", restaurantId: "resto001", name: "Tiramisu", price: 6.0, category: "Επιδόρπια", discount: 0, photoUrl: "/images/mobile1.jpg" },
-  { id: "item004", restaurantId: "resto002", name: "Salmon Sushi", price: 12.0, category: "Κυρίως", discount: 5, photoUrl: "/images/mobile1.jpg" },
-  { id: "item005", restaurantId: "resto002", name: "Miso Soup", price: 4.0, category: "Ορεκτικά", discount: 0, photoUrl: "/images/mobile1.jpg" },
+  { id: "item025", restaurantId: "resto006", name: "Χωριάτικη Σαλάτα", price: 7.5, category: "Ορεκτικά", description: "Φρέσκα ντομάτα, αγγούρι, κρεμμύδι, πιπεριές, ελιές και φέτα.", discount: 0, photoUrl: "/images/mobile3.jpg" },
+  { id: "item026", restaurantId: "resto006", name: "Μουσακάς", price: 12.0, category: "Κυρίως", description: "Κλασικό ελληνικό πιάτο με κιμά, μελιτζάνες και μπεσαμέλ.", discount: 15, photoUrl: "/images/mobile3.jpg" },
+  { id: "item027", restaurantId: "resto006", name: "Γιαούρτι με Μέλι και Καρύδια", price: 5.5, category: "Επιδόρπια", description: "Κρεμώδες γιαούρτι με ντόπιο μέλι και τραγανά καρύδια.", discount: 0, photoUrl: "/images/mobile3.jpg" },
+  { id: "item028", restaurantId: "resto007", name: "Classic Cheeseburger", price: 8.5, category: "Κυρίως", description: "Ζουμερό μπιφτέκι με τυρί, μαρούλι, ντομάτα και σως.", discount: 10, photoUrl: "/images/mobile1.jpg" },
+  { id: "item029", restaurantId: "resto007", name: "Onion Rings", price: 4.0, category: "Ορεκτικά", description: "Τραγανές ροδέλες κρεμμυδιού πανέ με σως μουστάρδας.", discount: 0, photoUrl: "/images/mobile1.jpg" },
+  { id: "item030", restaurantId: "resto007", name: "Chocolate Milkshake", price: 6.0, category: "Ποτά", description: "Κρεμώδες milkshake σοκολάτας με σαντιγί.", discount: 0, photoUrl: "/images/mobile1.jpg" },
+  { id: "item031", restaurantId: "resto007", name: "BBQ Bacon Burger", price: 9.5, category: "Κυρίως", description: "Μπιφτέκι με μπέικον, τυρί, BBQ σως και κρεμμύδι.", discount: 5, photoUrl: "/images/mobile1.jpg" },
+  { id: "item032", restaurantId: "resto008", name: "Vegan Burger", price: 9.0, category: "Κυρίως", description: "Μπιφτέκι λαχανικών με αβοκάντο, μαρούλι, ντομάτα και vegan μαγιονέζα.", discount: 0, photoUrl: "/images/mobile2.jpg" },
+  { id: "item033", restaurantId: "resto008", name: "Hummus with Pita", price: 6.5, category: "Ορεκτικά", description: "Κρεμώδης χούμους σερβιρισμένος με ζεστές πίτες.", discount: 10, photoUrl: "/images/mobile2.jpg" },
+  { id: "item034", restaurantId: "resto008", name: "Vegan Chocolate Cake", price: 7.0, category: "Επιδόρπια", description: "Λαχταριστό vegan κέικ σοκολάτας με γλάσο.", discount: 0, photoUrl: "/images/mobile2.jpg" },
+  { id: "item035", restaurantId: "resto009", name: "Grilled Octopus", price: 18.0, category: "Κυρίως", description: "Φρέσκο χταπόδι στη σχάρα με λαδολέμονο και ρίγανη.", discount: 0, photoUrl: "/images/mobile3.jpg" },
+  { id: "item036", restaurantId: "resto009", name: "Fried Calamari", price: 15.0, category: "Ορεκτικά", description: "Τραγανό καλαμαράκι τηγανητό με σως ταρτάρ.", discount: 5, photoUrl: "/images/mobile3.jpg" },
+  { id: "item037", restaurantId: "resto009", name: "Seafood Risotto", price: 16.5, category: "Κυρίως", description: "Κρεμώδες ριζότο με φρέσκα θαλασσινά και μυρωδικά.", discount: 10, photoUrl: "/images/mobile3.jpg" },
+  { id: "item038", restaurantId: "resto009", name: "Greek Salad", price: 8.0, category: "Ορεκτικά", description: "Παραδοσιακή ελληνική σαλάτα με ντομάτα, αγγούρι, κρεμμύδι, ελιές και φέτα.", discount: 0, photoUrl: "/images/mobile3.jpg" },
+  { id: "item039", restaurantId: "resto010", name: "Pad Thai", price: 11.5, category: "Κυρίως", description: "Ταϊλανδέζικα noodles ρυζιού με tofu, αυγό, φιστίκια και λαχανικά σε σάλτσα tamarind.", discount: 10, photoUrl: "/images/mobile1.jpg" },
+  { id: "item040", restaurantId: "resto010", name: "Spring Rolls", price: 5.0, category: "Ορεκτικά", description: "Τραγανά ρολάκια λαχανικών σε λεπτό φύλλο ρυζιού.", discount: 0, photoUrl: "/images/mobile1.jpg" },
+  { id: "item041", restaurantId: "resto010", name: "Tom Yum Soup", price: 6.0, category: "Ορεκτικά", description: "Πικάντικη και ξινή ταϊλανδέζικη σούπα με γαρίδες, μανιτάρια και μυρωδικά.", discount: 5, photoUrl: "/images/mobile1.jpg" },
 ];
 
 export const reservations = [
   {
-    id: "reservation001",
-    userId: "user001",
-    restaurantId: "resto001",
-    date: "2024-03-01",
-    time: "14:30",
-    guestCount: 2,
-    status: "approved", // Επιβεβαιωμένη κράτηση
-    specialMenuId: "menu001",
-    couponId: null,
-  },
-  {
-    id: "reservation002",
-    userId: "user001",
-    restaurantId: "resto002",
-    date: "2024-03-02",
-    time: "19:00",
-    guestCount: 4,
-    status: "pending", // Αναμονή για επιβεβαίωση
-    specialMenuId: null,
-    couponId: "coupon001",
-  },
-  {
-    id: "reservation003",
-    userId: "user001",
-    restaurantId: "resto003",
-    date: "2024-02-28",
-    time: "20:00",
-    guestCount: 3,
-    status: "completed", // Ολοκληρωμένη κράτηση
-    specialMenuId: null,
-    couponId: null,
-  },
-  {
-    id: "reservation004",
-    userId: "user001",
-    restaurantId: "resto004",
-    date: "2024-02-25",
-    time: "18:00",
-    guestCount: 2,
-    status: "cancelled", // Ακυρωμένη κράτηση
-    specialMenuId: "menu002",
-    couponId: null,
-  },
+id: "reservation006",
+userId: "user001",
+restaurantId: "resto007",
+date: "2024-09-15",
+time: "19:00",
+guestCount: 2,
+status: "pending",
+specialMenuId: "menu001",
+couponId: null,
+},
+{
+id: "reservation007",
+userId: "user001",
+restaurantId: "resto008",
+date: "2024-09-20",
+time: "14:00",
+guestCount: 4,
+status: "completed",
+specialMenuId: null,
+couponId: null,
+},
+{
+id: "reservation008",
+userId: "user001",
+restaurantId: "resto009",
+date: "2024-09-25",
+time: "21:00",
+guestCount: 2,
+status: "cancelled",
+specialMenuId: null,
+couponId: null,
+},
+{
+id: "reservation009",
+userId: "user001",
+restaurantId: "resto010",
+date: "2024-09-30",
+time: "13:30",
+guestCount: 1,
+status: "approved",
+specialMenuId: null,
+couponId: "coupon004",
+},
 ];
 
 export const payments = [
-  {
-    id: "payment001",
-    userId: "user001",
-    reservationId: "reservation001",
-    amount: 30,
-    paymentMethod: "card",
-    status: "completed",
-  },
-  {
-    id: "payment002",
-    userId: "user002",
-    reservationId: "reservation002",
-    amount: 48,
-    paymentMethod: "paypal",
-    status: "pending",
-  },
+{
+id: "payment003",
+userId: "user001",
+reservationId: "reservation005",
+amount: 45.00,
+paymentMethod: "card",
+status: "completed",
+},
+{
+id: "payment004",
+userId: "user001",
+reservationId: "reservation006",
+amount: 28.00,
+paymentMethod: "paypal",
+status: "pending",
+},
+{
+id: "payment005",
+userId: "user001",
+reservationId: "reservation007",
+amount: 36.00,
+paymentMethod: "card",
+status: "completed",
+},
+{
+id: "payment006",
+userId: "user001",
+reservationId: "reservation009",
+amount: 10.00,
+paymentMethod: "card",
+status: "completed",
+},
+{
+id: "payment007",
+userId: "user001",
+reservationId: null,
+amount: 5.00,
+paymentMethod: "loyalty points",
+status: "completed",
+},
 ];
 
 export const specialMenus = [
-  {
-    id: "menu001",
-    restaurantId: "resto001",
-    name: "Πλήρες Γεύμα - Ιταλικό",
-    description: "Ορεκτικό, κυρίως πιάτο και επιδόρπιο",
-    originalPrice: 30,
-    discountedPrice: 15,
-    discountPercentage: 50,
-    photoUrl: "/images/mobile3.jpg",
-    selectedItems: ["item001", "item002", "item003"],
-    availableItems: menuItems.filter(item => item.restaurantId === "resto001"), // Όλα τα διαθέσιμα πιάτα του resto001
-    selectedDate: "2025-03-31",
-    timeRange: { start: "12:00", end: "16:00" },
-    createdAt: "2024-03-01T00:00:00Z",
-  },
-  {
-    id: "menu002",
-    restaurantId: "resto002",
-    name: "Sushi Combo",
-    description: "10 κομμάτια sushi + σούπα miso",
-    originalPrice: 25,
-    discountedPrice: 20,
-    discountPercentage: 20,
-    photoUrl: "/images/mobile3.jpg",
-    selectedItems: ["item004", "item005"],
-    availableItems: menuItems.filter(item => item.restaurantId === "resto002"), // Όλα τα διαθέσιμα πιάτα του resto002
-    selectedDate: "2025-03-31",
-    timeRange: { start: "18:00", end: "22:00" },
-    createdAt: "2024-03-01T00:00:00Z",
-  }
+{
+id: "menu003",
+restaurantId: "resto006",
+name: "Παραδοσιακό Γεύμα για Δύο",
+description: "Δύο ορεκτικά, δύο κυρίως πιάτα και ένα επιδόρπιο για δύο άτομα.",
+originalPrice: 40,
+discountedPrice: 30,
+discountPercentage: 25,
+photoUrl: "/images/mobile3.jpg",
+selectedItems: ["item025", "item026", "item027"],
+availableItems: menuItems.filter(item => item.restaurantId === "resto006"),
+selectedDate: "2025-05-31",
+timeRange: { start: "19:00", end: "22:00" },
+createdAt: "2024-05-10T00:00:00Z",
+},
+{
+id: "menu004",
+restaurantId: "resto007",
+name: "Burger Mania Combo",
+description: "Δύο burgers της επιλογής σας, δύο μερίδες πατάτες και δύο αναψυκτικά.",
+originalPrice: 28,
+discountedPrice: 25,
+discountPercentage: 10,
+photoUrl: "/images/mobile1.jpg",
+selectedItems: ["item028", "item031", "item029"],
+availableItems: menuItems.filter(item => item.restaurantId === "resto007"),
+selectedDate: "2025-06-15",
+timeRange: { start: "12:00", end: "16:00" },
+createdAt: "2024-05-15T00:00:00Z",
+},
+{
+id: "menu005",
+restaurantId: "resto008",
+name: "Vegan Tasting Menu",
+description: "Μια επιλογή από τα καλύτερα vegan ορεκτικά, κυρίως και επιδόρπιο.",
+originalPrice: 35,
+discountedPrice: 30,
+discountPercentage: 14,
+photoUrl: "/images/mobile2.jpg",
+selectedItems: ["item033", "item032", "item034"],
+availableItems: menuItems.filter(item => item.restaurantId === "resto008"),
+selectedDate: "2025-07-01",
+timeRange: { start: "18:00", end: "21:00" },
+createdAt: "2024-05-20T00:00:00Z",
+},
+{
+id: "menu006",
+restaurantId: "resto009",
+name: "Seafood Platter for One",
+description: "Μια ποικιλία από φρέσκα θαλασσινά στη σχάρα.",
+originalPrice: 25,
+discountedPrice: 22,
+discountPercentage: 12,
+photoUrl: "/images/mobile3.jpg",
+selectedItems: ["item035", "item036"],
+availableItems: menuItems.filter(item => item.restaurantId === "resto009"),
+selectedDate: "2025-07-15",
+timeRange: { start: "12:00", end: "17:00" },
+createdAt: "2024-05-25T00:00:00Z",
+},
+{
+id: "menu007",
+restaurantId: "resto010",
+name: "Spicy Asian Delight",
+description: "Ένα πικάντικο γεύμα που περιλαμβάνει ορεκτικό, κυρίως και ένα ποτό.",
+originalPrice: 22,
+discountedPrice: 18,
+discountPercentage: 18,
+photoUrl: "/images/mobile1.jpg",
+selectedItems: ["item040", "item039"],
+availableItems: menuItems.filter(item => item.restaurantId === "resto010"),
+selectedDate: "2025-08-01",
+timeRange: { start: "19:00", end: "23:00" },
+createdAt: "2024-05-30T00:00:00Z",
+},
 ];
-
 
 export const coupons = [
-  {
-    id: "coupon001",
-    restaurantId: "resto001",
-    description: "Έκπτωση 10% στο σύνολο του λογαριασμού",
-    discountPercentage: 10,
-  },
-  {
-    id: "coupon002",
-    restaurantId: "resto002",
-    description: "Δωρεάν ορεκτικό με κάθε κράτηση",
-    discountPercentage: 100,
-  }
+{
+id: "coupon001",
+restaurantId: "resto006",
+description: "Έκπτωση 15% για κρατήσεις άνω των 3 ατόμων",
+discountPercentage: 15,
+requiredPoints: 60,
+},
+{
+id: "coupon002",
+restaurantId: "resto007",
+description: "Δωρεάν αναβάθμιση σε μεγάλη μερίδα πατάτες",
+discountPercentage: 0,
+requiredPoints: 30,
+},
+{
+id: "coupon003",
+restaurantId: "resto009",
+description: "Έκπτωση 10€ για λογαριασμούς άνω των 50€",
+discountPercentage: null,
+fixedDiscount: 10,
+requiredPoints: 80,
+},
+{
+id: "coupon004",
+restaurantId: "resto008",
+description: "Δωρεάν επιδόρπιο με κάθε κυρίως πιάτο",
+discountPercentage: 0,
+requiredPoints: 50,
+},
+{
+id: "coupon005",
+restaurantId: "resto010",
+description: "2+1 στα κυρίως πιάτα κάθε Τρίτη",
+discountPercentage: null,
+specialOffer: "buy2get1free",
+requiredPoints: 70,
+},
 ];
-

@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { addToWatchlist, removeFromWatchlist } from "../store/authSlice";
 import {
-  restaurants,
-  menuItems,
-  specialMenus,
-  coupons,
-} from "../data/dummyData";
+  useRestaurantDetails,
+  useCreateReservation,
+  useUserById,
+  useUserLoyaltyPoints,
+  useUserCoupons,
+  useAvailableCouponsForRestaurant,
+  usePurchaseCoupon,
+} from "../hooks/useDummyData";
 import { Badge } from "../components/ui/badge";
 import {
   Card,
@@ -41,6 +44,8 @@ import {
 } from "../components/ui/dialog";
 import { useSelector, useDispatch } from "react-redux";
 import { setSearchParams as setSearchParamsAction } from "../store/searchSlice";
+import { toast } from "react-hot-toast";
+import Loading from "../components/Loading";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
@@ -55,33 +60,50 @@ const RestaurantDetailsPage = () => {
     guests: reduxSearchParams.guests || "",
     specialMenu: null,
     coupon: null,
+    notes: "",
   });
 
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const [errorDialog, setErrorDialog] = useState(false);
-  const restaurant = restaurants.find((resto) => resto.id === id);
-  const restaurantMenus = menuItems.filter(
-    (menu) => menu.restaurantId === restaurant.id
-  );
-  const menuCategories = [
-    ...new Set(restaurantMenus.map((item) => item.category)),
-  ];
-  const restaurantSpecialMenus = specialMenus.filter(
-    (menu) => menu.restaurantId === restaurant.id
-  );
-  const restaurantCoupons = coupons.filter(
-    (coupon) => coupon.restaurantId === restaurant.id
-  );
+  const { data: restaurant, isLoading, isError } = useRestaurantDetails(id);
+  const menuItems = restaurant?.menuItems || [];
+  const restaurantSpecialMenus = restaurant?.specialMenus || [];
+  const restaurantCoupons = restaurant?.coupons || [];
+  const { mutate: purchaseCoupon, isPending: isPurchasing } =
+    usePurchaseCoupon();
+  const { mutate: createReservation, isPending: isSubmitting } =
+    useCreateReservation();
 
-  const [selectedCategory, setSelectedCategory] = useState(
-    menuCategories[0] || ""
-  );
+  const { data: loyaltyPoints = 0, isLoading: isLoadingPoints } =
+    useUserLoyaltyPoints(user?.id);
+  const { data: userCoupons = [], isLoading: isLoadingUserCoupons } =
+    useUserCoupons(user?.id);
+  const { data: availableCoupons = [], isLoading: isLoadingAvailableCoupons } =
+    useAvailableCouponsForRestaurant(id, user?.id);
 
-  const filteredDishes = restaurantMenus.filter(
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const menuCategories = [...new Set(menuItems.map((item) => item.category))];
+
+  useEffect(() => {
+    if (!selectedCategory && menuCategories.length > 0) {
+      setSelectedCategory(menuCategories[0]);
+    }
+  }, [menuCategories, selectedCategory]);
+
+  const filteredDishes = menuItems.filter(
     (dish) => dish.category === selectedCategory
   );
+
+  if (
+    isLoading ||
+    isLoadingPoints ||
+    isLoadingUserCoupons ||
+    isLoadingAvailableCoupons
+  ) {
+    return <Loading />;
+  }
 
   if (!restaurant) {
     return (
@@ -103,24 +125,37 @@ const RestaurantDetailsPage = () => {
       return;
     }
 
-    // ✅ Sync με Redux store
-    dispatch(setSearchParamsAction({
-      date: reservation.date,
-      time: reservation.time,
-      guests: reservation.guests,
-    }));
+    dispatch(
+      setSearchParamsAction({
+        date: reservation.date,
+        time: reservation.time,
+        guests: reservation.guests,
+      })
+    );
 
-    const newReservation = {
-      restaurantId: restaurant.id,
-      date: format(reservation.date, "dd/MM/yyyy"),
-      time: reservation.time,
-      guests: reservation.guests,
-      specialMenu: reservation.specialMenu,
-      coupon: reservation.coupon,
-    };
-
-    console.log("🚀 Νέα κράτηση:", newReservation);
-    navigate("/confirmation", { state: newReservation });
+    createReservation(
+      {
+        restaurantId: restaurant.id,
+        userId: user.id,
+        date: format(reservation.date, "yyyy-MM-dd"),
+        time: reservation.time,
+        guestCount: parseInt(reservation.guests, 10),
+        specialMenuId: reservation.specialMenu,
+        couponId: reservation.coupon,
+        notes: reservation.notes,
+      },
+      {
+        onSuccess: (created) => {
+          toast.success("Η κράτηση υποβλήθηκε!");
+          navigate(`/confirmation/${created.id}`);
+        },
+        onError: () => {
+          toast.error("⚠️ Κάτι πήγε στραβά κατά την υποβολή.");
+          // useDummyData
+          navigate(`/confirmation/reservation001`);
+        },
+      }
+    );
   };
 
   const handleSpecialMenuChange = (value) => {
@@ -145,6 +180,18 @@ const RestaurantDetailsPage = () => {
       dispatch(addToWatchlist(restaurant.id));
     }
   };
+
+  const mergedCoupons = [
+    ...(userCoupons ?? []),
+    ...(availableCoupons ?? []).filter(
+      (ac) => !(userCoupons ?? []).some((uc) => uc.id === ac.id)
+    ),
+  ];
+
+  // ✅ More reliable filter
+  const restaurantCouponObjects = mergedCoupons.filter(
+    (coupon) => coupon.restaurantId === restaurant?.id
+  );
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -183,70 +230,101 @@ const RestaurantDetailsPage = () => {
       <Separator className="my-10" />
 
       {/* Happy Hours & Coupons */}
-      <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          🎉 Προσφορές & Happy Hours
+      {/* 🎁 Κουπόνια */}
+      <section className="mt-10">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          🎁 Τα Κουπόνια μου
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {restaurant.happyHours?.length > 0 && (
-            <Card className="p-6 bg-red-100">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-red-600">
-                  Happy Hour
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">
-                  ⏳ Από {restaurant.happyHours[0].startTime} έως{" "}
-                  {restaurant.happyHours[0].endTime}
-                </p>
-                <Badge className="bg-red-500 text-white mt-3">
-                  -{restaurant.happyHours[0].discountPercentage}% σε επιλεγμένα
-                  πιάτα!
-                </Badge>
-              </CardContent>
-            </Card>
-          )}
+        <p className="mb-2 text-gray-700">
+          Έχεις <span className="font-semibold">{loyaltyPoints}</span> πόντους.
+        </p>
 
-          {restaurantCoupons.length > 0 ? (
-            restaurantCoupons.map((coupon) => (
-              <Card key={coupon.id} className="p-6 bg-green-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {restaurantCouponObjects.map((coupon) => {
+            const isPurchased = userCoupons.some((uc) => uc.id === coupon.id);
+
+            return (
+              <Card
+                key={coupon.id}
+                className={`p-4 ${
+                  isPurchased ? "bg-green-100" : "bg-blue-50"
+                } shadow`}
+              >
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold text-green-600">
-                    🎟️ Διαθέσιμα Κουπόνια
+                  <CardTitle
+                    className={`text-lg font-semibold ${
+                      isPurchased ? "text-green-600" : "text-blue-600"
+                    }`}
+                  >
+                    🎟️ Κουπόνι
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-700">{coupon.description}</p>
-                  <Badge className="bg-green-500 text-white mt-3">
-                    Χρησιμοποίησε το τώρα!
-                  </Badge>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Απαραίτητοι πόντοι:{" "}
+                    <span className="font-bold">{coupon.requiredPoints}</span>
+                  </p>
+
+                  {isPurchased ? (
+                    <Badge className="bg-green-600 text-white mt-2">
+                      Το έχεις ήδη αγοράσει
+                    </Badge>
+                  ) : (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          className="mt-3 bg-blue-600 text-white w-full"
+                          disabled={loyaltyPoints < coupon.requiredPoints}
+                        >
+                          Αγορά Κουπονιού
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>🛒 Επιβεβαίωση Αγοράς</DialogTitle>
+                        </DialogHeader>
+                        <p className="text-gray-700 mb-4">
+                          Θέλεις να εξαργυρώσεις{" "}
+                          <strong>{coupon.requiredPoints} πόντους</strong> για
+                          αυτό το κουπόνι;
+                        </p>
+                        <div className="flex justify-end gap-3">
+                          <DialogTrigger asChild>
+                            <Button variant="outline">Άκυρο</Button>
+                          </DialogTrigger>
+                          <Button
+                            className="bg-green-600 text-white"
+                            onClick={() =>
+                              purchaseCoupon(
+                                {
+                                  userId: user.id,
+                                  couponId: coupon.id,
+                                  points: coupon.requiredPoints,
+                                },
+                                {
+                                  onSuccess: () =>
+                                    toast.success(
+                                      "Η αγορά ολοκληρώθηκε με επιτυχία!"
+                                    ),
+                                  onError: () =>
+                                    toast.error(
+                                      "Κάτι πήγε στραβά. Δοκιμάστε ξανά."
+                                    ),
+                                }
+                              )
+                            }
+                          >
+                            {isPurchasing ? "Αγοράζω..." : "Επιβεβαίωση"}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  )}
                 </CardContent>
               </Card>
-            ))
-          ) : (
-            // Μήνυμα όταν δεν υπάρχουν κουπόνια
-            <Card className="p-6 bg-blue-100">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-blue-600">
-                  💰 Μαζέψτε Πόντους & Κερδίστε!
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">
-                  Κερδίστε loyalty points με κάθε κράτηση και αποκτήστε
-                  αποκλειστικά κουπόνια για εκπτώσεις στα αγαπημένα σας
-                  εστιατόρια! 🎉
-                </p>
-                <Button
-                  className="mt-4 bg-primary text-white"
-                  onClick={() => navigate("/loyalty")} // Redirect to /loyalty
-                >
-                  🎟️ Δείτε το Πρόγραμμα Loyalty
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+            );
+          })}
         </div>
       </section>
 
@@ -344,8 +422,8 @@ const RestaurantDetailsPage = () => {
               className={`px-4 py-2 rounded-full ${
                 selectedCategory === category
                   ? "bg-primary text-white"
-                  : "bg-gray-200 text-gray-700"
-              } transition-all`}
+                  : "bg-gray-800 text-gray-400"
+              }`}
               onClick={() => setSelectedCategory(category)}
             >
               {category}
@@ -452,35 +530,61 @@ const RestaurantDetailsPage = () => {
         {/* Special Menus & Coupons (Μόνο ένα επιτρεπτό) */}
         <div className="mt-6">
           {/* Special Menus Selection */}
-          <h3 className="text-lg font-semibold">🍽️ Special Menu</h3>
+          <h3 className="text-lg font-semibold mt-6">🍽️ Special Menu</h3>
+
           {restaurantSpecialMenus.length === 0 ? (
             <p className="text-gray-500 text-sm">
               ❌ Δεν υπάρχουν διαθέσιμα Special Menus για αυτό το εστιατόριο.
             </p>
+          ) : !isValid(reservation.date) || !reservation.time ? (
+            <p className="text-gray-500 text-sm italic">
+              ⏳ Επιλέξτε πρώτα ημερομηνία και ώρα για να δείτε διαθέσιμα
+              Special Menus.
+            </p>
           ) : (
-            <Select
-              value={reservation.specialMenu}
-              onValueChange={handleSpecialMenuChange}
-            >
-              <SelectTrigger className="w-full mt-2">
-                <SelectValue placeholder="Επιλέξτε Special Menu" />
-              </SelectTrigger>
-              <SelectContent>
-                {restaurantSpecialMenus.map((menu) => (
-                  <SelectItem key={menu.id} value={menu.id}>
-                    {menu.name} - €{menu.discountedPrice}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            (() => {
+              const selectedDate = format(reservation.date, "yyyy-MM-dd");
+              const validMenus = restaurantSpecialMenus.filter(
+                (menu) =>
+                  selectedDate === menu.selectedDate &&
+                  reservation.time >= menu.timeRange.start &&
+                  reservation.time <= menu.timeRange.end
+              );
+
+              return validMenus.length === 0 ? (
+                <p className="text-gray-500 text-sm italic">
+                  ❌ Δεν υπάρχουν διαθέσιμα Special Menus για την επιλεγμένη
+                  ημερομηνία και ώρα.
+                </p>
+              ) : (
+                <Select
+                  value={reservation.specialMenu}
+                  onValueChange={handleSpecialMenuChange}
+                >
+                  <SelectTrigger className="w-full mt-2">
+                    <SelectValue placeholder="Επιλέξτε Special Menu" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {validMenus.map((menu) => (
+                      <SelectItem key={menu.id} value={menu.id}>
+                        {menu.name} – €{menu.discountedPrice} (
+                        {menu.discountPercentage}% off)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              );
+            })()
           )}
 
           {/* Coupon Selection */}
           <h3 className="text-lg font-semibold mt-4">🎟️ Χρήση Κουπονιού</h3>
-          {restaurantCoupons.length === 0 ? (
-            <p className="text-gray-500 text-sm">
-              💰 Δεν υπάρχουν διαθέσιμα κουπόνια. Μαζέψτε loyalty points για να
-              κερδίσετε εκπτώσεις! 🎉
+
+          {userCoupons.filter((coupon) => coupon.restaurantId === restaurant.id)
+            .length === 0 ? (
+            <p className="text-sm text-gray-500">
+              💰 Δεν έχεις αγοράσει κουπόνια για αυτό το εστιατόριο.
+              Χρησιμοποίησε loyalty points για να αποκτήσεις εκπτώσεις!
             </p>
           ) : (
             <Select
@@ -491,21 +595,60 @@ const RestaurantDetailsPage = () => {
                 <SelectValue placeholder="Επιλέξτε Κουπόνι" />
               </SelectTrigger>
               <SelectContent>
-                {restaurantCoupons.map((coupon) => (
-                  <SelectItem key={coupon.id} value={coupon.id}>
-                    {coupon.description}
-                  </SelectItem>
-                ))}
+                {userCoupons
+                  .filter((coupon) => coupon.restaurantId === restaurant.id)
+                  .map((coupon) => (
+                    <SelectItem key={coupon.id} value={coupon.id}>
+                      {coupon.description}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           )}
+        </div>
+        {/* Notes Section */}
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-2">📝 Σημειώσεις</h3>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {[
+              "Έχουμε καροτσάκι για το μωρό.",
+              "Θα θέλαμε τραπέζι κοντά στο παράθυρο.",
+              "Γιορτάζουμε επέτειο/γενέθλια – αν είναι δυνατό, κάτι ξεχωριστό.",
+              "Θα φέρουμε κατοικίδιο (μικρό σκύλο).",
+            ].map((note) => (
+              <button
+                key={note}
+                type="button"
+                onClick={() =>
+                  setReservation((prev) => ({
+                    ...prev,
+                    notes: prev.notes ? `${prev.notes}\n${note}` : note,
+                  }))
+                }
+                className="bg-gray-100 hover:bg-gray-100 text-sm px-3 py-1 rounded-md border border-gray-300"
+              >
+                {note}
+              </button>
+            ))}
+          </div>
+
+          <textarea
+            rows={3}
+            placeholder="Γράψε κάτι επιπλέον (π.χ. χωρίς σκαλιά, τραπέζι έξω...)"
+            value={reservation.notes || ""}
+            onChange={(e) =>
+              setReservation({ ...reservation, notes: e.target.value })
+            }
+            className="w-full border border-gray-300 rounded-md p-2 text-sm"
+          />
         </div>
 
         <Button
           className="w-full px-9 py-6 mt-6 bg-primary text-white"
           onClick={handleReserve}
+          disabled={isSubmitting}
         >
-          ✅ Επιβεβαίωση Κράτησης
+          {isSubmitting ? "Υποβολή..." : "✅ Επιβεβαίωση Κράτησης"}
         </Button>
       </section>
 

@@ -76,7 +76,7 @@ const AppRoutes = () => {
         <>
           <Route path="/loyalty" element={<LoyaltyPage />} />
           <Route path="/my-reservations" element={<MyReservationsPage />} />
-          <Route path="/confirmation" element={<ConfirmationPage />} />
+          <Route path="/confirmation/:id" element={<ConfirmationPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </>
       )}

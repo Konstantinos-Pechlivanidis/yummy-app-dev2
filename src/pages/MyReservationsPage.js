@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { cancelReservation } from "../store/reservationsSlice";
+import { useSelector } from "react-redux";
+import {
+  useUserReservations,
+  useCancelReservation,
+} from "../hooks/useDummyData";
 import { restaurants } from "../data/dummyData";
 import {
   Card,
@@ -10,6 +13,7 @@ import {
 } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
+import { Separator } from "../components/ui/separator";
 import {
   Dialog,
   DialogTrigger,
@@ -17,149 +21,172 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
-import { Separator } from "../components/ui/separator";
-import { format, parse, differenceInMinutes } from "date-fns";
+import Loading from "../components/Loading";
+import { format, parse } from "date-fns";
+import { el } from "date-fns/locale";
+
+const statusColors = {
+  pending: "bg-yellow-500",
+  confirmed: "bg-green-500",
+  completed: "bg-blue-500",
+  cancelled: "bg-red-500",
+};
+
+const statusIcon = {
+  pending: "⏳",
+  confirmed: "✅",
+  completed: "📁",
+  cancelled: "❌",
+};
 
 const MyReservationsPage = () => {
-  const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const reservations = useSelector((state) => state.reservations.reservations);
-  const userReservations = reservations.filter(
-    (res) => res.userId === user?.id
-  );
+  const user = useSelector((state) => state.auth.user);
+  const {
+    data: reservations = [],
+    isLoading,
+    isError,
+  } = useUserReservations(user?.id);
+  const { mutate: cancelReservation } = useCancelReservation();
 
   const [selectedReservation, setSelectedReservation] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isPenaltyDialogOpen, setIsPenaltyDialogOpen] = useState(false);
-  const [penaltyMessage, setPenaltyMessage] = useState("");
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [resultMessage, setResultMessage] = useState("");
+  const [resultDialogOpen, setResultDialogOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelError, setCancelError] = useState(false);
 
-  const activeReservations = userReservations.filter(
-    (res) => res.status === "pending" || res.status === "confirmed"
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const activeReservations = reservations.filter((r) =>
+    ["pending", "confirmed"].includes(r.status)
   );
-  const pastReservations = userReservations.filter(
-    (res) => res.status === "completed" || res.status === "canceled"
+  const pastReservations = reservations.filter((r) =>
+    ["completed", "cancelled"].includes(r.status)
   );
+
+  const paginatedPastReservations = pastReservations.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const totalPages = Math.ceil(pastReservations.length / itemsPerPage);
 
   const handleCancel = () => {
-    if (!confirmDialog) return;
-
-    const now = new Date();
-    const reservationDateTime = parse(
-      `${confirmDialog.date} ${confirmDialog.time}`,
-      "yyyy-MM-dd HH:mm",
-      new Date()
-    );
-
-    const minutesUntilReservation = differenceInMinutes(
-      reservationDateTime,
-      now
-    );
-
-    // Apply penalty ONLY if the user cancels WITHIN 2 hours before the reservation time
-    if (minutesUntilReservation > 0 && minutesUntilReservation <= 120) {
-      setPenaltyMessage(
-        "❗ Η κράτηση ακυρώθηκε, αλλά έχασες Loyalty Points & εκπτώσεις."
-      );
-      setIsPenaltyDialogOpen(true);
-    } else {
-      setPenaltyMessage("✅ Η κράτηση ακυρώθηκε επιτυχώς χωρίς ποινή.");
-      setIsPenaltyDialogOpen(true);
+    if (!cancelReason.trim()) {
+      setCancelError(true);
+      return;
     }
 
-    dispatch(cancelReservation(confirmDialog.id));
-    setConfirmDialog(null);
-    setIsDialogOpen(false);
+    cancelReservation(
+      {
+        reservationId: selectedReservation.id,
+        reason: cancelReason.trim(),
+      },
+      {
+        onSuccess: () => {
+          setConfirmDialogOpen(false);
+          setSelectedReservation(null);
+          setResultMessage("✅ Η κράτηση ακυρώθηκε επιτυχώς.");
+          setResultDialogOpen(true);
+          setCancelReason("");
+          setCancelError(false);
+        },
+      }
+    );
   };
 
-  if (!isAuthenticated) {
-    return (
-      <p className="text-center text-gray-600 mt-10">
-        ❌ Πρέπει να συνδεθείς για να δεις τις κρατήσεις σου.
-      </p>
-    );
-  }
+  const getRestaurantName = (id) =>
+    restaurants.find((r) => r.id === id)?.name || "Άγνωστο Εστιατόριο";
 
   return (
-    <div className="container mx-auto px-6 py-12">
-      <h1 className="text-3xl font-bold text-center mb-6">
+    <div className="container mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold text-center mb-10">
         📅 Οι Κρατήσεις μου
       </h1>
 
-      {/* 🔴 Ενεργές Κρατήσεις */}
-      <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          ⏳ Ενεργές Κρατήσεις
+      {/* Ενεργές */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          🔔 Ενεργές Κρατήσεις
         </h2>
-        {activeReservations.length === 0 ? (
+
+        {isLoading ? (
+          <Loading />
+        ) : isError ? (
+          <p className="text-red-600">⚠️ Σφάλμα φόρτωσης κρατήσεων.</p>
+        ) : activeReservations.length === 0 ? (
           <p className="text-gray-600">Δεν έχεις ενεργές κρατήσεις.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {activeReservations.map((reservation) => {
-              const restaurant = restaurants.find(
-                (resto) => resto.id === reservation.restaurantId
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activeReservations.map((res) => {
+              const formattedDate = format(
+                parse(res.date, "yyyy-MM-dd", new Date()),
+                "eeee dd MMMM yyyy",
+                { locale: el }
               );
+              const restaurantName = getRestaurantName(res.restaurantId);
 
               return (
-                <Card key={reservation.id} className="p-4 shadow-md">
-                  <CardHeader>
-                    {restaurant ? (
-                      <CardTitle className="text-lg">
-                        {restaurant.name}
-                      </CardTitle>
-                    ) : (
-                      <CardTitle className="text-red-500">
-                        ❌ Εστιατόριο μη διαθέσιμο
-                      </CardTitle>
-                    )}
-
-                    <Badge
-                      className={`px-4 py-2 text-sm font-semibold rounded-lg
-              ${
-                reservation.status === "confirmed"
-                  ? "bg-green-500"
-                  : "bg-yellow-500"
-              }`}
-                    >
-                      {reservation.status === "confirmed"
-                        ? "✅ Επιβεβαιωμένο"
-                        : "⏳ Αναμονή για επιβεβαίωση"}
+                <Card key={res.id} className="p-4 shadow hover:shadow-lg">
+                  <CardHeader className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-bold text-gray-900">
+                      {statusIcon[res.status]} {restaurantName}
+                    </CardTitle>
+                    <Badge className={statusColors[res.status]}>
+                      {res.status.toUpperCase()}
                     </Badge>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="text-sm text-gray-700 space-y-1">
                     <p>
-                      📅 {format(new Date(reservation.date), "dd/MM/yyyy")} | 🕒{" "}
-                      {reservation.time}
+                      <strong>📆 Ημερομηνία:</strong> {formattedDate}
                     </p>
-                    <p>👥 {reservation.guestCount} άτομα</p>
-                    <div className="flex gap-2 mt-4">
+                    <p>
+                      <strong>🕒 Ώρα:</strong> {res.time}
+                    </p>
+                    <p>
+                      <strong>👥 Άτομα:</strong> {res.guestCount}
+                    </p>
+                    {res.notes && (
+                      <p>
+                        <strong>📝 Σημειώσεις:</strong> {res.notes}
+                      </p>
+                    )}
+                    <div className="flex gap-2 mt-3">
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button
-                            onClick={() => setSelectedReservation(reservation)}
-                            className="bg-gray-500 text-white"
-                          >
-                            ℹ️ Λεπτομέρειες
+                          <Button size="sm" variant="outline">
+                            Λεπτομέρειες
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>ℹ️ Λεπτομέρειες Κράτησης</DialogTitle>
+                            <DialogTitle>Πληροφορίες Κράτησης</DialogTitle>
                           </DialogHeader>
-                          <p>🗓️ Ημερομηνία: {reservation.date}</p>
-                          <p>🕒 Ώρα: {reservation.time}</p>
-                          <p>👥 Άτομα: {reservation.guestCount}</p>
+                          <p>
+                            <strong>Ημερομηνία:</strong> {formattedDate}
+                          </p>
+                          <p>
+                            <strong>Ώρα:</strong> {res.time}
+                          </p>
+                          <p>
+                            <strong>Άτομα:</strong> {res.guestCount}
+                          </p>
+                          {res.notes && (
+                            <p>
+                              <strong>Σημειώσεις:</strong> {res.notes}
+                            </p>
+                          )}
                         </DialogContent>
                       </Dialog>
-
                       <Button
+                        size="sm"
+                        variant="destructive"
                         onClick={() => {
-                          setConfirmDialog(reservation);
-                          setIsDialogOpen(true);
+                          setSelectedReservation(res);
+                          setConfirmDialogOpen(true);
                         }}
-                        className="bg-red-500 text-white"
                       >
-                        ❌ Ακύρωση
+                        Ακύρωση
                       </Button>
                     </div>
                   </CardContent>
@@ -172,95 +199,152 @@ const MyReservationsPage = () => {
 
       <Separator className="my-10" />
 
-      {/* ✅ Ολοκληρωμένες / Ακυρωμένες Κρατήσεις */}
+      {/* Προηγούμενες */}
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          ✅ Προηγούμενες Κρατήσεις
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          📁 Προηγούμενες Κρατήσεις
         </h2>
-        {pastReservations.length === 0 ? (
+        {paginatedPastReservations.length === 0 ? (
           <p className="text-gray-600">Δεν έχεις προηγούμενες κρατήσεις.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {pastReservations.map((reservation) => {
-              const restaurant = restaurants.find(
-                (resto) => resto.id === reservation.restaurantId
-              );
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedPastReservations.map((res) => {
+                const formattedDate = format(
+                  parse(res.date, "yyyy-MM-dd", new Date()),
+                  "eeee dd MMMM yyyy",
+                  { locale: el }
+                );
+                const restaurantName = getRestaurantName(res.restaurantId);
 
-              return (
-                <Card key={reservation.id} className="p-4 shadow-md">
-                  <CardHeader>
-                    {restaurant ? (
-                      <CardTitle className="text-lg">
-                        {restaurant.name}
+                return (
+                  <Card key={res.id} className="p-4 shadow-sm">
+                    <CardHeader className="flex justify-between items-center">
+                      <CardTitle className="text-base font-semibold text-gray-900">
+                        {statusIcon[res.status]} {restaurantName}
                       </CardTitle>
-                    ) : (
-                      <CardTitle className="text-red-500">
-                        ❌ Εστιατόριο μη διαθέσιμο
-                      </CardTitle>
-                    )}
+                      <Badge className={statusColors[res.status]}>
+                        {res.status.toUpperCase()}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="text-sm text-gray-700 space-y-1">
+                      <p>
+                        <strong>📆</strong> {formattedDate}
+                      </p>
+                      <p>
+                        <strong>🕒</strong> {res.time}
+                      </p>
+                      <p>
+                        <strong>👥</strong> {res.guestCount} άτομα
+                      </p>
+                      {res.notes && (
+                        <p>
+                          <strong>📝</strong> {res.notes}
+                        </p>
+                      )}
+                      {res.status === "cancelled" &&
+                        res.cancellationReason && (
+                          <p className="text-sm text-red-700">
+                            <strong>Λόγος ακύρωσης:</strong>{" "}
+                            {res.cancellationReason}
+                          </p>
+                        )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
 
-                    <Badge
-                      className={`px-4 py-2 text-sm font-semibold 
-              ${
-                reservation.status === "completed"
-                  ? "bg-blue-500"
-                  : "bg-red-500"
-              }`}
-                    >
-                      {reservation.status === "completed"
-                        ? "✅ Ολοκληρωμένο"
-                        : "❌ Ακυρωμένο"}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent>
-                    <p>
-                      📅 {format(new Date(reservation.date), "dd/MM/yyyy")} | 🕒{" "}
-                      {reservation.time}
-                    </p>
-                    <p>👥 {reservation.guestCount} άτομα</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-6 space-x-2">
+                <Button
+                  variant="outline"
+                  disabled={currentPage === 1}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                >
+                  Προηγούμενη
+                </Button>
+                <span className="text-gray-700 self-center">
+                  Σελίδα {currentPage} από {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  disabled={currentPage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                >
+                  Επόμενη
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
-      {/* ℹ️ Dialog Επιβεβαίωσης Ακύρωσης */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      {/* Cancel Dialog */}
+      <Dialog
+        open={confirmDialogOpen}
+        onOpenChange={(open) => {
+          setConfirmDialogOpen(open);
+          if (!open) {
+            setCancelReason("");
+            setCancelError(false);
+            setSelectedReservation(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>❌ Επιβεβαίωση Ακύρωσης</DialogTitle>
           </DialogHeader>
-          <p>Είσαι σίγουρος ότι θέλεις να ακυρώσεις την κράτηση;</p>
-          <p className="text-red-600">
-            Αν η κράτηση είναι λιγότερο από 2 ώρες πριν, θα χάσεις Loyalty
-            Points και τυχόν κουπόνια ή Special Menu που έχεις επιλέξει.
+          <p className="text-gray-800 mb-2">
+            Είσαι σίγουρος ότι θέλεις να ακυρώσεις την κράτηση;
           </p>
-          <div className="flex justify-end gap-4 mt-4">
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              ❌ Όχι, διατήρηση κράτησης
+          <p className="text-sm text-gray-600">
+            ⚠️ Αν απομένουν λιγότερες από 2 ώρες, ενδέχεται να χάσεις
+            προνόμια.
+          </p>
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Λόγος ακύρωσης <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              className="w-full border border-gray-300 rounded-md p-2 text-sm"
+              rows={3}
+              placeholder="Π.χ. Προέκυψε άλλο ραντεβού..."
+            />
+            {cancelError && (
+              <p className="text-red-500 text-sm mt-1">
+                Ο λόγος είναι υποχρεωτικός.
+              </p>
+            )}
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
+              Άκυρο
             </Button>
-            <Button className="bg-red-600 text-white" onClick={handleCancel}>
-              ✅ Ναι, ακύρωση
+            <Button variant="destructive" onClick={handleCancel}>
+              Επιβεβαίωση
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* ℹ️ Dialog Ποινής ή Επιτυχίας */}
-      <Dialog open={isPenaltyDialogOpen} onOpenChange={setIsPenaltyDialogOpen}>
+      {/* Success Message */}
+      <Dialog open={resultDialogOpen} onOpenChange={setResultDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>ℹ️ Ενημέρωση Ακύρωσης</DialogTitle>
+            <DialogTitle>ℹ️ Ενημέρωση</DialogTitle>
           </DialogHeader>
-          <p>{penaltyMessage}</p>
-          <Button
-            className="bg-blue-500 text-white mt-4"
-            onClick={() => setIsPenaltyDialogOpen(false)}
-          >
-            ΟΚ
-          </Button>
+          <p>{resultMessage}</p>
+          <div className="flex justify-end mt-4">
+            <Button onClick={() => setResultDialogOpen(false)}>ΟΚ</Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
