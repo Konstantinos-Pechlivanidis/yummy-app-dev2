@@ -107,7 +107,7 @@ const HomePage = () => {
 
           {/* Logo image */}
           <img
-            src="/images/YummyLogo.png"
+            src="/images/YummyLogo-Big.png"
             alt="Yummy Logo"
             className="h-44 w-44 md:h-52 md:w-52 object-contain relative z-10 drop-shadow-2xl"
           />
