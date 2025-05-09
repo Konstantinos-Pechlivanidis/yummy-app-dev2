@@ -4,8 +4,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { motion } from "framer-motion";
 
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Carousel, CarouselItem, CarouselContent } from "../components/ui/carousel";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Carousel,
+  CarouselItem,
+  CarouselContent,
+} from "../components/ui/carousel";
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
 import { Star } from "lucide-react";
@@ -41,9 +50,12 @@ const HomePage = () => {
   const { itemsPerPage, carouselWidth } = useScreenConfig();
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: trendingRestaurants = [], isLoading: trendingLoading } = useTrendingRestaurants();
-  const { data: discountedRestaurants = [], isLoading: discountedLoading } = useDiscountedRestaurants(currentPage, itemsPerPage);
-  const { data: testimonials = [], isLoading: testimonialsLoading } = useTestimonials(1, 6);
+  const { data: trendingRestaurants = [], isLoading: trendingLoading } =
+    useTrendingRestaurants();
+  const { data: discountedRestaurants = [], isLoading: discountedLoading } =
+    useDiscountedRestaurants(currentPage, itemsPerPage);
+  const { data: testimonials = [], isLoading: testimonialsLoading } =
+    useTestimonials(1, 6);
 
   const totalPages = Math.ceil(discountedRestaurants.length / itemsPerPage);
 
@@ -67,20 +79,51 @@ const HomePage = () => {
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-20">
-      
       {/* Hero Section */}
-      <section className="relative h-[550px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl">
-        <img src="/images/wide3.jpg" alt="hero" className="absolute inset-0 object-cover w-full h-full" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20 z-0" />
-        <motion.div {...fadeIn} className="relative z-10 text-white px-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight drop-shadow-2xl">
-            Κλείσε Τραπέζι σε Δευτερόλεπτα! 🍽️
-          </h1>
-          <p className="text-xl md:text-2xl mt-4 drop-shadow-md">
-            Ανακάλυψε τις καλύτερες γεύσεις με αποκλειστικές προσφορές.
-          </p>
-        </motion.div>
-      </section>
+       <section className="relative h-[550px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl">
+      
+      {/* Background image */}
+      <img
+        src="/images/wide3.jpg"
+        alt="hero"
+        className="absolute inset-0 object-cover w-full h-full"
+      />
+
+      {/* Gradient + dark blur overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20 backdrop-blur-sm z-0" />
+
+      {/* Foreground content */}
+      <motion.div
+        {...fadeIn}
+        className="relative z-10 text-white px-4 flex flex-col items-center"
+      >
+        {/* Glowing logo with blur */}
+        <div className="mb-10 relative flex items-center justify-center">
+          {/* Outer glow ring */}
+          <div className="absolute w-80 h-80 md:w-96 md:h-96 rounded-full bg-white/5 blur-2xl z-0 shadow-[0_0_60px_rgba(255,255,255,0.1)]" />
+
+          {/* Subtle internal blur layer */}
+          <div className="absolute w-44 h-44 md:w-52 md:h-52 rounded-full bg-white/5 blur-xl z-0" />
+
+          {/* Logo image */}
+          <img
+            src="/images/YummyLogo.png"
+            alt="Yummy Logo"
+            className="h-44 w-44 md:h-52 md:w-52 object-contain relative z-10 drop-shadow-2xl"
+          />
+        </div>
+
+        {/* Heading */}
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight drop-shadow-2xl text-center">
+          Κλείσε Τραπέζι σε Δευτερόλεπτα!
+        </h1>
+
+        {/* Subtext */}
+        <p className="text-xl md:text-2xl mt-4 drop-shadow-md text-center max-w-2xl">
+          Ανακάλυψε τις καλύτερες γεύσεις με αποκλειστικές προσφορές.
+        </p>
+      </motion.div>
+    </section>
 
       {/* Search Filter */}
       <SearchBar
@@ -92,14 +135,28 @@ const HomePage = () => {
 
       {/* Why Yummy */}
       <motion.section {...fadeIn} className="text-center">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-10">🎉 Γιατί να επιλέξεις το Yummy;</h2>
+        <h2 className="text-4xl font-extrabold text-gray-900 mb-10">
+          🎉 Γιατί να επιλέξεις το Yummy;
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { title: "🚀 Ταχύτατες Κρατήσεις", desc: "Κλείσε τραπέζι μέσα σε λίγα δευτερόλεπτα χωρίς τηλεφωνήματα!" },
-            { title: "🎯 Προσφορές & Happy Hours", desc: "Εκπτώσεις έως 50% σε επιλεγμένα εστιατόρια!" },
-            { title: "⭐ Κριτικές Πελατών", desc: "Διάβασε πραγματικές εμπειρίες και επέλεξε το καλύτερο εστιατόριο!" },
+            {
+              title: "🚀 Ταχύτατες Κρατήσεις",
+              desc: "Κλείσε τραπέζι μέσα σε λίγα δευτερόλεπτα χωρίς τηλεφωνήματα!",
+            },
+            {
+              title: "🎯 Προσφορές & Happy Hours",
+              desc: "Εκπτώσεις έως 50% σε επιλεγμένα εστιατόρια!",
+            },
+            {
+              title: "⭐ Κριτικές Πελατών",
+              desc: "Διάβασε πραγματικές εμπειρίες και επέλεξε το καλύτερο εστιατόριο!",
+            },
           ].map(({ title, desc }, idx) => (
-            <Card key={idx} className="bg-white/70 backdrop-blur-lg p-6 rounded-xl shadow-2xl transition-transform hover:scale-105">
+            <Card
+              key={idx}
+              className="bg-white/70 backdrop-blur-lg p-6 rounded-xl shadow-2xl transition-transform hover:scale-105"
+            >
               <h3 className="text-xl font-semibold">{title}</h3>
               <p className="text-gray-600 mt-2">{desc}</p>
             </Card>
@@ -109,15 +166,26 @@ const HomePage = () => {
 
       {/* Testimonials */}
       <motion.section {...fadeIn} className="text-center">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-8">💬 Τι λένε οι χρήστες μας;</h2>
-        {testimonialsLoading ? <Loading /> : (
+        <h2 className="text-4xl font-extrabold text-gray-900 mb-8">
+          💬 Τι λένε οι χρήστες μας;
+        </h2>
+        {testimonialsLoading ? (
+          <Loading />
+        ) : (
           <Carousel className="w-full overflow-hidden">
-            <CarouselContent className={`flex flex-nowrap gap-4 ${carouselWidth}`}>
+            <CarouselContent
+              className={`flex flex-nowrap gap-4 ${carouselWidth}`}
+            >
               {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="w-[100%] sm:w-[50%] md:w-[33%]">
+                <CarouselItem
+                  key={index}
+                  className="w-[100%] sm:w-[50%] md:w-[33%]"
+                >
                   <Card className="shadow-md p-6 text-gray-700 bg-white rounded-xl">
                     <p className="italic">"{testimonial.message}"</p>
-                    <p className="font-bold text-gray-900 mt-2">- Χρήστης {index + 1}</p>
+                    <p className="font-bold text-gray-900 mt-2">
+                      - Χρήστης {index + 1}
+                    </p>
                   </Card>
                 </CarouselItem>
               ))}
@@ -128,16 +196,29 @@ const HomePage = () => {
 
       {/* Trending Restaurants */}
       <motion.section {...fadeIn}>
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">🌟 Δημοφιλή Εστιατόρια</h2>
-        {trendingLoading ? <Loading /> : (
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">
+          🌟 Δημοφιλή Εστιατόρια
+        </h2>
+        {trendingLoading ? (
+          <Loading />
+        ) : (
           <Carousel className="w-full overflow-hidden">
-            <CarouselContent className={`flex flex-nowrap gap-4 ${carouselWidth}`}>
+            <CarouselContent
+              className={`flex flex-nowrap gap-4 ${carouselWidth}`}
+            >
               {trendingRestaurants.map((resto) => (
-                <CarouselItem key={resto.id} className="w-[100%] sm:w-[50%] md:w-[33%]">
+                <CarouselItem
+                  key={resto.id}
+                  className="w-[100%] sm:w-[50%] md:w-[33%]"
+                >
                   <Link to={`/restaurant/${resto.id}`}>
                     <Card className="hover:shadow-xl transition-shadow rounded-xl overflow-hidden">
                       <CardContent className="p-0">
-                        <img src={resto.photos[0]} alt={resto.name} className="w-full h-44 object-cover" />
+                        <img
+                          src={resto.photos[0]}
+                          alt={resto.name}
+                          className="w-full h-44 object-cover"
+                        />
                         <div className="p-4">
                           <h3 className="text-lg font-bold">{resto.name}</h3>
                           <p className="text-gray-600">{resto.cuisine}</p>
@@ -154,15 +235,25 @@ const HomePage = () => {
 
       {/* Discounted Restaurants */}
       <motion.section {...fadeIn}>
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">🔥 Δυναμικές Εκπτώσεις</h2>
-        {discountedLoading ? <Loading /> : (
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-6">
+          🔥 Δυναμικές Εκπτώσεις
+        </h2>
+        {discountedLoading ? (
+          <Loading />
+        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {discountedRestaurants.map((resto) => (
               <Link to={`/restaurant/${resto.id}`} key={resto.id}>
                 <Card className="hover:shadow-2xl transition-transform hover:scale-[1.02] p-4 rounded-2xl">
-                  <img src={resto.photos[0]} alt={resto.name} className="w-full h-44 object-cover rounded-xl mb-4" />
+                  <img
+                    src={resto.photos[0]}
+                    alt={resto.name}
+                    className="w-full h-44 object-cover rounded-xl mb-4"
+                  />
                   <CardHeader className="mb-2">
-                    <CardTitle className="text-xl font-semibold">{resto.name}</CardTitle>
+                    <CardTitle className="text-xl font-semibold">
+                      {resto.name}
+                    </CardTitle>
                     <div className="flex justify-between text-sm text-gray-600 mt-1">
                       <span>{resto.cuisine}</span>
                       <span className="flex items-center gap-1">
@@ -178,7 +269,10 @@ const HomePage = () => {
                         <Badge className="bg-red-500 text-white">
                           Happy Hour: -{resto.happyHours[0].discountPercentage}%
                         </Badge>
-                        <p className="mt-1">🕒 {resto.happyHours[0].startTime} - {resto.happyHours[0].endTime}</p>
+                        <p className="mt-1">
+                          🕒 {resto.happyHours[0].startTime} -{" "}
+                          {resto.happyHours[0].endTime}
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -193,7 +287,13 @@ const HomePage = () => {
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>
+                  <Button
+                    variant="outline"
+                    disabled={currentPage === 1}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                  >
                     <PaginationPrevious />
                   </Button>
                 </PaginationItem>
@@ -201,7 +301,13 @@ const HomePage = () => {
                   Σελίδα {currentPage} από {totalPages}
                 </span>
                 <PaginationItem>
-                  <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>
+                  <Button
+                    variant="outline"
+                    disabled={currentPage === totalPages}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                  >
                     <PaginationNext />
                   </Button>
                 </PaginationItem>
@@ -213,11 +319,21 @@ const HomePage = () => {
 
       {/* Loyalty Program */}
       <motion.section {...fadeIn}>
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">🎖️ Πρόγραμμα Επιβράβευσης</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          🎖️ Πρόγραμμα Επιβράβευσης
+        </h2>
         <Card className="p-6 bg-gradient-to-r from-yellow-400 to-red-500 text-white text-center rounded-2xl shadow-xl">
-          <h3 className="text-2xl font-bold">Γίνε VIP Μέλος & Κέρδισε Δωρεάν Γεύματα</h3>
-          <p className="mt-4">Κάθε κράτηση σου δίνει πόντους! Κέρδισε δωρεάν γεύματα και ειδικές προσφορές.</p>
-          <Button className="mt-6 bg-white text-primary hover:bg-primary hover:text-white transition-all" onClick={() => handleNavigate("/loyalty")}>
+          <h3 className="text-2xl font-bold">
+            Γίνε VIP Μέλος & Κέρδισε Δωρεάν Γεύματα
+          </h3>
+          <p className="mt-4">
+            Κάθε κράτηση σου δίνει πόντους! Κέρδισε δωρεάν γεύματα και ειδικές
+            προσφορές.
+          </p>
+          <Button
+            className="mt-6 bg-white text-primary hover:bg-primary hover:text-white transition-all"
+            onClick={() => handleNavigate("/loyalty")}
+          >
             Μάθε Περισσότερα
           </Button>
         </Card>

@@ -57,7 +57,7 @@ const Navbar = () => {
         
         {/* Logo */}
         <Link to={logoLink} className="text-2xl font-bold text-primary">
-          🍽️ Yummy
+          Yummy
         </Link>
 
         {/* Desktop Links */}
