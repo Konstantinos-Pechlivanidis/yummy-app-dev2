@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback  } from "react";
 import { useSelector } from "react-redux";
 import {
   useFilteredReservations,
@@ -52,19 +52,18 @@ const MyReservationsPage = () => {
 
   const { data: allRestaurants = [] } = useRestaurants();
 
-  
+  const handleFilterChange = useCallback((filters) => {
+  setFilters(filters);
+  setCurrentPage(1);
+}, []);
+
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-10 space-y-10">
       <h1 className="text-3xl md:text-4xl font-extrabold text-center text-gray-900">
         📅 Οι Κρατήσεις μου
       </h1>
 
-      <ReservationFilterBar
-        onFilterChange={(filters) => {
-          setFilters(filters);
-          setCurrentPage(1); // reset to page 1 on filter change
-        }}
-      />
+      <ReservationFilterBar onFilterChange={handleFilterChange} />
 
       {isLoading ? (
         <Loading />

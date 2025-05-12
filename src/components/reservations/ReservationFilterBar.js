@@ -21,7 +21,7 @@ const ReservationFilterBar = ({ onFilterChange }) => {
       date: selectedDate || null,
       status: selectedStatus === "all" ? null : selectedStatus,
     });
-  }, [selectedDate, selectedStatus]);
+  }, [selectedDate, selectedStatus, onFilterChange]);
 
   const clearFilters = () => {
     setSelectedDate("");
@@ -33,7 +33,7 @@ const ReservationFilterBar = ({ onFilterChange }) => {
       {/* Date Picker */}
       <div className="flex flex-col flex-1 min-w-[240px]">
         <label className="text-base font-medium text-gray-700 mb-1">
-          📆 Ημερομηνία
+          Ημερομηνία
         </label>
         <Popover>
           <PopoverTrigger asChild>
@@ -65,7 +65,7 @@ const ReservationFilterBar = ({ onFilterChange }) => {
       {/* Status Select */}
       <div className="flex flex-col flex-1 min-w-[240px]">
         <label className="text-base font-medium text-gray-700 mb-1">
-          📂 Κατάσταση
+          Κατάσταση
         </label>
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
           <SelectTrigger className="w-full text-base py-2">
