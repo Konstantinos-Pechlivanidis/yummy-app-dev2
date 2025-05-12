@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PlusCircle, Trash } from "lucide-react";
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "./ui/dialog";
-import { Table, TableHead, TableRow, TableCell, TableBody } from "./ui/table";
-import { addCoupon, removeCoupon } from "../store/couponSlice";
-import { Input } from "./ui/input";
-import { TabsContent } from "./ui/tabs";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogFooter } from "../ui/dialog";
+import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
+import { addCoupon, removeCoupon } from "../../store/couponSlice";
+import { Input } from "../ui/input";
+import { TabsContent } from "../ui/tabs";
 
 const CouponManagement = () => {
   const dispatch = useDispatch();

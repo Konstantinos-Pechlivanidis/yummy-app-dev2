@@ -6,14 +6,14 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import { CalendarIcon, Users, Mail, Clock } from "lucide-react";
 import {
   useReservationDetails,
   useRestaurantDetails,
-} from "../hooks/useDummyData";
-import Loading from "../components/Loading";
+} from "../../hooks/useDummyData";
+import Loading from "../../components/Loading";
 import { toast } from "react-hot-toast";
 
 const ConfirmationPage = () => {

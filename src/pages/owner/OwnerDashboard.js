@@ -1,18 +1,18 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Separator } from "../components/ui/separator";
+import { Button } from "../../components/ui/button";
+import { Separator } from "../../components/ui/separator";
 import {
   Tabs,
   TabsList,
   TabsTrigger,
   TabsContent,
-} from "../components/ui/tabs";
-import MenuManagement from "../components/MenuManagement";
-import SpecialMenuManagement from "../components/SpecialMenuManagement";
-import CouponManagement from "../components/CouponManagement";
-import ReservationManagement from "../components/ReservationManagement";
-import OverviewManagement from "../components/OverviewManagement";
+} from "../../components/ui/tabs";
+import MenuManagement from "../../components/owner/MenuManagement";
+import SpecialMenuManagement from "../../components/owner/SpecialMenuManagement";
+import CouponManagement from "../../components/owner/CouponManagement";
+import ReservationManagement from "../../components/owner/ReservationManagement";
+import OverviewManagement from "../../components/owner/OverviewManagement";
 
 const OwnerDashboard = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);

@@ -12,16 +12,16 @@ import {
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import HomePage from "./pages/HomePage";
-import LoyaltyPage from "./pages/LoyaltyPage";
-import ReserveTablePage from "./pages/ReserveTablePage";
-import RestaurantDetailsPage from "./pages/RestaurantDetailsPage";
-import MyReservationsPage from "./pages/MyReservationsPage";
-import ConfirmationPage from "./pages/Confirmation";
+import HomePage from "./pages/customer/HomePage";
+import LoyaltyPage from "./pages/customer/LoyaltyPage";
+import ReserveTablePage from "./pages/customer/ReserveTablePage";
+import RestaurantDetailsPage from "./pages/customer/RestaurantDetailsPage";
+import MyReservationsPage from "./pages/customer/MyReservationsPage";
+import ConfirmationPage from "./pages/customer/Confirmation";
 import ScrollToTop from "./lib/ScrollToTop";
-import ProfilePage from "./pages/ProfilePage";
-import OwnerDashboard from "./pages/OwnerDashboard";
-import OwnerProfile from "./pages/OwnerProfile";
+import ProfilePage from "./pages/customer/ProfilePage";
+import OwnerDashboard from "./pages/owner/OwnerDashboard";
+import OwnerProfile from "./pages/owner/OwnerProfile";
 import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
 

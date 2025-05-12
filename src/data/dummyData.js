@@ -7,7 +7,7 @@ export const users = [
     role: "customer",
     phone: "6987654321",
     loyaltyPoints: 120,
-    favoriteRestaurants: ["resto007", "resto008"],
+    favoriteRestaurants: ["resto006", "resto007", "resto008", "resto009"],
     preferredMenus: ["menu001"],
     preferredCuisines: ["Vegan", "Ασιατική"],
     newsletterSubscribed: true,
@@ -37,6 +37,36 @@ export const purchasedCoupons = [
   {
     userId: "user001",
     couponId: "coupon002",
+    purchasedAt: "2024-07-10T09:20:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon003",
+    purchasedAt: "2024-06-15T11:30:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon002",
+    purchasedAt: "2024-07-10T09:20:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon003",
+    purchasedAt: "2024-06-15T11:30:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon005",
+    purchasedAt: "2024-07-10T09:20:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon003",
+    purchasedAt: "2024-06-15T11:30:00Z",
+  },
+  {
+    userId: "user001",
+    couponId: "coupon004",
     purchasedAt: "2024-07-10T09:20:00Z",
   },
 ];
@@ -426,7 +456,7 @@ export const reservations = [
     time: "19:00",
     guestCount: 2,
     status: "pending",
-    specialMenuId: "menu001",
+    specialMenuId: "menu201",
     couponId: null,
   },
   {
@@ -437,8 +467,9 @@ export const reservations = [
     time: "14:00",
     guestCount: 4,
     status: "completed",
-    specialMenuId: null,
+    specialMenuId: "menu202",
     couponId: null,
+    notes: "Καρεκλάκι για μωρό"
   },
   {
     id: "reservation008",
@@ -509,95 +540,131 @@ export const payments = [
 
 export const specialMenus = [
   {
-    id: "menu003",
+    id: "menu201",
     restaurantId: "resto006",
-    name: "Παραδοσιακό Γεύμα για Δύο",
-    description:
-      "Δύο ορεκτικά, δύο κυρίως πιάτα και ένα επιδόρπιο για δύο άτομα.",
-    originalPrice: 40,
-    discountedPrice: 30,
-    discountPercentage: 25,
+    name: "Παραδοσιακό Γεύμα Cozy",
+    description: "Ορεκτικό, κυρίως πιάτο και παραδοσιακό επιδόρπιο σε ειδική τιμή.",
+    originalPrice: 26,
+    discountedPrice: 20,
+    discountPercentage: 23,
     photoUrl: "/images/mobile3.jpg",
-    selectedItems: ["item025", "item026", "item027"],
-    availableItems: menuItems.filter(
-      (item) => item.restaurantId === "resto006"
-    ),
-    selectedDate: "2025-05-31",
-    timeRange: { start: "19:00", end: "22:00" },
-    createdAt: "2024-05-10T00:00:00Z",
+    selectedItems: [
+      { id: "item025", name: "Χωριάτικη Σαλάτα" },
+      { id: "item026", name: "Μουσακάς" },
+      { id: "item027", name: "Γιαούρτι με Μέλι και Καρύδια" },
+    ],
+    availability: {
+      type: "recurring",
+      daysOfWeek: ["Tuesday", "Thursday"],
+      timeRange: { start: "13:00", end: "16:00" },
+    },
+    createdAt: "2024-06-05T00:00:00Z",
   },
   {
-    id: "menu004",
+    id: "menu202",
     restaurantId: "resto007",
-    name: "Burger Mania Combo",
-    description:
-      "Δύο burgers της επιλογής σας, δύο μερίδες πατάτες και δύο αναψυκτικά.",
-    originalPrice: 28,
-    discountedPrice: 25,
-    discountPercentage: 10,
+    name: "BBQ Deluxe Combo",
+    description: "Δύο burgers και milkshake στην τιμή του ενός.",
+    originalPrice: 24,
+    discountedPrice: 17,
+    discountPercentage: 29,
     photoUrl: "/images/mobile1.jpg",
-    selectedItems: ["item028", "item031", "item029"],
-    availableItems: menuItems.filter(
-      (item) => item.restaurantId === "resto007"
-    ),
-    selectedDate: "2025-06-15",
-    timeRange: { start: "12:00", end: "16:00" },
-    createdAt: "2024-05-15T00:00:00Z",
+    selectedItems: [
+      { id: "item028", name: "Classic Cheeseburger" },
+      { id: "item031", name: "BBQ Bacon Burger" },
+      { id: "item030", name: "Chocolate Milkshake" },
+    ],
+    availability: {
+      type: "permanent",
+      timeRange: { start: "18:00", end: "22:00" },
+    },
+    createdAt: "2024-06-07T00:00:00Z",
   },
   {
-    id: "menu005",
+    id: "menu203",
     restaurantId: "resto008",
-    name: "Vegan Tasting Menu",
-    description:
-      "Μια επιλογή από τα καλύτερα vegan ορεκτικά, κυρίως και επιδόρπιο.",
-    originalPrice: 35,
-    discountedPrice: 30,
-    discountPercentage: 14,
-    photoUrl: "/images/mobile2.jpg",
-    selectedItems: ["item033", "item032", "item034"],
-    availableItems: menuItems.filter(
-      (item) => item.restaurantId === "resto008"
-    ),
-    selectedDate: "2025-07-01",
-    timeRange: { start: "18:00", end: "21:00" },
-    createdAt: "2024-05-20T00:00:00Z",
-  },
-  {
-    id: "menu006",
-    restaurantId: "resto009",
-    name: "Seafood Platter for One",
-    description: "Μια ποικιλία από φρέσκα θαλασσινά στη σχάρα.",
-    originalPrice: 25,
-    discountedPrice: 22,
-    discountPercentage: 12,
-    photoUrl: "/images/mobile3.jpg",
-    selectedItems: ["item035", "item036"],
-    availableItems: menuItems.filter(
-      (item) => item.restaurantId === "resto009"
-    ),
-    selectedDate: "2025-07-15",
-    timeRange: { start: "12:00", end: "17:00" },
-    createdAt: "2024-05-25T00:00:00Z",
-  },
-  {
-    id: "menu007",
-    restaurantId: "resto010",
-    name: "Spicy Asian Delight",
-    description:
-      "Ένα πικάντικο γεύμα που περιλαμβάνει ορεκτικό, κυρίως και ένα ποτό.",
+    name: "Vegan Power Meal",
+    description: "Ορεκτικό, vegan burger και σοκολατένιο γλυκό.",
     originalPrice: 22,
-    discountedPrice: 18,
-    discountPercentage: 18,
+    discountedPrice: 17,
+    discountPercentage: 22,
+    photoUrl: "/images/mobile2.jpg",
+    selectedItems: [
+      { id: "item033", name: "Hummus with Pita" },
+      { id: "item032", name: "Vegan Burger" },
+      { id: "item034", name: "Vegan Chocolate Cake" },
+    ],
+    availability: {
+      type: "recurring",
+      daysOfWeek: ["Monday", "Saturday"],
+      timeRange: { start: "14:00", end: "17:00" },
+    },
+    createdAt: "2024-06-08T00:00:00Z",
+  },
+  {
+    id: "menu204",
+    restaurantId: "resto009",
+    name: "Θαλασσινό Δείπνο Δύο Ατόμων",
+    description: "Ριζότο, καλαμαράκια και σαλάτα για δύο άτομα.",
+    originalPrice: 42,
+    discountedPrice: 33,
+    discountPercentage: 21,
+    photoUrl: "/images/mobile3.jpg",
+    selectedItems: [
+      { id: "item037", name: "Seafood Risotto" },
+      { id: "item036", name: "Fried Calamari" },
+      { id: "item038", name: "Greek Salad" },
+    ],
+    availability: {
+      type: "specific",
+      dates: ["2025-05-14", "2025-05-18"],
+      timeRange: { start: "19:00", end: "22:00" },
+    },
+    createdAt: "2024-06-10T00:00:00Z",
+  },
+  {
+    id: "menu205",
+    restaurantId: "resto010",
+    name: "Spicy Lover's Combo",
+    description: "Σούπα, noodles και ρολάκια λαχανικών για τους τολμηρούς.",
+    originalPrice: 21,
+    discountedPrice: 15,
+    discountPercentage: 28,
     photoUrl: "/images/mobile1.jpg",
-    selectedItems: ["item040", "item039"],
-    availableItems: menuItems.filter(
-      (item) => item.restaurantId === "resto010"
-    ),
-    selectedDate: "2025-08-01",
-    timeRange: { start: "19:00", end: "23:00" },
-    createdAt: "2024-05-30T00:00:00Z",
+    selectedItems: [
+      { id: "item041", name: "Tom Yum Soup" },
+      { id: "item039", name: "Pad Thai" },
+      { id: "item040", name: "Spring Rolls" },
+    ],
+    availability: {
+      type: "recurring",
+      daysOfWeek: ["Friday", "Saturday"],
+      timeRange: { start: "17:30", end: "21:30" },
+    },
+    createdAt: "2024-06-12T00:00:00Z",
+  },
+  {
+    id: "menu206",
+    restaurantId: "resto006",
+    name: "Μεσημεριανή Προσφορά Cozy",
+    description: "Δύο πιάτα με κρασί σε τιμή προσφοράς, μόνο μεσημέρι.",
+    originalPrice: 30,
+    discountedPrice: 23,
+    discountPercentage: 23,
+    photoUrl: "/images/mobile3.jpg",
+    selectedItems: [
+      { id: "item026", name: "Μουσακάς" },
+      { id: "item025", name: "Χωριάτικη Σαλάτα" },
+    ],
+    availability: {
+      type: "recurring",
+      daysOfWeek: ["Monday", "Tuesday", "Wednesday"],
+      timeRange: { start: "12:00", end: "15:00" },
+    },
+    createdAt: "2024-06-15T00:00:00Z",
   },
 ];
+
 
 export const coupons = [
   {

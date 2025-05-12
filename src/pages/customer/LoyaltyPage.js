@@ -1,10 +1,10 @@
 import { useSelector } from "react-redux";
-import { useUserLoyaltyPoints } from "../hooks/useDummyData";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Progress } from "../components/ui/progress";
+import { useUserLoyaltyPoints } from "../../hooks/useDummyData";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Progress } from "../../components/ui/progress";
 import { Star, Gift, Store } from "lucide-react";
-import LoyaltyInfoButton from "../components/LoyaltyInfoButton";
-import Loading from "../components/Loading";
+import LoyaltyInfoButton from "../../components/LoyaltyInfoButton";
+import Loading from "../../components/Loading";
 
 const LoyaltyPage = () => {
   const { user } = useSelector((state) => state.auth);
@@ -47,7 +47,7 @@ const LoyaltyPage = () => {
         ) : (
           <Card className="mx-auto w-full max-w-md bg-white/60 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-lg">
             <CardHeader className="pt-6">
-              <CardTitle className="text-5xl font-extrabold text-primary">
+              <CardTitle className="text-4xl font-extrabold text-primary">
                 {points} πόντοι
               </CardTitle>
             </CardHeader>

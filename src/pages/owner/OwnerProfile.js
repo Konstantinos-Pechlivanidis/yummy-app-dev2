@@ -1,17 +1,17 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { updateProfile } from "../store/authSlice";
-import { updateRestaurantProfile } from "../store/restaurantSlice";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
+import { updateProfile } from "../../store/authSlice";
+import { updateRestaurantProfile } from "../../store/restaurantSlice";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../components/ui/card";
-import { Label } from "../components/ui/label";
-import { Separator } from "../components/ui/separator";
+} from "../../components/ui/card";
+import { Label } from "../../components/ui/label";
+import { Separator } from "../../components/ui/separator";
 import { format } from "date-fns";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import toast from "react-hot-toast";

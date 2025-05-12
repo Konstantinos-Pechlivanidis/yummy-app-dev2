@@ -58,8 +58,28 @@ export const useTrendingRestaurants = (page = 1, perPage = 5) =>
         return data;
       } catch (error) {
         console.warn("⚠️ Trending restaurants fallback to dummy");
+
+        // Sort by rating
         const sorted = [...restaurants].sort((a, b) => b.rating - a.rating);
-        return paginate(sorted, page, perPage);
+
+        // Paginate
+        const paginated = sorted.slice((page - 1) * perPage, page * perPage);
+
+        // Enrich with specialMenu and coupon
+        const enriched = paginated.map((resto) => {
+          const specialMenu = specialMenus.find(
+            (menu) => menu.restaurantId === resto.id
+          );
+          const coupon = coupons.find((c) => c.restaurantId === resto.id);
+
+          return {
+            ...resto,
+            specialMenu,
+            coupon,
+          };
+        });
+
+        return enriched;
       }
     },
   });
@@ -72,11 +92,28 @@ export const useDiscountedRestaurants = (page = 1, perPage = 5) =>
         const { data } = await axiosInstance.get(
           `/restaurants/discounted?page=${page}&limit=${perPage}`
         );
-        return data;
+        return data; // { data: [...], total: number }
       } catch (error) {
-        console.warn("⚠️ Discounted restaurants fallback to dummy");
-        const discounted = restaurants.filter((r) => r.happyHours.length > 0);
-        return paginate(discounted, page, perPage);
+        console.warn("⚠️ Discounted restaurants fallback to special menus");
+
+        // Map special menus with their restaurant
+        const enrichedMenus = specialMenus
+          .map((menu) => {
+            const restaurant = restaurants.find(
+              (r) => r.id === menu.restaurantId
+            );
+            return restaurant ? { ...menu, restaurant } : null;
+          })
+          .filter(Boolean);
+
+        // Pagination
+        const start = (page - 1) * perPage;
+        const paginated = enrichedMenus.slice(start, start + perPage);
+
+        return {
+          data: paginated,
+          total: enrichedMenus.length,
+        };
       }
     },
   });
@@ -92,7 +129,8 @@ export const useFilteredRestaurants = (filters = {}) =>
         return data;
       } catch (error) {
         console.warn("⚠️ Filtered restaurants fallback to dummy");
-        return restaurants.filter((r) => {
+
+        const filtered = restaurants.filter((r) => {
           const matchesCuisine =
             !filters.cuisine || r.cuisine === filters.cuisine;
           const matchesLocation =
@@ -100,6 +138,20 @@ export const useFilteredRestaurants = (filters = {}) =>
           const matchesGuests =
             !filters.guests || r.totalTables >= filters.guests;
           return matchesCuisine && matchesLocation && matchesGuests;
+        });
+
+        // Enrich with specialMenu and coupon
+        return filtered.map((resto) => {
+          const specialMenu = specialMenus.find(
+            (menu) => menu.restaurantId === resto.id
+          );
+          const coupon = coupons.find((c) => c.restaurantId === resto.id);
+
+          return {
+            ...resto,
+            specialMenu,
+            coupon,
+          };
         });
       }
     },
@@ -407,52 +459,205 @@ export const useUpdateUser = () => {
   });
 };
 
-export const useFavoriteRestaurants = (userId) =>
+export const useFavoriteRestaurants = (userId, page = 1, limit = 6) =>
   useQuery({
-    queryKey: ["favoriteRestaurants", userId],
+    queryKey: ["favoriteRestaurants", userId, page],
+    enabled: !!userId,
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get(`/users/${userId}/favorites`);
-        return data; // expected: array of full restaurant objects
+        const { data } = await axiosInstance.get(`/users/${userId}/favorites`, {
+          params: { page, limit },
+        });
+
+        return data; // expected shape: { data: [...], total }
+      } catch (error) {
+        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+
+        const user = users.find((u) => u.id === userId);
+        if (!user) throw new Error("User not found");
+
+        const fullFavorites = restaurants
+          .filter((r) => user.favoriteRestaurants.includes(r.id))
+          .map((r) => {
+            const specialMenu = specialMenus.find(
+              (m) => m.restaurantId === r.id
+            );
+            const coupon = coupons.find((c) => c.restaurantId === r.id);
+            return {
+              ...r,
+              specialMenu: specialMenu || null,
+              coupon: coupon || null,
+            };
+          });
+
+        const total = fullFavorites.length;
+        const start = (page - 1) * limit;
+        const paginated = fullFavorites.slice(start, start + limit);
+
+        return {
+          data: paginated,
+          total,
+        };
+      }
+    },
+  });
+
+export const useToggleWatchlist = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, restaurantId }) => {
+      try {
+        const { data } = await axiosInstance.post(
+          `/users/${userId}/favorites/toggle`,
+          { restaurantId }
+        );
+        return data; // expected: updated favorite list or success flag
       } catch (error) {
         console.warn("⚠️ Backend unreachable. Using dummy fallback.");
         const user = users.find((u) => u.id === userId);
         if (!user) throw new Error("User not found");
-        return restaurants.filter((r) => user.favoriteRestaurants.includes(r.id));
+
+        const index = user.favoriteRestaurants.indexOf(restaurantId);
+        if (index > -1) {
+          user.favoriteRestaurants.splice(index, 1); // remove
+        } else {
+          user.favoriteRestaurants.push(restaurantId); // add
+        }
+        return user.favoriteRestaurants;
+      }
+    },
+    onSuccess: (_, { userId }) => {
+      queryClient.invalidateQueries(["favoriteRestaurants", userId]);
+    },
+    onError: () => {
+      toast.error("⚠️ Δεν ήταν δυνατή η αλλαγή στη Watchlist");
+    },
+  });
+};
+
+export const useRestaurantsWithPurchasedCoupons = (userId) =>
+  useQuery({
+    queryKey: ["restaurantsWithPurchasedCoupons", userId],
+    queryFn: async () => {
+      try {
+        // 🔁 Πραγματικό API call (υποθέτουμε endpoint όπως `/restaurants/coupons/user/:id`)
+        const { data } = await axiosInstance.get(
+          `/restaurants/coupons/user/${userId}`
+        );
+        return data;
+      } catch (error) {
+        console.warn(
+          "⚠️ Backend unreachable. Using dummy fallback for coupon restaurants"
+        );
+
+        // Dummy fallback
+        const userPurchases = purchasedCoupons.filter(
+          (p) => p.userId === userId
+        );
+        const purchasedCouponIds = userPurchases.map((p) => p.couponId);
+
+        const result = restaurants
+          .map((resto) => {
+            const matchingCoupon = resto.coupons
+              ?.map((couponId) =>
+                coupons.find(
+                  (c) => c.id === couponId && purchasedCouponIds.includes(c.id)
+                )
+              )
+              .find(Boolean);
+
+            return matchingCoupon ? { ...resto, coupon: matchingCoupon } : null;
+          })
+          .filter(Boolean);
+
+        return result;
       }
     },
     enabled: !!userId,
   });
 
-
-  export const useToggleWatchlist = () => {
-    const queryClient = useQueryClient();
-  
-    return useMutation({
-      mutationFn: async ({ userId, restaurantId }) => {
-        try {
-          const { data } = await axiosInstance.post(`/users/${userId}/favorites/toggle`, { restaurantId });
-          return data; // expected: updated favorite list or success flag
-        } catch (error) {
-          console.warn("⚠️ Backend unreachable. Using dummy fallback.");
-          const user = users.find((u) => u.id === userId);
-          if (!user) throw new Error("User not found");
-  
-          const index = user.favoriteRestaurants.indexOf(restaurantId);
-          if (index > -1) {
-            user.favoriteRestaurants.splice(index, 1); // remove
-          } else {
-            user.favoriteRestaurants.push(restaurantId); // add
+export const useFilteredReservations = (
+  userId,
+  date,
+  status = "all",
+  page = 1,
+  limit = 6
+) => {
+  return useQuery({
+    queryKey: ["reservations", userId, date, status, page],
+    enabled: !!userId,
+    queryFn: async () => {
+      try {
+        const { data } = await axiosInstance.get(
+          `/reservations/user/${userId}`,
+          {
+            params: {
+              ...(status !== "all" && { status }),
+              ...(date && { date }),
+              page,
+              limit,
+            },
           }
-          return user.favoriteRestaurants;
+        );
+
+        return data; // { data: [...], total }
+      } catch (error) {
+        console.warn("⚠️ Backend failed. Using dummy data fallback.");
+
+        // 1. Φιλτράρισμα μόνο για τον συγκεκριμένο χρήστη
+        let filtered = reservations.filter((res) => res.userId === userId);
+
+        // 2. Φιλτράρισμα κατά κατάσταση (status)
+        if (status && status !== "all") {
+          filtered = filtered.filter((res) => res.status === status);
         }
-      },
-      onSuccess: (_, { userId }) => {
-        queryClient.invalidateQueries(["favoriteRestaurants", userId]);
-      },
-      onError: () => {
-        toast.error("⚠️ Δεν ήταν δυνατή η αλλαγή στη Watchlist");
-      },
-    });
-  };
-  
+
+        // 3. Φιλτράρισμα κατά ημερομηνία με απλή string σύγκριση
+        if (date) {
+          filtered = filtered.filter((res) => res.date === date);
+        }
+
+        // 4. Pagination
+        const total = filtered.length;
+
+        const enriched = filtered
+          .slice((page - 1) * limit, (page - 1) * limit + limit)
+          .map((res) => {
+            const specialMenu = res.specialMenuId
+              ? specialMenus.find((menu) => menu.id === res.specialMenuId)
+              : null;
+
+            const coupon = res.couponId
+              ? coupons.find((c) => c.id === res.couponId)
+              : null;
+
+            return {
+              ...res,
+              specialMenu,
+              coupon,
+            };
+          });
+
+        return {
+          data: enriched,
+          total,
+        };
+      }
+    },
+  });
+};
+
+export const useRestaurants = () =>
+  useQuery({
+    queryKey: ["restaurants"],
+    queryFn: async () => {
+      try {
+        const { data } = await axiosInstance.get("/restaurants");
+        return data; // expected: full list of restaurant objects
+      } catch (error) {
+        console.warn("⚠️ Backend unavailable. Using dummy restaurants.");
+        return restaurants; // fallback from dummyData.js
+      }
+    },
+  });

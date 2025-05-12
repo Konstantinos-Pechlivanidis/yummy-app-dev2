@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "./ui/dialog";
-import { Table, TableHead, TableRow, TableCell, TableBody } from "./ui/table";
-import { Badge } from "./ui/badge";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogFooter } from "../ui/dialog";
+import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
+import { Badge } from "../ui/badge";
 import {
   approveReservation,
   cancelReservation,
   markAsCompleted,
-} from "../store/reservationsSlice";
+} from "../../store/reservationsSlice";
 import { Check, XCircle } from "lucide-react";
 
 const ReservationManagement = () => {

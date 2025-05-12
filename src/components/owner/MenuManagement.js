@@ -1,28 +1,28 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PlusCircle, Edit, Trash, Upload } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Button } from "../ui/button";
 import {
   Table,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
-} from "../components/ui/table";
+} from "../ui/table";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogFooter,
-} from "../components/ui/dialog";
+} from "../ui/dialog";
 import {
   addMenuItem,
   removeMenuItem,
   editMenuItem,
   uploadMenuItemImage,
-} from "../store/menusSlice";
-import { TabsContent } from "../components/ui/tabs";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../components/ui/select";
+} from "../../store/menusSlice";
+import { TabsContent } from "../ui/tabs";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 
 const MenuManagement = () => {
   const dispatch = useDispatch();

@@ -18,58 +18,28 @@ import { isValid, format } from "date-fns";
 
 const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
   const cuisineOptions = [
-    "Ιταλικό",
-    "Ιαπωνικό",
-    "Μεσογειακό",
-    "Αμερικάνικο",
-    "Μεξικάνικο",
-    "Vegan",
-    "Καφέ & Γλυκά",
-    "Κινέζικο",
-    "Γαλλικό",
-    "Ελληνικό",
-    "Ινδικό",
-    "Θαλασσινά",
-    "Πολυνησιακό",
-    "Ασιατικό",
-    "Street Food",
-    "Μπάρμπεκιου",
+    "Ιταλικό", "Ιαπωνικό", "Μεσογειακό", "Αμερικάνικο", "Μεξικάνικο",
+    "Vegan", "Καφέ & Γλυκά", "Κινέζικο", "Γαλλικό", "Ελληνικό",
+    "Ινδικό", "Θαλασσινά", "Πολυνησιακό", "Ασιατικό", "Street Food", "Μπάρμπεκιου"
   ];
 
   const athensLocations = [
-    "Σύνταγμα",
-    "Γλυφάδα",
-    "Κολωνάκι",
-    "Μοναστηράκι",
-    "Ψυρρή",
-    "Θησείο",
-    "Πλάκα",
-    "Παγκράτι",
-    "Κηφισιά",
-    "Χαλάνδρι",
-    "Νέα Σμύρνη",
-    "Μεταξουργείο",
-    "Πετράλωνα",
-    "Γκάζι",
-    "Πειραιάς",
-    "Φάληρο",
-    "Νέο Ψυχικό",
-    "Βουλιαγμένη",
+    "Σύνταγμα", "Γλυφάδα", "Κολωνάκι", "Μοναστηράκι", "Ψυρρή", "Θησείο", "Πλάκα",
+    "Παγκράτι", "Κηφισιά", "Χαλάνδρι", "Νέα Σμύρνη", "Μεταξουργείο", "Πετράλωνα",
+    "Γκάζι", "Πειραιάς", "Φάληρο", "Νέο Ψυχικό", "Βουλιαγμένη"
   ];
 
   return (
-    <div className="mt-10 p-8 bg-white/50 backdrop-blur-md border border-gray-200 shadow-2xl rounded-3xl transition-all">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="mt-10 p-5 sm:p-6 md:p-8 bg-white/50 backdrop-blur-md border border-gray-200 shadow-2xl rounded-3xl transition-all space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
         {/* Date Picker */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">
-            Ημερομηνία
-          </label>
+          <label className="text-[15px] font-semibold text-gray-700">Ημερομηνία</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-between bg-white/80 border border-gray-300 text-gray-800 hover:border-primary"
+                className="w-full justify-between bg-white/80 border border-gray-300 text-gray-800 text-[15px] py-2.5"
               >
                 {isValid(searchParams.date)
                   ? format(searchParams.date, "dd/MM/yyyy")
@@ -92,17 +62,17 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
 
         {/* Time Picker */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Ώρα</label>
+          <label className="text-[15px] font-semibold text-gray-700">Ώρα</label>
           <Select
             value={searchParams.time}
             onValueChange={(value) =>
               setSearchParams({ ...searchParams, time: value })
             }
           >
-            <SelectTrigger className="w-full bg-white/80 border border-gray-300 text-gray-800">
+            <SelectTrigger className="w-full bg-white/80 border border-gray-300 text-gray-800 text-[15px] py-2.5">
               <SelectValue placeholder="Ώρα" />
             </SelectTrigger>
-            <SelectContent className="bg-white shadow-xl rounded-lg p-2">
+            <SelectContent className="bg-white shadow-xl rounded-lg p-2 text-[15px]">
               {timeSlots.map((time) => (
                 <SelectItem key={time} value={time}>
                   {time}
@@ -114,13 +84,13 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
 
         {/* Guests */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Άτομα</label>
+          <label className="text-[15px] font-semibold text-gray-700">Άτομα</label>
           <Input
             type="number"
             min="1"
             value={searchParams.guests}
             inputMode="numeric"
-            className="w-full bg-white/80 border border-gray-300 text-gray-800"
+            className="w-full bg-white/80 border border-gray-300 text-gray-800 text-[15px] py-2.5"
             onChange={(e) => {
               const val = parseInt(e.target.value, 10);
               setSearchParams({
@@ -138,9 +108,7 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
 
         {/* Location */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">
-            Τοποθεσία
-          </label>
+          <label className="text-[15px] font-semibold text-gray-700">Τοποθεσία</label>
           <Select
             value={searchParams.location || "all"}
             onValueChange={(value) =>
@@ -150,10 +118,10 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
               })
             }
           >
-            <SelectTrigger className="w-full bg-white/80 border border-gray-300 text-gray-800">
+            <SelectTrigger className="w-full bg-white/80 border border-gray-300 text-gray-800 text-[15px] py-2.5">
               <SelectValue placeholder="Όλες οι περιοχές" />
             </SelectTrigger>
-            <SelectContent className="bg-white shadow-xl rounded-lg p-2">
+            <SelectContent className="bg-white shadow-xl rounded-lg p-2 text-[15px]">
               <SelectItem value="all">Όλες οι περιοχές</SelectItem>
               {athensLocations.map((location) => (
                 <SelectItem key={location} value={location}>
@@ -166,7 +134,7 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
 
         {/* Cuisine */}
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-semibold text-gray-700">Κουζίνα</label>
+          <label className="text-[15px] font-semibold text-gray-700">Κουζίνα</label>
           <Select
             value={searchParams.cuisine || "all"}
             onValueChange={(value) =>
@@ -176,10 +144,10 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
               })
             }
           >
-            <SelectTrigger className="w-full bg-white/80 border border-gray-300 text-gray-800">
+            <SelectTrigger className="w-full bg-white/80 border border-gray-300 text-gray-800 text-[15px] py-2.5">
               <SelectValue placeholder="Όλες οι κουζίνες" />
             </SelectTrigger>
-            <SelectContent className="bg-white shadow-xl rounded-lg p-2">
+            <SelectContent className="bg-white shadow-xl rounded-lg p-2 text-[15px]">
               <SelectItem value="all">Όλες οι κουζίνες</SelectItem>
               {cuisineOptions.map((cuisine) => (
                 <SelectItem key={cuisine} value={cuisine}>
@@ -195,13 +163,13 @@ const SearchBar = ({ searchParams, setSearchParams, timeSlots, onSearch }) => {
       <div className="flex flex-col sm:flex-row justify-end items-center gap-3 mt-6">
         <Button
           onClick={onSearch}
-          className="bg-primary text-white text-base px-6 py-3 rounded-full shadow hover:scale-[1.02] transition"
+          className="bg-primary text-white text-[15px] px-6 py-3 rounded-full shadow hover:scale-[1.02] transition w-full sm:w-auto"
         >
           🔍 Αναζήτηση
         </Button>
         <Button
           variant="ghost"
-          className="text-gray-600 underline text-sm"
+          className="text-gray-600 underline text-[14px] w-full sm:w-auto"
           onClick={() =>
             setSearchParams({
               date: "",
