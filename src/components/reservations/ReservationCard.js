@@ -11,7 +11,6 @@ import {
 } from "../ui/dialog";
 import { format, parse } from "date-fns";
 import { el } from "date-fns/locale";
-import { ArrowRight } from "lucide-react";
 
 const statusColors = {
   pending: "bg-yellow-500",
@@ -174,7 +173,7 @@ const ReservationCard = ({
               variant="secondary"
               className="w-full text-sm px-4"
             >
-              <ArrowRight className="w-4 h-4 mr-1" />
+              ➡
               Εστιατόριο
             </Button>
           </Link>

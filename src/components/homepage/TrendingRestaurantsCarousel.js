@@ -27,7 +27,7 @@ const TrendingRestaurantsCarousel = () => {
           {trendingRestaurants.map((resto) => (
             <div
               key={resto.id}
-              className="snap-start w-full sm:w-[48%] md:w-[31%] lg:w-[24%] 2xl:w-[20%] flex-shrink-0"
+              className="snap-start w-full sm:w-[48%] md:w-[31%] lg:w-[31%] 2xl:w-[31%] flex-shrink-0"
             >
               <Link to={`/restaurant/${resto.id}`}>
                 <Card className="md:hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden border border-gray-200 bg-white">

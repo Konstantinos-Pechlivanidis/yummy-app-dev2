@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { format, isValid } from "date-fns";
@@ -19,7 +19,6 @@ import { setSearchParams as setSearchParamsAction } from "../../store/searchSlic
 import Loading from "../../components/Loading";
 import { Separator } from "../../components/ui/separator";
 import { Button } from "../../components/ui/button";
-import { ArrowLeft } from "lucide-react";
 
 import HeroSection from "../../components/restaurant/HeroSection";
 import MenuCategoryTabs from "../../components/restaurant/MenuCategoryTabs";
@@ -53,8 +52,12 @@ const RestaurantDetailsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const { data: restaurant, isLoading } = useRestaurantDetails(id);
-  const menuItems = restaurant?.menuItems || [];
-  const menuCategories = [...new Set(menuItems.map((item) => item.category))];
+  const menuItems = useMemo(() => {
+  return restaurant?.menuItems || [];
+}, [restaurant]);
+  const menuCategories = useMemo(() => {
+  return [...new Set(menuItems.map((item) => item.category))];
+}, [menuItems]);
 
   const { data: loyaltyPoints = 0, isLoading: isLoadingPoints } = useUserLoyaltyPoints(user?.id);
   const { data: userCoupons = [], isLoading: isLoadingUserCoupons } = useUserCoupons(user?.id);
@@ -230,7 +233,7 @@ const RestaurantDetailsPage = () => {
 
       <div className="flex justify-center">
         <Button onClick={() => window.history.back()} className="bg-gray-500 text-white">
-          <ArrowLeft className="w-4 h-4" /> Επιστροφή
+          ⬅ Επιστροφή
         </Button>
       </div>
 

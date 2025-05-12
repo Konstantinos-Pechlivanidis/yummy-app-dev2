@@ -6,7 +6,7 @@ import {
   CardContent,
 } from "../ui/card";
 import { Button } from "../ui/button";
-import { Camera, Pencil, LogOut, ArrowRight } from "lucide-react";
+import { Camera, Pencil, LogOut } from "lucide-react";
 
 const ProfileCard = ({ user, onEdit, onLogout }) => {
   return (
@@ -42,7 +42,7 @@ const ProfileCard = ({ user, onEdit, onLogout }) => {
               size="icon"
               className="ml-2 w-6 h-6 p-0 bg-white/20 text-white hover:bg-white/30"
             >
-              <ArrowRight className="w-4 h-4" />
+              ➡
             </Button>
           </Link>
         </div>
