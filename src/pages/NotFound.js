@@ -5,8 +5,12 @@ const NotFound = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-100 px-6 text-center">
       
-      {/* Icon */}
-      <div className="text-6xl sm:text-7xl mb-4">😕</div>
+      {/* Logo */}
+      <img
+        src="/images/YummyLogo-Big.png"
+        alt="Yummy Logo"
+        className="w-40 h-auto mb-6"
+      />
 
       {/* Heading */}
       <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
