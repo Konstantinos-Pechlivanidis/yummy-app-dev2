@@ -1,70 +1,94 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 🍽 Yummy App Dev2
 
-## Available Scripts
+**Savor Every Moment, Effortlessly Reserve Your Table**
 
-In the project directory, you can run:
+Yummy App Dev2 is a powerful and modern React application designed to streamline restaurant reservations, loyalty management, and customer engagement — all in one responsive and elegant platform.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 📚 Table of Contents
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- [Overview](#overview)
+- [Why Yummy App Dev2?](#why-yummy-app-dev2)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Testing](#testing)
+- [Tech Stack](#tech-stack)
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🔍 Overview
 
-### `npm run build`
+Yummy App Dev2 empowers developers and restaurants to deliver seamless online reservations, showcase special menus, and reward loyal customers. It combines modern UI/UX with solid full-stack architecture using React, Redux, and Tailwind CSS.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 💡 Why Yummy App Dev2?
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- 🍽 **Comprehensive Setup Guide** – Smooth onboarding for developers with step-by-step instructions.
+- 🔄 **State Management with Redux** – Clean and centralized app state.
+- 🎨 **Responsive Design with Tailwind CSS** – Aesthetic and mobile-friendly UI components.
+- 📅 **Dynamic Reservation Management** – Fully integrated booking and availability system.
+- 🎁 **Loyalty Program Support** – Coupon system driven by loyalty points.
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🚀 Getting Started
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### ✅ Prerequisites
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- Programming Language: JavaScript
+- Package Manager: [npm](https://www.npmjs.com/)
+- Node.js installed
+- Git installed
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+### 🔧 Installation
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+# 1. Clone the repository
+git clone https://github.com/Konstantinos-Pechlivanidis/yummy-app-dev2
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# 2. Navigate into the project folder
+cd yummy-app-dev2
 
-### Code Splitting
+# 3. Install dependencies
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+### ▶️ Usage
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+# Run the app locally
+npm start
+```
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### 🧪 Testing
 
-### Advanced Configuration
+```bash
+# Run tests
+npm test
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+> Note: Testing framework coming soon — support planned for Jest or React Testing Library.
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🛠 Tech Stack
 
-### `npm run build` fails to minify
+- **React**
+- **Redux**
+- **Tailwind CSS**
+- **Swiper.js**
+- **Axios**
+- **date-fns**
+- **npm**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
