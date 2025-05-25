@@ -60,7 +60,7 @@ const ConfirmationPage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600 px-6">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-red-800 to-rose-500 px-6">
       <motion.div
         className="max-w-lg w-full bg-white shadow-xl rounded-3xl p-8 text-center"
         initial={{ opacity: 0, y: 50 }}
@@ -96,21 +96,31 @@ const ConfirmationPage = () => {
                 <Clock className="w-5 h-5 mr-2" />
                 Κατάσταση: {reservation.status}
               </p>
-              {reservation.specialMenuId && <p>🍽️ Special Menu: Ναι</p>}
-              {reservation.couponId && <p>🎟️ Κουπόνι: Ναι</p>}
+              {reservation.specialMenuId && (
+                <p>
+                  🍽️ Special Menu:{" "}
+                  <span className="font-semibold text-primary">Ναι</span>
+                </p>
+              )}
+              {reservation.couponId && (
+                <p>
+                  🎟️ Κουπόνι:{" "}
+                  <span className="font-semibold text-primary">Ναι</span>
+                </p>
+              )}
               {reservation.notes && (
                 <p className="text-sm text-gray-700">📌 {reservation.notes}</p>
               )}
             </div>
 
-            <div className="mt-4 flex items-center justify-center text-sm text-gray-500">
+            <div className="mt-4 flex items-center justify-center text-sm text-gray-600">
               <Mail className="w-5 h-5 mr-2" />
               Θα λάβετε email μόλις επιβεβαιωθεί η κράτηση!
             </div>
 
             <div className="mt-6 flex flex-col space-y-4">
               <Button
-                className="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold w-full py-3 rounded-xl transition-all"
+                className="bg-red-500 hover:bg-red-800 text-white font-semibold w-full py-3 rounded-xl transition-all"
                 onClick={() => navigate("/my-reservations")}
               >
                 📅 Δείτε τις κρατήσεις μου
