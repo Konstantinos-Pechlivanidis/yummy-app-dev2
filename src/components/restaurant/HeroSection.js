@@ -9,10 +9,10 @@ const HeroSection = ({
   return (
     <section
       className="relative h-[450px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl"
-      style={{ backgroundImage: `url('${restaurant.photos[0]}')` }}
+      style={{ backgroundImage: `url('${restaurant.photos || "/images/wide10.jpg"}')` }}
     >
       <img
-        src={restaurant.photos[0]}
+        src={restaurant.photos || "/images/wide10.jpg"}
         alt={restaurant.name}
         className="absolute inset-0 w-full h-full object-cover"
       />

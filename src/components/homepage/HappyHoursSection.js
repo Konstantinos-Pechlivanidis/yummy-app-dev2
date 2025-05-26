@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { Button } from "../ui/button";
 import {
-  Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
@@ -13,7 +12,7 @@ import {
 import { Card, CardContent } from "../ui/card";
 import Loading from "../Loading";
 import PromoOfferBox from "./PromoOfferBox";
-import { useDiscountedRestaurants } from "../../hooks/useDummyData";
+import { useDiscountedRestaurants } from "../../hooks/useRestaurants";
 import { useScreenConfig } from "../../hooks/useScreenConfig";
 
 const fadeIn = {
@@ -27,11 +26,11 @@ const HappyHoursSection = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
-    data: { data: discountedMenus = [], total: discountedTotal = 0 } = {},
+    data: { allDiscountedRestaurants: discountedMenus = [], Pagination } = {},
     isLoading: discountedLoading,
   } = useDiscountedRestaurants(currentPage, itemsPerPage);
 
-  const totalPages = Math.ceil(discountedTotal / itemsPerPage);
+  const totalPages = Math.ceil((Pagination?.total || 0) / itemsPerPage);
 
   const dayTranslations = {
     Monday: "Δευτέρα",
@@ -62,7 +61,7 @@ const HappyHoursSection = () => {
                 <Card className="md:hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden border border-gray-200 bg-white">
                   <CardContent className="p-0">
                     <img
-                      src={menu.photoUrl}
+                      src={menu.photo_url || "/images/wide10.jpg"}
                       alt={menu.name}
                       className="w-full h-40 sm:h-44 object-cover"
                     />

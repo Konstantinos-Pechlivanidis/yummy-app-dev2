@@ -1,34 +1,56 @@
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { motion } from "framer-motion";
+
+const fadeIn = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 },
+};
 
 const NotFound = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-100 px-6 text-center">
-      
-      {/* Logo */}
+    <div className="relative min-h-screen w-full overflow-hidden">
+      {/* 🌄 Background */}
       <img
-        src="/images/YummyLogo-Big.png"
-        alt="Yummy Logo"
-        className="w-40 h-auto mb-6"
+        src="/images/wide10.jpg"
+        alt="404 Background"
+        className="absolute inset-0 w-full h-full object-cover z-0"
       />
+      <div className="absolute inset-0 bg-black/60 z-10" />
 
-      {/* Heading */}
-      <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
-        404 – Δεν Βρέθηκε
-      </h1>
+      {/* 💬 Content */}
+      <div className="relative z-20 flex items-center justify-center min-h-screen px-6">
+        <motion.div
+          {...fadeIn}
+          className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-10 text-center space-y-6"
+        >
+          {/* Logo */}
+          <img
+            src="/images/yummyLogo-Big.png"
+            alt="Yummy Logo"
+            className="w-16 h-16 mx-auto drop-shadow"
+          />
 
-      {/* Subtext */}
-      <p className="mt-4 text-lg text-gray-600 max-w-md">
-        Η σελίδα που ψάχνεις δεν υπάρχει ή έχει μετακινηθεί.
-      </p>
+          {/* Heading */}
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
+            Δεν Βρέθηκε
+          </h1>
 
-      {/* CTA */}
-      <div className="mt-8">
-        <Link to="/">
-          <Button className="bg-primary text-white px-6 py-3 text-base sm:text-lg rounded-full shadow-md hover:scale-105 transition">
-            🏠 Επιστροφή στην Αρχική
-          </Button>
-        </Link>
+          {/* Subtext */}
+          <p className="text-gray-600 text-base sm:text-lg">
+            Η σελίδα που ψάχνεις δεν υπάρχει ή έχει μετακινηθεί.
+          </p>
+
+          {/* CTA */}
+          <div>
+            <Link to="/">
+              <Button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 text-base sm:text-lg rounded-xl shadow-md transition-all">
+                🏠 Επιστροφή στην Αρχική
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

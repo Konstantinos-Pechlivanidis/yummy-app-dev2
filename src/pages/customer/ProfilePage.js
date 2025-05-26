@@ -43,7 +43,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
-    restaurantId: null,
+    restaurant_id: null,
   });
   const [updatedUser, setUpdatedUser] = useState({
     name: profile?.name,
@@ -55,7 +55,7 @@ const ProfilePage = () => {
     return <div className="text-center py-20">🔐 Δεν είσαι συνδεδεμένος.</div>;
 
   const handleUpdateProfile = () => {
-    updateUser({ userId: profile.id, updates: updatedUser });
+    updateUser({ user_id: profile.id, updates: updatedUser });
     setIsEditing(false);
   };
 
@@ -158,7 +158,7 @@ const ProfilePage = () => {
           total={favoritesData?.Pagination?.total || 0}
           isLoading={!favoritesData}
           onConfirmRemove={(id) =>
-            setConfirmDialog({ open: true, restaurantId: id })
+            setConfirmDialog({ open: true, restaurant_id: id })
           }
         />
       </motion.section>
@@ -169,7 +169,7 @@ const ProfilePage = () => {
           <Ticket className="text-purple-600" size={20} />
           Τα Κουπόνια μου
         </h2>
-        <PurchasedCouponRestaurantsSection userId={profile.id} />
+        <PurchasedCouponRestaurantsSection user_id={profile.id} />
       </motion.section>
 
       {/* 📝 Edit Dialog */}
@@ -230,7 +230,7 @@ const ProfilePage = () => {
             <Button
               variant="outline"
               onClick={() =>
-                setConfirmDialog({ open: false, restaurantId: null })
+                setConfirmDialog({ open: false, restaurant_id: null })
               }
             >
               Άκυρο
@@ -238,8 +238,8 @@ const ProfilePage = () => {
             <Button
               className="bg-red-600 text-white"
               onClick={() => {
-                handleToggleFavorite(confirmDialog.restaurantId);
-                setConfirmDialog({ open: false, restaurantId: null });
+                handleToggleFavorite(confirmDialog.restaurant_id);
+                setConfirmDialog({ open: false, restaurant_id: null });
               }}
             >
               Αφαίρεση

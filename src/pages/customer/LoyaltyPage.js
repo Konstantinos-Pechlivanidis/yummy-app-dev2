@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { useUserLoyaltyPoints } from "../../hooks/useDummyData";
+import { useUserPoints } from "../../hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Progress } from "../../components/ui/progress";
 import { Star, Gift, Store } from "lucide-react";
@@ -8,13 +8,14 @@ import Loading from "../../components/Loading";
 
 const LoyaltyPage = () => {
   const { user } = useSelector((state) => state.auth);
-  const userId = user?.id;
 
   const {
-    data: points = 0,
+    data,
     isLoading,
     isError,
-  } = useUserLoyaltyPoints(userId);
+  } = useUserPoints();
+
+  const points = data?.loyalty_points ?? 0;
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-12 space-y-24">

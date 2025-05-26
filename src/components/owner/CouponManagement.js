@@ -15,17 +15,17 @@ const CouponManagement = () => {
   const restaurants = useSelector((state) => state.menus.restaurants);
 
   const ownerRestaurant = restaurants.find((r) => r.ownerId === user.id);
-  const restaurantCoupons = coupons.filter((coupon) => coupon.restaurantId === ownerRestaurant?.id);
+  const restaurantCoupons = coupons.filter((coupon) => coupon.restaurant_id === ownerRestaurant?.id);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [couponData, setCouponData] = useState({
     description: "",
-    discountPercentage: "",
+    discount_percentage: "",
   });
 
   const openDialog = () => {
     setIsDialogOpen(true);
-    setCouponData({ description: "", discountPercentage: "" });
+    setCouponData({ description: "", discount_percentage: "" });
   };
 
   const closeDialog = () => {
@@ -33,13 +33,13 @@ const CouponManagement = () => {
   };
 
   const handleSave = () => {
-    if (!couponData.description || !couponData.discountPercentage) return;
+    if (!couponData.description || !couponData.discount_percentage) return;
 
     dispatch(
       addCoupon({
-        restaurantId: ownerRestaurant.id,
+        restaurant_id: ownerRestaurant.id,
         description: couponData.description,
-        discountPercentage: parseFloat(couponData.discountPercentage),
+        discount_percentage: parseFloat(couponData.discount_percentage),
       })
     );
 
@@ -69,7 +69,7 @@ const CouponManagement = () => {
             {restaurantCoupons.map((coupon) => (
               <TableRow key={coupon.id}>
                 <TableCell>{coupon.description}</TableCell>
-                <TableCell>{coupon.discountPercentage}%</TableCell>
+                <TableCell>{coupon.discount_percentage}%</TableCell>
                 <TableCell>
                   <Button className="bg-red-500 text-white" onClick={() => dispatch(removeCoupon(coupon.id))}>
                     <Trash className="w-4 h-4" /> Διαγραφή
@@ -86,7 +86,7 @@ const CouponManagement = () => {
         {restaurantCoupons.map((coupon) => (
           <div key={coupon.id} className="bg-white p-4 rounded-lg shadow-md flex flex-col gap-2">
             <p className="text-gray-600 font-semibold">📜 {coupon.description}</p>
-            <p className="text-gray-600">💰 Έκπτωση: {coupon.discountPercentage}%</p>
+            <p className="text-gray-600">💰 Έκπτωση: {coupon.discount_percentage}%</p>
             <Button className="bg-red-500 text-white flex-1" onClick={() => dispatch(removeCoupon(coupon.id))}>
               <Trash className="w-4 h-4" /> Διαγραφή
             </Button>
@@ -110,8 +110,8 @@ const CouponManagement = () => {
             <Input
               type="number"
               placeholder="Ποσοστό Έκπτωσης (%)"
-              value={couponData.discountPercentage}
-              onChange={(e) => setCouponData({ ...couponData, discountPercentage: e.target.value })}
+              value={couponData.discount_percentage}
+              onChange={(e) => setCouponData({ ...couponData, discount_percentage: e.target.value })}
             />
           </div>
 

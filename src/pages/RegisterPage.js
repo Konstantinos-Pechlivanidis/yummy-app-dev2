@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { Loader2 } from "lucide-react";
+import Loading from "../components/Loading";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
@@ -24,8 +24,7 @@ const RegisterPage = () => {
     password: "",
     phone: "",
     role: "customer",
-    newsletter_subscribed: true,
-    profile_image: "/images/default-profile.png",
+    newsletterSubscribed: true,
   });
 
   const handleChange = (e) => {
@@ -44,7 +43,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
+    <div className="relative min-h-full w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
       {/* Background image */}
       <img
         src="/images/wide12.jpg"
@@ -54,7 +53,7 @@ const RegisterPage = () => {
       <div className="absolute inset-0 bg-black/60 z-10" />
 
       {/* Register Form - Right Side */}
-      <div className="relative z-20 flex items-start justify-start min-h-screen">
+      <div className="relative z-20 flex items-start justify-start min-h-screen py-8">
         <motion.div
           {...fadeIn}
           className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6 my-auto mx-6 md:mx-auto md:ml-auto md:mr-36"
@@ -90,14 +89,14 @@ const RegisterPage = () => {
 
             <div className="flex items-center space-x-2">
               <input
-                id="newsletter_subscribed"
-                name="newsletter_subscribed"
+                id="newsletterSubscribed"
+                name="newsletterSubscribed"
                 type="checkbox"
-                checked={formData.newsletter_subscribed}
+                checked={formData.newsletterSubscribed}
                 onChange={handleChange}
                 className="h-4 w-4 text-primary border-gray-300 rounded"
               />
-              <label htmlFor="newsletter_subscribed" className="text-sm text-gray-700">
+              <label htmlFor="newsletterSubscribed" className="text-sm text-gray-700">
                 Εγγραφή στο newsletter
               </label>
             </div>
@@ -109,7 +108,7 @@ const RegisterPage = () => {
             >
               {registerMutation.isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="animate-spin h-4 w-4" />
+                  <Loading/>
                   Εγγραφή...
                 </span>
               ) : (

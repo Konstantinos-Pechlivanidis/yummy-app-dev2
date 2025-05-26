@@ -51,19 +51,19 @@ const ReservationDetailsDialog = ({ reservationId }) => {
               <strong>Ώρα:</strong> {res.time}
             </p>
             <p>
-              <strong>Άτομα:</strong> {res.guestCount}
+              <strong>Άτομα:</strong> {res.guest_count}
             </p>
             <p>
-              <strong>Εστιατόριο:</strong> {res.restaurantId}
+              <strong>Εστιατόριο:</strong> {res.restaurant_id}
             </p>
-            {res.specialMenuId && (
+            {res.special_menu_id && (
               <p>
-                <strong>Special Menu:</strong> {res.specialMenuId}
+                <strong>Special Menu:</strong> {res.special_menu_id}
               </p>
             )}
-            {res.couponId && (
+            {res.coupon_id && (
               <p>
-                <strong>Κουπόνι:</strong> {res.couponId}
+                <strong>Κουπόνι:</strong> {res.coupon_id}
               </p>
             )}
             {res.notes && (

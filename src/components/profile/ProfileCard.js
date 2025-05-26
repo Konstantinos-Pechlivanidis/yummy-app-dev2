@@ -35,7 +35,7 @@ const ProfileCard = ({ user, onEdit, onLogout }) => {
       {/* Points & Actions */}
       <CardContent className="space-y-4">
         <div className="inline-flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-full text-sm sm:text-base shadow-sm">
-          🎟️ Πόντοι: {user.loyaltyPoints}
+          🎟️ Πόντοι: {user.loyalty_points}
           <Link to="/loyalty">
             <Button
               variant="ghost"

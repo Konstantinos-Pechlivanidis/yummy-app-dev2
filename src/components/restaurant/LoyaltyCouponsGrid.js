@@ -14,8 +14,8 @@ import { toast } from "react-hot-toast";
 const LoyaltyCouponsGrid = ({
   coupons = [],
   userCoupons = [],
-  loyaltyPoints = 0,
-  userId,
+  loyalty_points = 0,
+  user_id,
   onPurchase,
   isPurchasing,
 }) => {
@@ -50,7 +50,7 @@ const LoyaltyCouponsGrid = ({
               <p className="text-gray-600">
                 Απαραίτητοι πόντοι:{" "}
                 <span className="font-bold text-gray-900">
-                  {coupon.requiredPoints}
+                  {coupon.required_points}
                 </span>
               </p>
 
@@ -63,7 +63,7 @@ const LoyaltyCouponsGrid = ({
                   <DialogTrigger asChild>
                     <Button
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                      disabled={loyaltyPoints < coupon.requiredPoints}
+                      disabled={loyalty_points < coupon.required_points}
                       onClick={() => setSelectedCoupon(coupon)}
                     >
                       Αγορά Κουπονιού
@@ -77,7 +77,7 @@ const LoyaltyCouponsGrid = ({
                     </DialogHeader>
                     <p className="text-gray-800 mb-4 text-sm sm:text-base leading-relaxed">
                       Θέλεις να εξαργυρώσεις{" "}
-                      <strong>{coupon.requiredPoints} πόντους</strong> για αυτό το κουπόνι;
+                      <strong>{coupon.required_points} πόντους</strong> για αυτό το κουπόνι;
                     </p>
                     <div className="flex justify-end gap-3 mt-2">
                       <DialogTrigger asChild>
@@ -88,9 +88,9 @@ const LoyaltyCouponsGrid = ({
                         onClick={() =>
                           onPurchase(
                             {
-                              userId,
-                              couponId: coupon.id,
-                              points: coupon.requiredPoints,
+                              user_id,
+                              coupon_id: coupon.id,
+                              points: coupon.required_points,
                             },
                             {
                               onSuccess: () =>

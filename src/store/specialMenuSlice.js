@@ -1,32 +1,32 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { specialMenus, menuItems } from "../data/dummyData";
+import { special_menus, menu_items } from "../data/dummyData";
 
 const initialState = {
-  specialMenus: specialMenus, // Προεπιλεγμένα dummy data
+  special_menus: special_menus, // Προεπιλεγμένα dummy data
 };
 
 const specialMenuSlice = createSlice({
-  name: "specialMenus",
+  name: "special_menus",
   initialState,
   reducers: {
     addSpecialMenu: (state, action) => {
-      const { restaurantId, name, description, selectedItems, discountedPrice, timeRange } = action.payload;
+      const { restaurant_id, name, description, selectedItems, discounted_price, timeRange } = action.payload;
 
       // Φιλτράρει τα διαθέσιμα πιάτα του εστιατορίου
-      const availableItems = menuItems.filter(item => item.restaurantId === restaurantId);
+      const availableItems = menu_items.filter(item => item.restaurant_id === restaurant_id);
       
       // Υπολογίζει την αρχική τιμή από τα επιλεγμένα πιάτα
-      const originalPrice = selectedItems.reduce((total, item) => total + item.price, 0);
-      const discountPercentage = ((originalPrice - discountedPrice) / originalPrice) * 100;
+      const original_price = selectedItems.reduce((total, item) => total + item.price, 0);
+      const discount_percentage = ((original_price - discounted_price) / original_price) * 100;
 
       const newMenu = {
-        id: `menu${state.specialMenus.length + 1}`,
-        restaurantId,
+        id: `menu${state.special_menus.length + 1}`,
+        restaurant_id,
         name,
         description,
-        originalPrice,
-        discountedPrice,
-        discountPercentage,
+        original_price,
+        discounted_price,
+        discount_percentage,
         photoUrl: "/images/default-menu.jpg",
         selectedItems,
         availableItems, // Διαθέσιμα πιάτα για επιλογή
@@ -34,11 +34,11 @@ const specialMenuSlice = createSlice({
         createdAt: new Date().toISOString(),
       };
 
-      state.specialMenus.push(newMenu);
+      state.special_menus.push(newMenu);
     },
 
     removeSpecialMenu: (state, action) => {
-      state.specialMenus = state.specialMenus.filter(menu => menu.id !== action.payload);
+      state.special_menus = state.special_menus.filter(menu => menu.id !== action.payload);
     },
   },
 });

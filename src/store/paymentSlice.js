@@ -10,10 +10,10 @@ const paymentsSlice = createSlice({
   initialState,
   reducers: {
     addPayment: (state, action) => {
-      const { userId, reservationId, amount, paymentMethod } = action.payload;
+      const { user_id, reservationId, amount, paymentMethod } = action.payload;
       state.payments.push({
         id: `payment${state.payments.length + 1}`,
-        userId,
+        user_id,
         reservationId,
         amount,
         paymentMethod,

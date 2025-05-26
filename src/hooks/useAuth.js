@@ -11,7 +11,6 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// ✅ 1. Έλεγχος αν ο χρήστης είναι συνδεδεμένος
 export const useAuthStatus = () =>
   useQuery({
     queryKey: ["authStatus"],
@@ -22,7 +21,6 @@ export const useAuthStatus = () =>
     retry: false,
   });
 
-// ✅ 2. Εγγραφή
 export const useRegister = () => {
   const queryClient = useQueryClient();
 
@@ -39,7 +37,6 @@ export const useRegister = () => {
   });
 };
 
-// ✅ 3. Είσοδος
 export const useLogin = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -58,11 +55,10 @@ export const useLogin = () => {
   });
 };
 
-// ✅ 4. Αποσύνδεση
 export const useLogout = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const navigate = useNavigate(); // ✅ Χρήση του react-router-dom
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async () => {
@@ -70,15 +66,13 @@ export const useLogout = () => {
     },
     onSuccess: () => {
       dispatch(clearUser());
-      toast.success("✅ Αποσυνδεθήκατε με επιτυχία.");
+      toast.success("Αποσυνδεθήκατε με επιτυχία.");
       queryClient.invalidateQueries(["authStatus"]);
-      navigate("/"); // ✅ Κάνε redirect στην αρχική
+      navigate("/");
     },
   });
 };
 
-
-// ✅ 5. Προφίλ χρήστη (για authenticated προφίλ)
 export const useUserProfile = () =>
   useQuery({
     queryKey: ["userProfile"],
@@ -89,7 +83,6 @@ export const useUserProfile = () =>
     retry: false,
   });
 
-// ✅ 6. Πόντοι χρήστη
 export const useUserPoints = () =>
   useQuery({
     queryKey: ["userPoints"],
@@ -100,7 +93,6 @@ export const useUserPoints = () =>
     retry: false,
   });
 
-// ✅ 7. Επιβεβαίωση email
 export const useVerifyEmail = () => {
   const queryClient = useQueryClient();
 
@@ -119,7 +111,6 @@ export const useVerifyEmail = () => {
   });
 };
 
-// ✅ 8. Επανάληψη email επιβεβαίωσης
 export const useResendVerification = () =>
   useMutation({
     mutationFn: async (email) => {
@@ -129,13 +120,13 @@ export const useResendVerification = () =>
       return data;
     },
     onSuccess: () =>
-      toast.success("Το email επιβεβαίωσης στάλθηκε ξανά. Έλεγξε τα εισερχόμενά σου."),
+      toast.success(
+        "Το email επιβεβαίωσης στάλθηκε ξανά. Έλεγξε τα εισερχόμενά σου."
+      ),
     onError: () =>
       toast.error("Δεν ήταν δυνατή η αποστολή του email επιβεβαίωσης."),
   });
 
-
-// ✅ 9. Αγαπημένα εστιατόρια
 export const useFavoriteRestaurants = (page = 1, pageSize = 6) =>
   useQuery({
     queryKey: ["favorites", page],
@@ -148,14 +139,13 @@ export const useFavoriteRestaurants = (page = 1, pageSize = 6) =>
     retry: false,
   });
 
-// ✅ 10. Προσθαφαίρεση από αγαπημένα
 export const useToggleFavorite = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (restaurantId) => {
+    mutationFn: async (restaurant_id) => {
       const { data } = await axiosInstance.post("/favorites/toggle", {
-        restaurantId,
+        restaurant_id,
       });
       return data;
     },
@@ -172,7 +162,7 @@ export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, updates }) => {
+    mutationFn: async ({ user_id, updates }) => {
       const { data } = await axiosInstance.put(`/update`, updates); // προσοχή εδώ
       return data;
     },

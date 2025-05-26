@@ -37,16 +37,16 @@ const greekDays = [
 const SpecialMenuManagement = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const specialMenus = useSelector((state) => state.specialMenus.specialMenus);
+  const special_menus = useSelector((state) => state.special_menus.special_menus);
   const restaurants = useSelector((state) => state.menus.restaurants);
-  const menuItems = useSelector((state) => state.menus.menuItems);
+  const menu_items = useSelector((state) => state.menus.menu_items);
 
   const ownerRestaurant = restaurants.find((r) => r.ownerId === user.id);
-  const restaurantSpecialMenus = specialMenus.filter(
-    (m) => m.restaurantId === ownerRestaurant?.id
+  const restaurantSpecialMenus = special_menus.filter(
+    (m) => m.restaurant_id === ownerRestaurant?.id
   );
-  const availableItems = menuItems.filter(
-    (item) => item.restaurantId === ownerRestaurant?.id
+  const availableItems = menu_items.filter(
+    (item) => item.restaurant_id === ownerRestaurant?.id
   );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -54,7 +54,7 @@ const SpecialMenuManagement = () => {
   const [menuData, setMenuData] = useState({
     name: "",
     description: "",
-    discountedPrice: "",
+    discounted_price: "",
     availability: {
       type: "specific",
       dates: [],
@@ -69,7 +69,7 @@ const SpecialMenuManagement = () => {
     setMenuData({
       name: "",
       description: "",
-      discountedPrice: "",
+      discounted_price: "",
       availability: {
         type: "specific",
         dates: [],
@@ -100,17 +100,17 @@ const SpecialMenuManagement = () => {
   };
 
   const handleSave = () => {
-    const { name, description, discountedPrice, availability } = menuData;
+    const { name, description, discounted_price, availability } = menuData;
 
-    if (!name || !description || !discountedPrice || selectedItems.length === 0)
+    if (!name || !description || !discounted_price || selectedItems.length === 0)
       return;
 
     dispatch(
       addSpecialMenu({
-        restaurantId: ownerRestaurant.id,
+        restaurant_id: ownerRestaurant.id,
         name,
         description,
-        discountedPrice: parseFloat(discountedPrice),
+        discounted_price: parseFloat(discounted_price),
         selectedItems: availableItems
           .filter((item) => selectedItems.includes(item.id))
           .map((item) => ({ id: item.id, name: item.name })),
@@ -154,7 +154,7 @@ const SpecialMenuManagement = () => {
               <TableRow key={menu.id}>
                 <TableCell>{menu.name}</TableCell>
                 <TableCell>{menu.description}</TableCell>
-                <TableCell>€{menu.discountedPrice}</TableCell>
+                <TableCell>€{menu.discounted_price}</TableCell>
                 <TableCell>{menu.availability.type}</TableCell>
                 <TableCell>
                   {menu.availability.type === "specific" &&
@@ -206,9 +206,9 @@ const SpecialMenuManagement = () => {
             <Input
               placeholder="Τιμή (€)"
               type="number"
-              value={menuData.discountedPrice}
+              value={menuData.discounted_price}
               onChange={(e) =>
-                setMenuData({ ...menuData, discountedPrice: e.target.value })
+                setMenuData({ ...menuData, discounted_price: e.target.value })
               }
             />
 

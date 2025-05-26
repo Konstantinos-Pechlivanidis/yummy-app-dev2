@@ -111,7 +111,7 @@ const ReservationForm = ({
             <SelectContent>
               {validMenus.map((menu) => (
                 <SelectItem key={menu.id} value={menu.id}>
-                  {menu.name} – €{menu.discountedPrice} ({menu.discountPercentage}% έκπτωση)
+                  {menu.name} – €{menu.discounted_price} ({menu.discount_percentage}% έκπτωση)
                 </SelectItem>
               ))}
             </SelectContent>
@@ -122,7 +122,7 @@ const ReservationForm = ({
       {/* Coupon */}
       <div className="space-y-2">
         <h3 className="text-sm sm:text-base font-semibold">🎟️ Χρήση Κουπονιού</h3>
-        {userCoupons.filter((c) => c.restaurantId === restaurant.id).length === 0 ? (
+        {userCoupons.filter((c) => c.restaurant_id === restaurant.id).length === 0 ? (
           <p className="text-sm text-gray-600 italic">
             💰 Δεν έχεις αγοράσει κουπόνια για αυτό το εστιατόριο.
           </p>
@@ -133,7 +133,7 @@ const ReservationForm = ({
             </SelectTrigger>
             <SelectContent>
               {userCoupons
-                .filter((c) => c.restaurantId === restaurant.id)
+                .filter((c) => c.restaurant_id === restaurant.id)
                 .map((coupon) => (
                   <SelectItem key={coupon.id} value={coupon.id}>
                     {coupon.description}

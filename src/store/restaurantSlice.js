@@ -11,8 +11,8 @@ const restaurantSlice = createSlice({
   initialState,
   reducers: {
     updateRestaurantProfile: (state, action) => {
-      const { restaurantId, phone, email, socialMedia } = action.payload;
-      const restaurant = state.restaurants.find((r) => r.id === restaurantId);
+      const { restaurant_id, phone, email, socialMedia } = action.payload;
+      const restaurant = state.restaurants.find((r) => r.id === restaurant_id);
       if (restaurant) {
         restaurant.contact.phone = phone || restaurant.contact.phone;
         restaurant.contact.email = email || restaurant.contact.email;

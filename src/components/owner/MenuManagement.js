@@ -27,7 +27,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from ".
 const MenuManagement = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const menuItems = useSelector((state) => state.menus.menuItems);
+  const menu_items = useSelector((state) => state.menus.menu_items);
   const restaurants = useSelector((state) => state.menus.restaurants);
   const ownerRestaurants = restaurants.filter((r) => r.ownerId === user.id);
 
@@ -39,7 +39,7 @@ const MenuManagement = () => {
     name: "",
     price: "",
     category: "",
-    restaurantId: ownerRestaurants.length ? ownerRestaurants[0].id : "",
+    restaurant_id: ownerRestaurants.length ? ownerRestaurants[0].id : "",
     photoUrl: "",
   });
 
@@ -52,7 +52,7 @@ const MenuManagement = () => {
         name: "",
         price: "",
         category: "",
-        restaurantId: ownerRestaurants.length ? ownerRestaurants[0].id : "",
+        restaurant_id: ownerRestaurants.length ? ownerRestaurants[0].id : "",
         photoUrl: "",
       });
       setSelectedItem(null);
@@ -61,7 +61,7 @@ const MenuManagement = () => {
         name: item.name,
         price: item.price,
         category: item.category,
-        restaurantId: item.restaurantId,
+        restaurant_id: item.restaurant_id,
         photoUrl: item.photoUrl,
       });
       setSelectedItem(item);
@@ -78,7 +78,7 @@ const MenuManagement = () => {
     if (actionType === "edit" && selectedItem) {
       dispatch(editMenuItem({ id: selectedItem.id, updatedData: itemData }));
     } else {
-      dispatch(addMenuItem({ id: `item${menuItems.length + 1}`, ...itemData }));
+      dispatch(addMenuItem({ id: `item${menu_items.length + 1}`, ...itemData }));
     }
     closeDialog();
   };
@@ -117,7 +117,7 @@ const MenuManagement = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {menuItems.map((item) => (
+            {menu_items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.name}</TableCell>
                 <TableCell>€{item.price}</TableCell>
@@ -143,7 +143,7 @@ const MenuManagement = () => {
       </div>
 
       <div className="md:hidden flex flex-col gap-4">
-        {menuItems.map((item) => (
+        {menu_items.map((item) => (
           <div
             key={item.id}
             className="bg-white p-4 rounded-lg shadow-md flex flex-col gap-2"

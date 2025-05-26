@@ -15,12 +15,12 @@ const OverviewManagement = () => {
     <section>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {ownerRestaurants.map((restaurant) => {
-          const restaurantReservations = reservations.filter((res) => res.restaurantId === restaurant.id);
-          const activeCoupons = coupons.filter((coupon) => coupon.restaurantId === restaurant.id);
+          const restaurantReservations = reservations.filter((res) => res.restaurant_id === restaurant.id);
+          const activeCoupons = coupons.filter((coupon) => coupon.restaurant_id === restaurant.id);
           const happyHourInfo =
             restaurant.happyHours.length > 0
               ? restaurant.happyHours
-                  .map((hh) => `${hh.startTime} - ${hh.endTime} (${hh.discountPercentage}% έκπτωση)`)
+                  .map((hh) => `${hh.startTime} - ${hh.endTime} (${hh.discount_percentage}% έκπτωση)`)
                   .join(", ")
               : "Δεν υπάρχουν Happy Hours";
 
@@ -43,7 +43,7 @@ const OverviewManagement = () => {
                 <div className="flex items-center gap-2">
                   <Clock className="w-5 h-5 text-blue-500" />
                   <p className="text-sm md:text-base">
-                    Ώρες: {restaurant.openingHours.open} - {restaurant.openingHours.close}
+                    Ώρες: {restaurant.opening_hours.open} - {restaurant.opening_hours.close}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

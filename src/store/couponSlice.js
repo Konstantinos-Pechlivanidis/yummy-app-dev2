@@ -10,13 +10,13 @@ const couponSlice = createSlice({
   initialState,
   reducers: {
     addCoupon: (state, action) => {
-      const { restaurantId, description, discountPercentage } = action.payload;
+      const { restaurant_id, description, discount_percentage } = action.payload;
 
       const newCoupon = {
         id: `coupon${state.coupons.length + 1}`, // Δημιουργία μοναδικού ID
-        restaurantId,
+        restaurant_id,
         description,
-        discountPercentage,
+        discount_percentage,
       };
 
       state.coupons.push(newCoupon);

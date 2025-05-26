@@ -27,8 +27,8 @@ const fadeIn = {
 
 const ITEMS_PER_PAGE = 6;
 
-const PurchasedCouponRestaurantsSection = ({ userId }) => {
-  const { data = [], isLoading } = useRestaurantsWithPurchasedCoupons(userId);
+const PurchasedCouponRestaurantsSection = ({ user_id }) => {
+  const { data = [], isLoading } = useRestaurantsWithPurchasedCoupons(user_id);
   const [currentPage, setCurrentPage] = useState(1);
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;

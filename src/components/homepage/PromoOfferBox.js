@@ -6,7 +6,7 @@ const PromoOfferBox = ({ menu, dayTranslations }) => {
     <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-4 text-sm sm:text-base text-gray-800">
       {/* Promo Badge */}
       <Badge className="bg-red-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow-sm">
-        -{menu.discountPercentage}% | {menu.name}
+        -{menu.discount_percentage}% | {menu.name}
       </Badge>
 
       {/* Description */}
@@ -17,10 +17,10 @@ const PromoOfferBox = ({ menu, dayTranslations }) => {
       {/* Price Info */}
       <div className="flex items-center gap-3">
         <span className="text-gray-500 line-through text-sm sm:text-base">
-          €{menu.originalPrice}
+          €{menu.original_price}
         </span>
         <span className="text-red-600 text-base sm:text-lg font-extrabold">
-          €{menu.discountedPrice}
+          €{menu.discounted_price}
         </span>
       </div>
 

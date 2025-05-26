@@ -43,7 +43,7 @@ const ReservationManagement = () => {
   
   // Φιλτράρισμα κρατήσεων που αφορούν τα εστιατόρια του owner
   const ownerReservations = reservations.filter((res) =>
-    ownerRestaurants.some((resto) => resto.id === res.restaurantId)
+    ownerRestaurants.some((resto) => resto.id === res.restaurant_id)
   );
 
   // Ταξινόμηση: Πρώτα οι "pending" κρατήσεις και μετά οι πιο πρόσφατες
@@ -95,7 +95,7 @@ const ReservationManagement = () => {
           <TableBody>
             {sortedReservations.map((res) => (
               <TableRow key={res.id}>
-                <TableCell>{res.restaurantId}</TableCell>
+                <TableCell>{res.restaurant_id}</TableCell>
                 <TableCell>{res.date}</TableCell>
                 <TableCell>{res.time}</TableCell>
                 <TableCell>
@@ -163,7 +163,7 @@ const ReservationManagement = () => {
       <div className="md:hidden flex flex-col gap-4">
         {sortedReservations.map((res) => (
           <div key={res.id} className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold">{res.restaurantId}</h3>
+            <h3 className="text-lg font-semibold">{res.restaurant_id}</h3>
             <p className="text-gray-600">
               📅 {res.date} | ⏰ {res.time}
             </p>

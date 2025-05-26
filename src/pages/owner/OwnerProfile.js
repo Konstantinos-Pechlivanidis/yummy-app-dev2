@@ -54,7 +54,7 @@ const OwnerProfile = () => {
 
     dispatch(
       updateRestaurantProfile({
-        restaurantId: restaurant.id,
+        restaurant_id: restaurant.id,
         phone: restaurantData.phone,
         email: restaurantData.email,
         socialMedia: {

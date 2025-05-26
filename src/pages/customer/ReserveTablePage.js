@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { useFilteredRestaurants } from "../../hooks/useDummyData";
+import { useFilteredRestaurants } from "../../hooks/useRestaurants";
 import { setSearchParams as setSearchParamsAction } from "../../store/searchSlice";
 
 import ReserveHeroSection from "../../components/reserve/ReserveHeroSection";
@@ -36,15 +36,12 @@ const ReserveTablePage = () => {
   const [filters, setFilters] = useState(initialFilters);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  const { data: restaurants = [], isLoading, isError } = useFilteredRestaurants(
-    hasMounted ? (hasSearch ? searchParams : {}) : null
-  );
+  const {
+    data: { restaurants = [] } = {},
+    isLoading,
+    isError,
+  } = useFilteredRestaurants(hasSearch ? searchParams : {});
 
   const totalPages = Math.ceil(restaurants.length / itemsPerPage);
   const visibleRestaurants = restaurants.slice(

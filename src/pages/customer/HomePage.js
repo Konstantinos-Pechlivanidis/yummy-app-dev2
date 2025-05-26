@@ -58,7 +58,7 @@ const HomePage = () => {
       <HappyHoursSection />
 
       {/* Coupons Purchased By User */}
-      <PurchasedCouponRestaurantsSection userId="user001" />
+      <PurchasedCouponRestaurantsSection user_id="user001" />
 
       {/* Loyalty Program */}
       <LoyaltyProgram />

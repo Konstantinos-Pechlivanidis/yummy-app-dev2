@@ -3,10 +3,10 @@ import axios from "axios";
 import {
   restaurants,
   reservations,
-  menuItems,
-  specialMenus,
+  menu_items,
+  special_menus,
   coupons,
-  purchasedCoupons,
+  purchased_coupons,
   users,
 } from "../data/dummyData";
 import { toast } from "react-hot-toast";
@@ -67,10 +67,10 @@ export const useTrendingRestaurants = (page = 1, perPage = 5) =>
 
         // Enrich with specialMenu and coupon
         const enriched = paginated.map((resto) => {
-          const specialMenu = specialMenus.find(
-            (menu) => menu.restaurantId === resto.id
+          const specialMenu = special_menus.find(
+            (menu) => menu.restaurant_id === resto.id
           );
-          const coupon = coupons.find((c) => c.restaurantId === resto.id);
+          const coupon = coupons.find((c) => c.restaurant_id === resto.id);
 
           return {
             ...resto,
@@ -97,10 +97,10 @@ export const useDiscountedRestaurants = (page = 1, perPage = 5) =>
         console.warn("⚠️ Discounted restaurants fallback to special menus");
 
         // Map special menus with their restaurant
-        const enrichedMenus = specialMenus
+        const enrichedMenus = special_menus
           .map((menu) => {
             const restaurant = restaurants.find(
-              (r) => r.id === menu.restaurantId
+              (r) => r.id === menu.restaurant_id
             );
             return restaurant ? { ...menu, restaurant } : null;
           })
@@ -142,10 +142,10 @@ export const useFilteredRestaurants = (filters = {}) =>
 
         // Enrich with specialMenu and coupon
         return filtered.map((resto) => {
-          const specialMenu = specialMenus.find(
-            (menu) => menu.restaurantId === resto.id
+          const specialMenu = special_menus.find(
+            (menu) => menu.restaurant_id === resto.id
           );
-          const coupon = coupons.find((c) => c.restaurantId === resto.id);
+          const coupon = coupons.find((c) => c.restaurant_id === resto.id);
 
           return {
             ...resto,
@@ -158,21 +158,21 @@ export const useFilteredRestaurants = (filters = {}) =>
     enabled: !!filters,
   });
 
-export const useUserReservations = (userId) =>
+export const useUserReservations = (user_id) =>
   useQuery({
-    queryKey: ["reservations", userId],
+    queryKey: ["reservations", user_id],
     queryFn: async () => {
       try {
         const { data } = await axiosInstance.get(
-          `/reservations/user/${userId}`
+          `/reservations/user/${user_id}`
         );
         return data;
       } catch (error) {
         console.warn("⚠️ User reservations fallback to dummy");
-        return reservations.filter((r) => r.userId === userId);
+        return reservations.filter((r) => r.user_id === user_id);
       }
     },
-    enabled: !!userId,
+    enabled: !!user_id,
   });
 
 export const useCancelReservation = () => {
@@ -275,81 +275,81 @@ export const useRestaurantDetails = (id) =>
 
         return {
           ...restaurant,
-          menuItems: menuItems.filter((item) => item.restaurantId === id),
-          specialMenus: specialMenus.filter((menu) => menu.restaurantId === id),
-          coupons: coupons.filter((coupon) => coupon.restaurantId === id),
+          menu_items: menu_items.filter((item) => item.restaurant_id === id),
+          special_menus: special_menus.filter((menu) => menu.restaurant_id === id),
+          coupons: coupons.filter((coupon) => coupon.restaurant_id === id),
         };
       }
     },
     enabled: !!id,
   });
 
-export const useUserCoupons = (userId) =>
+export const useUserCoupons = (user_id) =>
   useQuery({
-    queryKey: ["userCoupons", userId],
+    queryKey: ["userCoupons", user_id],
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get(`/coupons/user/${userId}`);
+        const { data } = await axiosInstance.get(`/coupons/user/${user_id}`);
         return data;
       } catch (error) {
         console.warn("⚠️ API fallback: useUserCoupons()");
-        return purchasedCoupons
-          .filter((entry) => entry.userId === userId)
+        return purchased_coupons
+          .filter((entry) => entry.user_id === user_id)
           .map((entry) =>
-            coupons.find((coupon) => coupon.id === entry.couponId)
+            coupons.find((coupon) => coupon.id === entry.coupon_id)
           );
       }
     },
-    enabled: !!userId,
+    enabled: !!user_id,
   });
 
 export const usePurchaseCoupon = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, couponId, points }) => {
+    mutationFn: async ({ user_id, coupon_id, points }) => {
       try {
         // 🔁 Real API Call
         await axiosInstance.post("/coupons/purchase", {
-          userId,
-          couponId,
+          user_id,
+          coupon_id,
           points,
         });
-        return { userId, couponId };
+        return { user_id, coupon_id };
       } catch (error) {
         console.warn("⚠️ Backend unreachable. Using dummy fallback.");
 
-        const alreadyPurchased = purchasedCoupons.some(
-          (p) => p.userId === userId && p.couponId === couponId
+        const alreadyPurchased = purchased_coupons.some(
+          (p) => p.user_id === user_id && p.coupon_id === coupon_id
         );
         if (alreadyPurchased) throw new Error("Already purchased");
 
         // ➕ Add to dummy
-        purchasedCoupons.push({
-          userId,
-          couponId,
+        purchased_coupons.push({
+          user_id,
+          coupon_id,
           purchasedAt: new Date().toISOString(),
         });
 
         // ➖ Subtract points
-        const user = users.find((u) => u.id === userId);
+        const user = users.find((u) => u.id === user_id);
         if (user) {
-          user.loyaltyPoints = Math.max(0, user.loyaltyPoints - points);
+          user.loyalty_points = Math.max(0, user.loyalty_points - points);
         }
 
-        return { userId, couponId };
+        return { user_id, coupon_id };
       }
     },
 
     onSuccess: (_data, variables) => {
       toast.success("Κουπόνι αγοράστηκε!");
-      queryClient.invalidateQueries(["userCoupons", variables.userId]);
+      queryClient.invalidateQueries(["userCoupons", variables.user_id]);
       queryClient.invalidateQueries([
         "availableCoupons",
-        variables.couponId,
-        variables.userId,
+        variables.coupon_id,
+        variables.user_id,
       ]);
-      queryClient.invalidateQueries(["loyaltyPoints", variables.userId]);
+      queryClient.invalidateQueries(["loyalty_points", variables.user_id]);
     },
 
     onError: (error) => {
@@ -359,54 +359,54 @@ export const usePurchaseCoupon = () => {
   });
 };
 
-export const useUserById = (userId) =>
+export const useUserById = (user_id) =>
   useQuery({
-    queryKey: ["user", userId],
+    queryKey: ["user", user_id],
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get(`/users/${userId}`);
+        const { data } = await axiosInstance.get(`/users/${user_id}`);
         return data;
       } catch (error) {
         console.warn("🧪 Fallback to dummy user");
-        return users.find((u) => u.id === userId);
+        return users.find((u) => u.id === user_id);
       }
     },
-    enabled: !!userId,
+    enabled: !!user_id,
   });
 
-export const useUserLoyaltyPoints = (userId) =>
+export const useUserloyalty_points = (user_id) =>
   useQuery({
-    queryKey: ["loyaltyPoints", userId],
+    queryKey: ["loyalty_points", user_id],
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get(`/users/${userId}/points`);
+        const { data } = await axiosInstance.get(`/users/${user_id}/points`);
         return data.points;
       } catch (error) {
-        const user = users.find((u) => u.id === userId);
-        return user?.loyaltyPoints || 0;
+        const user = users.find((u) => u.id === user_id);
+        return user?.loyalty_points || 0;
       }
     },
-    enabled: !!userId,
+    enabled: !!user_id,
   });
-export const useAvailableCouponsForRestaurant = (restaurantId, userId) =>
+export const useAvailableCouponsForRestaurant = (restaurant_id, user_id) =>
   useQuery({
-    queryKey: ["availableCoupons", restaurantId, userId],
+    queryKey: ["availableCoupons", restaurant_id, user_id],
     queryFn: async () => {
       try {
         const { data } = await axiosInstance.get(
-          `/coupons/available?restaurantId=${restaurantId}&userId=${userId}`
+          `/coupons/available?restaurant_id=${restaurant_id}&user_id=${user_id}`
         );
         return data;
       } catch (error) {
-        const all = coupons.filter((c) => c.restaurantId === restaurantId);
-        const purchased = purchasedCoupons
-          .filter((p) => p.userId === userId)
-          .map((p) => p.couponId);
+        const all = coupons.filter((c) => c.restaurant_id === restaurant_id);
+        const purchased = purchased_coupons
+          .filter((p) => p.user_id === user_id)
+          .map((p) => p.coupon_id);
 
         return all.filter((c) => !purchased.includes(c.id));
       }
     },
-    enabled: !!restaurantId && !!userId,
+    enabled: !!restaurant_id && !!user_id,
   });
 
 export const useDeleteReservation = () => {
@@ -436,13 +436,13 @@ export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, updates }) => {
+    mutationFn: async ({ user_id, updates }) => {
       try {
-        const { data } = await axiosInstance.patch(`/users/${userId}`, updates);
+        const { data } = await axiosInstance.patch(`/users/${user_id}`, updates);
         return data;
       } catch (error) {
         console.warn("⚠️ Backend unreachable. Using dummy fallback.");
-        const user = users.find((u) => u.id === userId);
+        const user = users.find((u) => u.id === user_id);
         if (!user) throw new Error("User not found");
         Object.assign(user, updates);
         user.updatedAt = new Date().toISOString();
@@ -459,13 +459,13 @@ export const useUpdateUser = () => {
   });
 };
 
-export const useFavoriteRestaurants = (userId, page = 1, limit = 6) =>
+export const useFavoriteRestaurants = (user_id, page = 1, limit = 6) =>
   useQuery({
-    queryKey: ["favoriteRestaurants", userId, page],
-    enabled: !!userId,
+    queryKey: ["favoriteRestaurants", user_id, page],
+    enabled: !!user_id,
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get(`/users/${userId}/favorites`, {
+        const { data } = await axiosInstance.get(`/users/${user_id}/favorites`, {
           params: { page, limit },
         });
 
@@ -473,16 +473,16 @@ export const useFavoriteRestaurants = (userId, page = 1, limit = 6) =>
       } catch (error) {
         console.warn("⚠️ Backend unreachable. Using dummy fallback.");
 
-        const user = users.find((u) => u.id === userId);
+        const user = users.find((u) => u.id === user_id);
         if (!user) throw new Error("User not found");
 
         const fullFavorites = restaurants
           .filter((r) => user.favoriteRestaurants.includes(r.id))
           .map((r) => {
-            const specialMenu = specialMenus.find(
-              (m) => m.restaurantId === r.id
+            const specialMenu = special_menus.find(
+              (m) => m.restaurant_id === r.id
             );
-            const coupon = coupons.find((c) => c.restaurantId === r.id);
+            const coupon = coupons.find((c) => c.restaurant_id === r.id);
             return {
               ...r,
               specialMenu: specialMenu || null,
@@ -506,29 +506,29 @@ export const useToggleWatchlist = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ userId, restaurantId }) => {
+    mutationFn: async ({ user_id, restaurant_id }) => {
       try {
         const { data } = await axiosInstance.post(
-          `/users/${userId}/favorites/toggle`,
-          { restaurantId }
+          `/users/${user_id}/favorites/toggle`,
+          { restaurant_id }
         );
         return data; // expected: updated favorite list or success flag
       } catch (error) {
         console.warn("⚠️ Backend unreachable. Using dummy fallback.");
-        const user = users.find((u) => u.id === userId);
+        const user = users.find((u) => u.id === user_id);
         if (!user) throw new Error("User not found");
 
-        const index = user.favoriteRestaurants.indexOf(restaurantId);
+        const index = user.favoriteRestaurants.indexOf(restaurant_id);
         if (index > -1) {
           user.favoriteRestaurants.splice(index, 1); // remove
         } else {
-          user.favoriteRestaurants.push(restaurantId); // add
+          user.favoriteRestaurants.push(restaurant_id); // add
         }
         return user.favoriteRestaurants;
       }
     },
-    onSuccess: (_, { userId }) => {
-      queryClient.invalidateQueries(["favoriteRestaurants", userId]);
+    onSuccess: (_, { user_id }) => {
+      queryClient.invalidateQueries(["favoriteRestaurants", user_id]);
     },
     onError: () => {
       toast.error("⚠️ Δεν ήταν δυνατή η αλλαγή στη Watchlist");
@@ -536,14 +536,14 @@ export const useToggleWatchlist = () => {
   });
 };
 
-export const useRestaurantsWithPurchasedCoupons = (userId) =>
+export const useRestaurantsWithPurchasedCoupons = (user_id) =>
   useQuery({
-    queryKey: ["restaurantsWithPurchasedCoupons", userId],
+    queryKey: ["restaurantsWithPurchasedCoupons", user_id],
     queryFn: async () => {
       try {
         // 🔁 Πραγματικό API call (υποθέτουμε endpoint όπως `/restaurants/coupons/user/:id`)
         const { data } = await axiosInstance.get(
-          `/restaurants/coupons/user/${userId}`
+          `/restaurants/coupons/user/${user_id}`
         );
         return data;
       } catch (error) {
@@ -552,17 +552,17 @@ export const useRestaurantsWithPurchasedCoupons = (userId) =>
         );
 
         // Dummy fallback
-        const userPurchases = purchasedCoupons.filter(
-          (p) => p.userId === userId
+        const userPurchases = purchased_coupons.filter(
+          (p) => p.user_id === user_id
         );
-        const purchasedCouponIds = userPurchases.map((p) => p.couponId);
+        const purchasedcoupon_ids = userPurchases.map((p) => p.coupon_id);
 
         const result = restaurants
           .map((resto) => {
             const matchingCoupon = resto.coupons
-              ?.map((couponId) =>
+              ?.map((coupon_id) =>
                 coupons.find(
-                  (c) => c.id === couponId && purchasedCouponIds.includes(c.id)
+                  (c) => c.id === coupon_id && purchasedcoupon_ids.includes(c.id)
                 )
               )
               .find(Boolean);
@@ -574,23 +574,23 @@ export const useRestaurantsWithPurchasedCoupons = (userId) =>
         return result;
       }
     },
-    enabled: !!userId,
+    enabled: !!user_id,
   });
 
 export const useFilteredReservations = (
-  userId,
+  user_id,
   date,
   status = "all",
   page = 1,
   limit = 6
 ) => {
   return useQuery({
-    queryKey: ["reservations", userId, date, status, page],
-    enabled: !!userId,
+    queryKey: ["reservations", user_id, date, status, page],
+    enabled: !!user_id,
     queryFn: async () => {
       try {
         const { data } = await axiosInstance.get(
-          `/reservations/user/${userId}`,
+          `/reservations/user/${user_id}`,
           {
             params: {
               ...(status !== "all" && { status }),
@@ -606,7 +606,7 @@ export const useFilteredReservations = (
         console.warn("⚠️ Backend failed. Using dummy data fallback.");
 
         // 1. Φιλτράρισμα μόνο για τον συγκεκριμένο χρήστη
-        let filtered = reservations.filter((res) => res.userId === userId);
+        let filtered = reservations.filter((res) => res.user_id === user_id);
 
         // 2. Φιλτράρισμα κατά κατάσταση (status)
         if (status && status !== "all") {
@@ -624,12 +624,12 @@ export const useFilteredReservations = (
         const enriched = filtered
           .slice((page - 1) * limit, (page - 1) * limit + limit)
           .map((res) => {
-            const specialMenu = res.specialMenuId
-              ? specialMenus.find((menu) => menu.id === res.specialMenuId)
+            const specialMenu = res.special_menu_id
+              ? special_menus.find((menu) => menu.id === res.special_menu_id)
               : null;
 
-            const coupon = res.couponId
-              ? coupons.find((c) => c.id === res.couponId)
+            const coupon = res.coupon_id
+              ? coupons.find((c) => c.id === res.coupon_id)
               : null;
 
             return {

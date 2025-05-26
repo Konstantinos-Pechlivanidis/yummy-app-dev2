@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { Loader2 } from "lucide-react";
+import Loading from "../components/Loading";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
@@ -44,7 +44,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
+    <div className="relative min-h-full w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
       {/* 🖼 Background Image */}
       <img
         src="/images/wide11.jpg"
@@ -57,7 +57,7 @@ const LoginPage = () => {
       <div className="relative z-20 flex items-start justify-start min-h-screen">
         <motion.div
           {...fadeIn}
-          className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6 mt-24 ml-6 mr-6 md:ml-36 sm:mt-28 sm:ml-10"
+          className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6 my-auto ml-6 mr-6 md:ml-36 sm:my-auto sm:ml-10"
         >
           {/* Logo & Heading */}
           <div className="text-left space-y-2">
@@ -111,7 +111,7 @@ const LoginPage = () => {
             >
               {loginMutation.isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="animate-spin h-4 w-4" />
+                  <Loading />
                   Σύνδεση...
                 </span>
               ) : (

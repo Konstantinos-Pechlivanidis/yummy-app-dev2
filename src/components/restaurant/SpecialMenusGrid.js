@@ -29,7 +29,7 @@ const SpecialMenusGrid = ({ menus = [] }) => {
           className="transition-transform hover:scale-[1.02] bg-white/80 backdrop-blur-lg shadow-xl border border-gray-200 rounded-2xl overflow-hidden"
         >
           <img
-            src={menu.photoUrl}
+            src={menu.photoUrl || "/images/wide10.jpg"}
             alt={menu.name}
             className="w-full h-40 sm:h-44 object-cover"
           />
@@ -43,17 +43,17 @@ const SpecialMenusGrid = ({ menus = [] }) => {
             {/* Promo Section */}
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
               <Badge className="bg-red-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow-sm">
-                -{menu.discountPercentage}% | {menu.name}
+                -{menu.discount_percentage}% | {menu.name}
               </Badge>
 
               <p className="font-medium text-gray-800">{menu.description}</p>
 
               <div className="flex items-center gap-3">
                 <span className="text-gray-500 line-through">
-                  €{menu.originalPrice}
+                  €{menu.original_price}
                 </span>
                 <span className="text-red-600 text-lg sm:text-xl font-extrabold">
-                  €{menu.discountedPrice}
+                  €{menu.discounted_price}
                 </span>
               </div>
 

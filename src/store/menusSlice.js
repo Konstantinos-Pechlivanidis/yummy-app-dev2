@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { menuItems, restaurants } from "../data/dummyData";
+import { menu_items, restaurants } from "../data/dummyData";
 
 const initialState = {
-  menuItems: menuItems,
+  menu_items: menu_items,
   restaurants: restaurants,
 };
 
@@ -11,21 +11,21 @@ const menusSlice = createSlice({
   initialState,
   reducers: {
     addMenuItem: (state, action) => {
-      state.menuItems.push(action.payload);
+      state.menu_items.push(action.payload);
     },
     removeMenuItem: (state, action) => {
-      state.menuItems = state.menuItems.filter((item) => item.id !== action.payload);
+      state.menu_items = state.menu_items.filter((item) => item.id !== action.payload);
     },
     editMenuItem: (state, action) => {
       const { id, updatedData } = action.payload;
-      const itemIndex = state.menuItems.findIndex((item) => item.id === id);
+      const itemIndex = state.menu_items.findIndex((item) => item.id === id);
       if (itemIndex !== -1) {
-        state.menuItems[itemIndex] = { ...state.menuItems[itemIndex], ...updatedData };
+        state.menu_items[itemIndex] = { ...state.menu_items[itemIndex], ...updatedData };
       }
     },
     uploadMenuItemImage: (state, action) => {
       const { id, imageUrl } = action.payload;
-      const item = state.menuItems.find((item) => item.id === id);
+      const item = state.menu_items.find((item) => item.id === id);
       if (item) {
         item.photoUrl = imageUrl;
       }

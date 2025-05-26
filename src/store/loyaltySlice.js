@@ -10,17 +10,17 @@ const loyaltySlice = createSlice({
   initialState,
   reducers: {
     addPoints: (state, action) => {
-      const { userId, points } = action.payload;
-      const user = state.users.find((u) => u.id === userId);
+      const { user_id, points } = action.payload;
+      const user = state.users.find((u) => u.id === user_id);
       if (user) {
-        user.loyaltyPoints += points;
+        user.loyalty_points += points;
       }
     },
     redeemPoints: (state, action) => {
-      const { userId, points } = action.payload;
-      const user = state.users.find((u) => u.id === userId);
-      if (user && user.loyaltyPoints >= points) {
-        user.loyaltyPoints -= points;
+      const { user_id, points } = action.payload;
+      const user = state.users.find((u) => u.id === user_id);
+      if (user && user.loyalty_points >= points) {
+        user.loyalty_points -= points;
       }
     },
   },

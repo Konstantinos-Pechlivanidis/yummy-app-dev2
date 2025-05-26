@@ -4,17 +4,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { format, isValid } from "date-fns";
 import { toast } from "react-hot-toast";
 
-import {
-  useRestaurantDetails,
-  useCreateReservation,
-  useUserLoyaltyPoints,
-  useUserCoupons,
-  useAvailableCouponsForRestaurant,
-  usePurchaseCoupon,
-  useToggleWatchlist,
-} from "../../hooks/useDummyData";
-
 import { setSearchParams as setSearchParamsAction } from "../../store/searchSlice";
+
+import { useRestaurantDetails } from "../../hooks/useRestaurants";
+import { useCreateReservation } from "../../hooks/useReservations";
+import { useUserPoints, useToggleFavorite } from "../../hooks/useAuth";
+import {
+  useUserCoupons,
+  useAvailableCoupons,
+  usePurchaseCoupon,
+} from "../../hooks/useCoupons";
 
 import Loading from "../../components/Loading";
 import { Separator } from "../../components/ui/separator";
@@ -51,21 +50,32 @@ const RestaurantDetailsPage = () => {
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { data: restaurant, isLoading } = useRestaurantDetails(id);
-  const menuItems = useMemo(() => {
-  return restaurant?.menuItems || [];
-}, [restaurant]);
+  const { data: restaurantDetails, isLoading } = useRestaurantDetails(id);
+  const restaurant = restaurantDetails?.restaurant;
+  const menu_items = restaurantDetails?.menu_items ?? [];
+  const special_menus = restaurantDetails?.special_menus ?? [];
+
+  const { data: loyaltyData, isLoading: isLoadingPoints } = useUserPoints(
+    user?.id
+  );
+  const loyalty_points = loyaltyData?.loyalty_points ?? 0;
+
+  const { data: userCoupons = [], isLoading: isLoadingUserCoupons } =
+    useUserCoupons();
+  const { data: availableCoupons = [], isLoading: isLoadingAvailableCoupons } =
+    useAvailableCoupons(id);
+
+  const { mutate: createReservation, isPending: isSubmitting } =
+    useCreateReservation();
+  const { mutate: purchaseCoupon, isPending: isPurchasing } =
+    usePurchaseCoupon();
+  const { mutate: toggleFavorite } = useToggleFavorite();
+
   const menuCategories = useMemo(() => {
-  return [...new Set(menuItems.map((item) => item.category))];
-}, [menuItems]);
-
-  const { data: loyaltyPoints = 0, isLoading: isLoadingPoints } = useUserLoyaltyPoints(user?.id);
-  const { data: userCoupons = [], isLoading: isLoadingUserCoupons } = useUserCoupons(user?.id);
-  const { data: availableCoupons = [], isLoading: isLoadingAvailableCoupons } = useAvailableCouponsForRestaurant(id, user?.id);
-
-  const { mutate: createReservation, isPending: isSubmitting } = useCreateReservation();
-  const { mutate: purchaseCoupon, isPending: isPurchasing } = usePurchaseCoupon();
-  const { mutate: toggleWatchlist } = useToggleWatchlist();
+    return [
+      ...new Set(menu_items.map((item) => item.category).filter(Boolean)),
+    ];
+  }, [menu_items]);
 
   useEffect(() => {
     if (!selectedCategory && menuCategories.length > 0) {
@@ -108,7 +118,7 @@ const RestaurantDetailsPage = () => {
     : null;
   const selectedTime = reservation.time;
 
-  const validMenus = restaurant.specialMenus.filter((menu) => {
+  const validMenus = special_menus.filter((menu) => {
     const { availability } = menu;
     if (!availability || !selectedTime || !availability.timeRange) return false;
 
@@ -117,10 +127,16 @@ const RestaurantDetailsPage = () => {
       selectedTime >= timeRange.start && selectedTime <= timeRange.end;
 
     if (type === "specific" && selectedDate) {
-      return Array.isArray(dates) && dates.includes(selectedDate) && timeIsValid;
+      return (
+        Array.isArray(dates) && dates.includes(selectedDate) && timeIsValid
+      );
     }
     if (type === "recurring" && selectedDayEnglish) {
-      return Array.isArray(daysOfWeek) && daysOfWeek.includes(selectedDayEnglish) && timeIsValid;
+      return (
+        Array.isArray(daysOfWeek) &&
+        daysOfWeek.includes(selectedDayEnglish) &&
+        timeIsValid
+      );
     }
     if (type === "permanent") {
       return timeIsValid;
@@ -144,14 +160,14 @@ const RestaurantDetailsPage = () => {
     setReservation({ ...reservation, coupon: value, specialMenu: null });
   };
 
-  const isInWatchlist = user?.favoriteRestaurants?.includes(restaurant.id);
+  const isInWatchlist = restaurant?.is_favorite === true;
 
   const handleToggleWatchlist = () => {
     if (!isAuthenticated) {
       toast.error("Πρέπει να συνδεθείς για να χρησιμοποιήσεις τη Watchlist.");
       return;
     }
-    toggleWatchlist({ userId: user.id, restaurantId: restaurant.id });
+    toggleFavorite({ restaurant_id: restaurant.id });
   };
 
   const mergedCoupons = [
@@ -162,10 +178,10 @@ const RestaurantDetailsPage = () => {
   ];
 
   const restaurantCouponObjects = mergedCoupons.filter(
-    (coupon) => coupon.restaurantId === restaurant?.id
+    (coupon) => coupon.restaurant_id === restaurant.id
   );
 
-  const filteredDishes = menuItems.filter(
+  const filteredDishes = menu_items.filter(
     (dish) => dish.category === selectedCategory
   );
 
@@ -192,22 +208,27 @@ const RestaurantDetailsPage = () => {
       <Separator className="my-10" />
 
       <section className="space-y-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">🍽️ Special Menus</h2>
-        <SpecialMenusGrid menus={restaurant.specialMenus} />
+        <h2 className="text-3xl font-extrabold text-gray-900">
+          🍽️ Special Menus
+        </h2>
+        <SpecialMenusGrid menus={special_menus} />
       </section>
 
       <Separator className="my-10" />
 
       <section className="space-y-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">🎁 Τα Κουπόνια μου</h2>
+        <h2 className="text-3xl font-extrabold text-gray-900">
+          🎁 Τα Κουπόνια μου
+        </h2>
         <p className="text-lg text-gray-700">
-          Έχεις <span className="font-bold text-primary">{loyaltyPoints}</span> πόντους.
+          Έχεις <span className="font-bold text-primary">{loyalty_points}</span>{" "}
+          πόντους.
         </p>
         <LoyaltyCouponsGrid
           coupons={restaurantCouponObjects}
           userCoupons={userCoupons}
-          loyaltyPoints={loyaltyPoints}
-          userId={user?.id}
+          loyalty_points={loyalty_points}
+          user_id={user?.id}
           onPurchase={purchaseCoupon}
           isPurchasing={isPurchasing}
         />
@@ -219,7 +240,7 @@ const RestaurantDetailsPage = () => {
         reservation={reservation}
         setReservation={setReservation}
         timeSlots={timeSlots}
-        restaurantSpecialMenus={restaurant.specialMenus}
+        restaurantSpecialMenus={special_menus}
         userCoupons={userCoupons}
         restaurant={restaurant}
         validMenus={validMenus}
@@ -232,7 +253,10 @@ const RestaurantDetailsPage = () => {
       <Separator className="my-10" />
 
       <div className="flex justify-center">
-        <Button onClick={() => window.history.back()} className="bg-gray-500 text-white">
+        <Button
+          onClick={() => window.history.back()}
+          className="bg-gray-500 text-white"
+        >
           ⬅ Επιστροφή
         </Button>
       </div>
@@ -254,13 +278,13 @@ const RestaurantDetailsPage = () => {
 
           createReservation(
             {
-              restaurantId: restaurant.id,
-              userId: user.id,
+              restaurant_id: restaurant.id,
+              user_id: user.id,
               date: format(reservation.date, "yyyy-MM-dd"),
               time: reservation.time,
-              guestCount: parseInt(reservation.guests, 10),
-              specialMenuId: reservation.specialMenu,
-              couponId: reservation.coupon,
+              guest_count: parseInt(reservation.guests, 10),
+              special_menu_id: reservation.specialMenu,
+              coupon_id: reservation.coupon,
               notes: reservation.notes,
             },
             {

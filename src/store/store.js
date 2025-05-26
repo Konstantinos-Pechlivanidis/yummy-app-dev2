@@ -16,7 +16,7 @@ export const store = configureStore({
     menus: menusReducer,
     loyalty: loyaltyReducer,
     payment: paymentSlice,
-    specialMenus: specialMenuReducer,
+    special_menus: specialMenuReducer,
     coupons: couponReducer,
     restaurants: restaurantReducer,
     search: searchReducer,

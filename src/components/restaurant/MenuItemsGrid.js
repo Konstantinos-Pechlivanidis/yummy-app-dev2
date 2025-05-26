@@ -18,7 +18,7 @@ const MenuItemsGrid = ({ dishes }) => {
           className="rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all bg-white border border-gray-200"
         >
           <img
-            src={dish.photoUrl}
+            src={dish.photoUrl || "/images/wide10.jpg"}
             alt={dish.name}
             className="w-full h-28 sm:h-32 object-cover"
           />

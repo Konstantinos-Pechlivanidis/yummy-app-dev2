@@ -83,7 +83,7 @@ const ReservationCard = ({
             <strong>🕒</strong> {reservation.time}
           </p>
           <p>
-            <strong>👥</strong> {reservation.guestCount} άτομα
+            <strong>👥</strong> {reservation.guest_count} άτομα
           </p>
           {reservation.notes && (
             <p>
@@ -119,7 +119,7 @@ const ReservationCard = ({
                   <strong>🕒 Ώρα:</strong> {reservation.time}
                 </p>
                 <p>
-                  <strong>👥 Άτομα:</strong> {reservation.guestCount}
+                  <strong>👥 Άτομα:</strong> {reservation.guest_count}
                 </p>
                 {reservation.notes && (
                   <p>
@@ -167,7 +167,7 @@ const ReservationCard = ({
             </Button>
           )}
 
-          <Link to={`/restaurant/${reservation.restaurantId}`} className="w-full sm:w-auto">
+          <Link to={`/restaurant/${reservation.restaurant_id}`} className="w-full sm:w-auto">
             <Button
               size="sm"
               variant="secondary"

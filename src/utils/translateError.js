@@ -15,7 +15,7 @@ export const translateError = (err) => {
     "User is already verified.": "Ο χρήστης έχει ήδη επιβεβαιωθεί.",
     "User not found.": "Ο χρήστης δεν βρέθηκε.",
     "Email is required.": "Το email είναι υποχρεωτικό.",
-    "restaurantId is required in the body": "Δεν επιλέχθηκε εστιατόριο.",
+    "restaurant_id is required in the body": "Δεν επιλέχθηκε εστιατόριο.",
     "No valid fields provided for update": "Δεν δόθηκαν στοιχεία για ενημέρωση.",
     "Invalid or expired token": "Ο σύνδεσμος επιβεβαίωσης δεν είναι έγκυρος ή έχει λήξει.",
     "Internal Server Error": "Προέκυψε σφάλμα στον διακομιστή.",

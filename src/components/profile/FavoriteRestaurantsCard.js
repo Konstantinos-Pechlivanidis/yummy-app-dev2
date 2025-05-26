@@ -1,12 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "../ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import {
   Pagination,
@@ -26,10 +21,17 @@ const fadeIn = {
 
 const ITEMS_PER_PAGE = 6;
 
-const FavoriteRestaurantsCard = ({ favorites = [], isLoading, onConfirmRemove }) => {
+const FavoriteRestaurantsCard = ({
+  favorites = [],
+  isLoading,
+  onConfirmRemove,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedData = favorites.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedData = favorites.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
   const totalPages = Math.ceil(favorites.length / ITEMS_PER_PAGE);
 
   return (
@@ -56,7 +58,7 @@ const FavoriteRestaurantsCard = ({ favorites = [], isLoading, onConfirmRemove })
                     <Link to={`/restaurant/${resto.id}`}>
                       <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white hover:shadow-xl transition-all">
                         <img
-                          src={resto.photos?.[0]}
+                          src={resto.photos?.[0] || "/images/wide10.jpg"}
                           alt={resto.name}
                           className="w-full h-40 sm:h-44 object-cover"
                         />
@@ -114,7 +116,9 @@ const FavoriteRestaurantsCard = ({ favorites = [], isLoading, onConfirmRemove })
                           variant="outline"
                           disabled={currentPage === totalPages}
                           onClick={() =>
-                            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
                           }
                         >
                           <PaginationNext />

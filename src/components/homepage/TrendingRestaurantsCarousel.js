@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
-import { useTrendingRestaurants } from "../../hooks/useDummyData";
+import { useTrendingRestaurants } from "../../hooks/useRestaurants";
 import Loading from "../Loading";
 import { Card, CardContent } from "../ui/card";
 
@@ -12,7 +12,8 @@ const fadeIn = {
 };
 
 const TrendingRestaurantsCarousel = () => {
-  const { data: trendingRestaurants = [], isLoading } = useTrendingRestaurants();
+  const { data, isLoading } = useTrendingRestaurants();
+  const trendingRestaurants = data?.allTrendingRestaurants ?? [];
 
   return (
     <motion.section {...fadeIn} className="px-4 sm:px-6 md:px-10 py-8">
@@ -33,7 +34,7 @@ const TrendingRestaurantsCarousel = () => {
                 <Card className="md:hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden border border-gray-200 bg-white">
                   <CardContent className="p-0">
                     <img
-                      src={resto.photos?.[0]}
+                      src={resto.photos?.[0] || "/images/wide10.jpg"}
                       alt={resto.name}
                       className="w-full h-40 sm:h-44 object-cover"
                     />
@@ -51,24 +52,24 @@ const TrendingRestaurantsCarousel = () => {
                         {resto.cuisine} – {resto.location}
                       </p>
 
-                      {resto.specialMenu && (
+                      {resto.special_menus && (
                         <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mt-2 space-y-1">
                           <div className="bg-red-600 text-white rounded-full px-3 py-1 w-fit text-xs sm:text-sm font-semibold shadow-sm">
                             🎉 Happy Hour
                           </div>
                           <p className="text-red-900 font-medium text-sm sm:text-base">
-                            {resto.specialMenu.name} | {resto.specialMenu.discountPercentage}% έκπτωση
+                            {resto.special_menus.name} | {resto.special_menus.discount_percentage}% έκπτωση
                           </p>
                         </div>
                       )}
 
-                      {resto.coupon && (
+                      {resto.coupons && (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mt-2 space-y-1">
                           <div className="bg-blue-600 text-white rounded-full px-3 py-1 w-fit text-xs sm:text-sm font-semibold shadow-sm">
                             🎁 Κουπόνι Ανταμοιβής
                           </div>
                           <p className="text-blue-900 font-medium text-sm sm:text-base">
-                            {resto.coupon.description}
+                            {resto.coupons.description}
                           </p>
                         </div>
                       )}

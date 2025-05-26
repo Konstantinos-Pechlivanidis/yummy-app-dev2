@@ -10,17 +10,17 @@ const reservationsSlice = createSlice({
   initialState,
   reducers: {
     addReservation: (state, action) => {
-      const { userId, restaurantId, date, time, guestCount, specialMenuId, couponId } = action.payload;
+      const { user_id, restaurant_id, date, time, guest_count, special_menu_id, coupon_id } = action.payload;
 
       state.reservations.push({
         id: `reservation${state.reservations.length + 1}`,
-        userId,
-        restaurantId,
+        user_id,
+        restaurant_id,
         date,
         time,
-        guestCount,
-        specialMenuId,
-        couponId,
+        guest_count,
+        special_menu_id,
+        coupon_id,
         status: "pending", // Πάντα ξεκινάει ως "pending"
       });
     },

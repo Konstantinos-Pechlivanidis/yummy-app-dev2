@@ -81,7 +81,7 @@ const MyReservationsPage = () => {
             {reservations.map((res) =>
               (() => {
                 const restaurant = allRestaurants.find(
-                  (r) => r.id === res.restaurantId
+                  (r) => r.id === res.restaurant_id
                 );
                 return (
                   <ReservationCard

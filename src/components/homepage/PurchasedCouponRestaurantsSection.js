@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRestaurantsWithPurchasedCoupons } from "../../hooks/useDummyData";
+import { useRestaurantsWithPurchasedCoupons } from "../../hooks/useCoupons";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import {
@@ -22,8 +22,8 @@ const fadeIn = {
 
 const ITEMS_PER_PAGE = 6;
 
-const PurchasedCouponRestaurantsSection = ({ userId }) => {
-  const { data = [], isLoading } = useRestaurantsWithPurchasedCoupons(userId);
+const PurchasedCouponRestaurantsSection = () => {
+  const { data = [], isLoading } = useRestaurantsWithPurchasedCoupons();
   const [currentPage, setCurrentPage] = useState(1);
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -50,7 +50,7 @@ const PurchasedCouponRestaurantsSection = ({ userId }) => {
                 <Card className="md:hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden border border-gray-200 bg-white">
                   <CardContent className="p-0">
                     <img
-                      src={resto.photos?.[0]}
+                      src={resto.photos?.[0] || "/images/wide10.jpg"}
                       alt={resto.name}
                       className="w-full h-40 sm:h-44 object-cover"
                     />
@@ -70,14 +70,16 @@ const PurchasedCouponRestaurantsSection = ({ userId }) => {
                         {resto.cuisine} – {resto.location}
                       </p>
 
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mt-2 space-y-1">
-                        <div className="bg-blue-600 text-white rounded-full px-3 py-1 w-fit text-xs sm:text-sm font-semibold shadow-sm">
-                          🎁 Κουπόνι Αγοράστηκε
+                      {resto.coupons?.[0] && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 mt-2 space-y-1">
+                          <div className="bg-blue-600 text-white rounded-full px-3 py-1 w-fit text-xs sm:text-sm font-semibold shadow-sm">
+                            🎁 Κουπόνι Αγοράστηκε
+                          </div>
+                          <p className="text-blue-900 font-medium text-sm sm:text-base">
+                            {resto.coupons[0].description}
+                          </p>
                         </div>
-                        <p className="text-blue-900 font-medium text-sm sm:text-base">
-                          {resto.coupon?.description}
-                        </p>
-                      </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
