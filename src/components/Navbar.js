@@ -129,7 +129,7 @@ const Navbar = () => {
             <Link
               to="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-2 py-2 hover:bg-gray-100 rounded-md"
+              className="block w-full text-center font-semibold text-white bg-red-600 hover:bg-red-700 transition rounded-md py-2 shadow-md"
             >
               Σύνδεση
             </Link>

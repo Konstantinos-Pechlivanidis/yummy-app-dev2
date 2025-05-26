@@ -57,7 +57,7 @@ const RegisterPage = () => {
       <div className="relative z-20 flex items-start justify-start min-h-screen">
         <motion.div
           {...fadeIn}
-          className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6 my-auto mx-auto md:ml-auto md:mr-36"
+          className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6 my-auto mx-6 md:mx-auto md:ml-auto md:mr-36"
         >
           {/* Logo & Heading */}
           <div className="text-left space-y-2">
