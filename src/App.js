@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { login } from "./store/authSlice";
-import { users } from "./data/dummyData";
+// App.js
+import { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,70 +7,76 @@ import {
   useNavigate,
   useLocation,
 } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, clearUser } from "./store/authSlice";
+import { useAuthStatus } from "./hooks/useAuth";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import ScrollToTop from "./lib/ScrollToTop";
+import { Toaster } from "react-hot-toast";
+
+// Pages
 import HomePage from "./pages/customer/HomePage";
 import LoyaltyPage from "./pages/customer/LoyaltyPage";
 import ReserveTablePage from "./pages/customer/ReserveTablePage";
 import RestaurantDetailsPage from "./pages/customer/RestaurantDetailsPage";
 import MyReservationsPage from "./pages/customer/MyReservationsPage";
 import ConfirmationPage from "./pages/customer/Confirmation";
-import ScrollToTop from "./lib/ScrollToTop";
 import ProfilePage from "./pages/customer/ProfilePage";
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
 import OwnerProfile from "./pages/owner/OwnerProfile";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
-import { Toaster } from "react-hot-toast";
+import AuthRedirect from "./pages/AuthRedirect";
 
-// ✅ Περιλαμβάνει redirect λογική και προστατευμένα routes
+// ✅ Routes wrapped with auth initialization
 const AppRoutes = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const { data, isLoading } = useAuthStatus(); // 👈 uses backend /auth/status
+  const user = useSelector((state) => state.auth.user);
 
-  const [loading, setLoading] = useState(true);
-
-  // Auto-login για testing
+  // ✅ Initialize auth state once on mount
   useEffect(() => {
-    if (!isAuthenticated) {
-      const testUser = users.find((u) => u.role === "customer");
-      if (testUser) {
-        dispatch(login({ email: testUser.email, password: testUser.password }));
-      }
+    if (data?.loggedIn) {
+      dispatch(setUser(data.user));
+    } else {
+      dispatch(clearUser());
     }
+  }, [data, dispatch]);
 
-    const timeout = setTimeout(() => setLoading(false), 200);
-    return () => clearTimeout(timeout);
-  }, [dispatch, isAuthenticated]);
-
-  // ✅ Redirect owner από public routes
+  // ✅ Owner redirection logic
   useEffect(() => {
-    if (isAuthenticated && user?.role === "owner") {
+    if (user?.role === "owner") {
       const publicPaths = ["/", "/reserve", "/restaurant"];
-      const isPublicPath = publicPaths.some(
-        (path) =>
-          location.pathname === path || location.pathname.startsWith(`${path}/`)
+      const isPublic = publicPaths.some((p) =>
+        location.pathname === p || location.pathname.startsWith(`${p}/`)
       );
-      if (isPublicPath) {
+      if (isPublic) {
         navigate("/dashboard", { replace: true });
       }
     }
-  }, [isAuthenticated, user, location, navigate]);
+  }, [user, location.pathname, navigate]);
 
-  // Προστασία από flash 404
-  if (loading) return null;
+  if (isLoading) return null;
+
+  const isAuthenticated = !!user;
 
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
+      <Route path="/auth-redirect" element={<AuthRedirect />} />
       <Route path="/reserve" element={<ReserveTablePage />} />
       <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
-      {/* Customer-only routes */}
-      {isAuthenticated && user?.role === "customer" && (
+      {/* Customer Only */}
+      {isAuthenticated && user.role === "customer" && (
         <>
           <Route path="/loyalty" element={<LoyaltyPage />} />
           <Route path="/my-reservations" element={<MyReservationsPage />} />
@@ -81,8 +85,8 @@ const AppRoutes = () => {
         </>
       )}
 
-      {/* Owner-only routes */}
-      {isAuthenticated && user?.role === "owner" && (
+      {/* Owner Only */}
+      {isAuthenticated && user.role === "owner" && (
         <>
           <Route path="/dashboard" element={<OwnerDashboard />} />
           <Route path="/profile" element={<OwnerProfile />} />
@@ -129,7 +133,6 @@ function App() {
           },
         }}
       />
-
       <ScrollToTop />
       <Navbar />
       <div className="pt-16">

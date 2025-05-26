@@ -9,11 +9,11 @@ const fadeIn = {
 const ReserveHeroSection = () => (
   <section className="relative h-[400px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl">
     <img
-      src="/images/wide4.jpg"
+      src="/images/wide2.jpg"
       alt="hero"
       className="absolute inset-0 object-cover w-full h-full"
     />
-    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+    <div className="absolute inset-0 bg-black/60 z-0" />
     <motion.div
       {...fadeIn}
       className="relative z-10 text-white px-4 flex flex-col items-center"

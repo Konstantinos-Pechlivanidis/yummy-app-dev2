@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { updateProfile } from "../../store/authSlice";
 import { updateRestaurantProfile } from "../../store/restaurantSlice";
+import { useResendVerification } from "../../hooks/useAuth";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import {
@@ -20,7 +20,6 @@ const OwnerProfile = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const restaurants = useSelector((state) => state.menus.restaurants);
-
   const restaurant = restaurants.find((r) => r.ownerId === user?.id);
 
   const [ownerData, setOwnerData] = useState({
@@ -36,6 +35,8 @@ const OwnerProfile = () => {
     instagram: restaurant?.contact?.socialMedia?.instagram || "",
   });
 
+  const { mutate: resendVerification, isLoading: resending } = useResendVerification();
+
   const handleOwnerChange = (field, value) => {
     setOwnerData((prev) => ({ ...prev, [field]: value }));
   };
@@ -46,9 +47,10 @@ const OwnerProfile = () => {
   };
 
   const handleSubmit = (e) => {
-    console.log("submit");
     e.preventDefault();
-    dispatch(updateProfile(ownerData));
+
+    // Αν θέλεις να ενημερώνεις και τα owner data στον backend:
+    // dispatch(updateProfile(ownerData))  <-- μόνο αν υποστηρίζεται
 
     dispatch(
       updateRestaurantProfile({
@@ -65,8 +67,32 @@ const OwnerProfile = () => {
     toast.success("Το προφίλ ενημερώθηκε με επιτυχία!");
   };
 
+  const handleResend = () => {
+    resendVerification(user.email, {
+      onSuccess: () =>
+        toast.success("Στάλθηκε ξανά email επιβεβαίωσης."),
+    });
+  };
+
   return (
-    <div className="container mx-auto px-4 py-10 max-w-4xl">
+    <div className="container mx-auto px-4 py-10 max-w-4xl space-y-6">
+      <h1 className="text-3xl font-bold text-center text-gray-800">👤 Προφίλ Ιδιοκτήτη</h1>
+
+      {/* ❗ Banner επιβεβαίωσης */}
+      {!user.confirmed_user && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded relative">
+          📧 Δεν έχεις επιβεβαιώσει ακόμα το email σου.
+          <Button
+            size="sm"
+            className="ml-4 bg-yellow-500 text-white hover:bg-yellow-600"
+            onClick={handleResend}
+            disabled={resending}
+          >
+            {resending ? "Αποστολή..." : "Αποστολή ξανά"}
+          </Button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-10">
         {/* 👤 Κάρτα Ιδιοκτήτη */}
         <Card className="shadow-md">
@@ -74,7 +100,6 @@ const OwnerProfile = () => {
             <CardTitle className="text-2xl font-bold">👤 Προφίλ Ιδιοκτήτη</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-
             <div>
               <Label htmlFor="name">👤 Όνομα</Label>
               <Input

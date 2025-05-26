@@ -12,7 +12,7 @@ const ProfileCard = ({ user, onEdit, onLogout }) => {
   return (
     <Card className="w-full max-w-md m-auto bg-white shadow-md px-5 py-6 rounded-2xl text-center space-y-2">
       {/* Avatar */}
-      <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto group">
+      {/* <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto group">
         <img
           src={user.profileImage || "/images/default-avatar.jpg"}
           alt="Profile"
@@ -22,7 +22,7 @@ const ProfileCard = ({ user, onEdit, onLogout }) => {
           <Camera className="w-4 h-4" />
           <input type="file" className="hidden" />
         </label>
-      </div>
+      </div> */}
 
       {/* Name & Email */}
       <CardHeader className="space-y-1">

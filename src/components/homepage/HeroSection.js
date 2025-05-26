@@ -17,7 +17,7 @@ const HeroSection = () => {
       />
 
       {/* Gradient + dark blur overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20 backdrop-blur-sm z-0" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50 z-0" />
 
       {/* Foreground content */}
       <motion.div

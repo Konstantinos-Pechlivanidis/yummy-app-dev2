@@ -1,53 +1,22 @@
+// redux/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import { users } from "../data/dummyData"; // Χρησιμοποιούμε τα dummy δεδομένα
 
 const initialState = {
-  user: null, // Ο χρήστης που έχει κάνει login
-  isAuthenticated: false,
+  user: null, // { id, email, name, role, confirmed_user, ... }
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, action) => {
-      const { email, password } = action.payload;
-      const foundUser = users.find((user) => user.email === email && user.password === password);
-      if (foundUser) {
-        state.user = foundUser;
-        state.isAuthenticated = true;
-      }
+    setUser(state, action) {
+      state.user = action.payload;
     },
-    logout: (state) => {
+    clearUser(state) {
       state.user = null;
-      state.isAuthenticated = false;
-    },
-    updateProfile: (state, action) => {
-      if (state.user) {
-        const { name, email, phone, profileImage } = action.payload;
-        state.user.name = name || state.user.name;
-        state.user.email = email || state.user.email;
-        state.user.phone = phone || state.user.phone;
-        state.user.profileImage = profileImage || state.user.profileImage; // Updating image
-      }
-    },
-    addToWatchlist: (state, action) => {
-      if (state.user) {
-        const restaurantId = action.payload;
-        if (!state.user.favoriteRestaurants.includes(restaurantId)) {
-          state.user.favoriteRestaurants.push(restaurantId);
-        }
-      }
-    },
-    removeFromWatchlist: (state, action) => {
-      if (state.user) {
-        state.user.favoriteRestaurants = state.user.favoriteRestaurants.filter(
-          (id) => id !== action.payload
-        );
-      }
     },
   },
 });
 
-export const { login, logout, updateProfile,addToWatchlist,removeFromWatchlist } = authSlice.actions;
+export const { setUser, clearUser } = authSlice.actions;
 export default authSlice.reducer;
