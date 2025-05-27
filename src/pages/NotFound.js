@@ -27,7 +27,7 @@ const NotFound = () => {
         >
           {/* Logo */}
           <img
-            src="/images/yummyLogo-Big.png"
+            src="/images/yummyLogo-2.png"
             alt="Yummy Logo"
             className="w-16 h-16 mx-auto drop-shadow"
           />

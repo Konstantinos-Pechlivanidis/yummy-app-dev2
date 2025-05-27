@@ -66,9 +66,9 @@ const ReservationDetailsDialog = ({ reservationId }) => {
                 <strong>Κουπόνι:</strong> {res.coupon_id}
               </p>
             )}
-            {res.notes && (
+            {res.reservation_notes && (
               <p>
-                <strong>Σημειώσεις:</strong> {res.notes}
+                <strong>Σημειώσεις:</strong> {res.reservation_notes}
               </p>
             )}
             {res.rating && (

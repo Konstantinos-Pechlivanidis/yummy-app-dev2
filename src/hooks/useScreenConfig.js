@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 
-// 📱 Breakpoints in pixels
 const BREAKPOINTS = {
   MOBILE: 640,
   TABLET: 1024,

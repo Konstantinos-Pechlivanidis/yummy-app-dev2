@@ -3,12 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { CalendarIcon, Users, Mail, Clock } from "lucide-react";
-import {
-  useReservationDetails,
-  useRestaurantDetails,
-} from "../../hooks/useDummyData";
+import { useReservationDetails } from "../../hooks/useReservations";
+import { useRestaurantDetails } from "../../hooks/useRestaurants";
 import Loading from "../../components/Loading";
 import { toast } from "react-hot-toast";
+import { format, parseISO } from "date-fns";
+import { el } from "date-fns/locale";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
@@ -25,11 +25,14 @@ const ConfirmationPage = () => {
     isLoading: isLoadingRes,
     isError: isErrorRes,
   } = useReservationDetails(id);
+
+  const restaurantId = reservation?.restaurant_id;
+
   const {
     data: restaurant,
     isLoading: isLoadingRest,
     isError: isErrorRest,
-  } = useRestaurantDetails(reservation?.restaurant_id);
+  } = useRestaurantDetails(restaurantId);
 
   useEffect(() => {
     if (!id) toast.error("Δεν βρέθηκε το ID της κράτησης.");
@@ -59,6 +62,20 @@ const ConfirmationPage = () => {
     );
   }
 
+  const formattedDate = format(parseISO(reservation.date), "dd/MM/yyyy", {
+    locale: el,
+  });
+
+  let formattedTime = reservation.time;
+  try {
+    const fullDateTime = new Date(`${reservation.date}T${reservation.time}`);
+    if (!isNaN(fullDateTime)) {
+      formattedTime = format(fullDateTime, "HH:mm");
+    }
+  } catch (err) {
+    console.warn("Invalid time format:", reservation.time);
+  }
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* 🖼 Background Image */}
@@ -76,7 +93,9 @@ const ConfirmationPage = () => {
           className="w-full max-w-lg bg-white rounded-3xl shadow-2xl p-8 text-center space-y-6"
         >
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-gray-900">✅ Επιτυχής Κράτηση!</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              ✅ Επιτυχής Κράτηση!
+            </h1>
             <p className="text-gray-600">
               Η κράτησή σας βρίσκεται{" "}
               <strong>σε κατάσταση αναμονής (Pending)</strong> και θα απαντηθεί
@@ -89,7 +108,7 @@ const ConfirmationPage = () => {
             <p className="text-lg font-bold">{restaurant.name}</p>
             <p className="flex items-center justify-center text-gray-600">
               <CalendarIcon className="w-5 h-5 mr-2" />
-              {reservation.date} - {reservation.time}
+              {formattedDate} - {formattedTime}
             </p>
             <p className="flex items-center justify-center text-gray-600">
               <Users className="w-5 h-5 mr-2" />
@@ -111,8 +130,10 @@ const ConfirmationPage = () => {
                 <span className="font-semibold text-primary">Ναι</span>
               </p>
             )}
-            {reservation.notes && (
-              <p className="text-sm text-gray-700">📌 {reservation.notes}</p>
+            {reservation.reservation_notes && (
+              <p className="text-sm text-gray-700">
+                📌 {reservation.reservation_notes}
+              </p>
             )}
           </div>
 

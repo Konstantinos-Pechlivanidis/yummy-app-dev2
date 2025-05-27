@@ -1,4 +1,3 @@
-// App.js
 import { useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -16,7 +15,6 @@ import Footer from "./components/Footer";
 import ScrollToTop from "./lib/ScrollToTop";
 import { Toaster } from "react-hot-toast";
 
-// Pages
 import HomePage from "./pages/customer/HomePage";
 import LoyaltyPage from "./pages/customer/LoyaltyPage";
 import ReserveTablePage from "./pages/customer/ReserveTablePage";
@@ -30,16 +28,33 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
 import AuthRedirect from "./pages/AuthRedirect";
+import { showLoading, hideLoading } from "./store/loadingSlice";
+import PageLoading from "./components/PageLoading";
 
-// ✅ Routes wrapped with auth initialization
+const LoadingHandler = () => {
+  const location = useLocation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(showLoading());
+
+    const timeout = setTimeout(() => {
+      dispatch(hideLoading());
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [location.pathname, dispatch]);
+
+  return null;
+};
+
 const AppRoutes = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const { data, isLoading } = useAuthStatus(); // 👈 uses backend /auth/status
+  const { data, isLoading } = useAuthStatus();
   const user = useSelector((state) => state.auth.user);
 
-  // ✅ Initialize auth state once on mount
   useEffect(() => {
     if (data?.loggedIn) {
       dispatch(setUser(data.user));
@@ -48,7 +63,6 @@ const AppRoutes = () => {
     }
   }, [data, dispatch]);
 
-  // ✅ Owner redirection logic
   useEffect(() => {
     if (user?.role === "owner") {
       const publicPaths = ["/", "/reserve", "/restaurant"];
@@ -100,6 +114,7 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const isLoading = useSelector((state) => state.loading.isLoading);
   return (
     <Router>
       <Toaster
@@ -134,9 +149,10 @@ function App() {
         }}
       />
       <ScrollToTop />
+      <LoadingHandler />
       <Navbar />
       <div className="pt-16">
-        <AppRoutes />
+      {isLoading ? <PageLoading /> : <AppRoutes />}
       </div>
       <Footer />
     </Router>

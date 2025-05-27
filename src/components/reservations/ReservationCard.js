@@ -37,10 +37,21 @@ const ReservationCard = ({
   onCancel = null,
 }) => {
   const formattedDate = format(
-    parse(reservation.date, "yyyy-MM-dd", new Date()),
+    new Date(reservation.date),
     "eeee dd MMMM yyyy",
     { locale: el }
   );
+  let formattedTime = reservation.time;
+  try {
+    const fullDateTime = new Date(
+      `${reservation.date.split("T")[0]}T${reservation.time}`
+    );
+    if (!isNaN(fullDateTime)) {
+      formattedTime = format(fullDateTime, "HH:mm");
+    }
+  } catch (err) {
+    console.warn("⛔ Invalid time value:", reservation.time);
+  }
 
   return (
     <Card className="rounded-2xl border border-gray-200 bg-white shadow hover:shadow-lg transition overflow-hidden">
@@ -80,14 +91,14 @@ const ReservationCard = ({
             <strong>📆</strong> {formattedDate}
           </p>
           <p>
-            <strong>🕒</strong> {reservation.time}
+            <strong>🕒</strong> {formattedTime}
           </p>
           <p>
             <strong>👥</strong> {reservation.guest_count} άτομα
           </p>
-          {reservation.notes && (
+          {reservation.reservation_notes && (
             <p>
-              <strong>📝</strong> {reservation.notes}
+              <strong>📝</strong> {reservation.reservation_notes}
             </p>
           )}
           {reservation.status === "cancelled" &&
@@ -116,27 +127,28 @@ const ReservationCard = ({
                   <strong>📅 Ημερομηνία:</strong> {formattedDate}
                 </p>
                 <p>
-                  <strong>🕒 Ώρα:</strong> {reservation.time}
+                  <strong>🕒 Ώρα:</strong> {formattedTime}
                 </p>
                 <p>
                   <strong>👥 Άτομα:</strong> {reservation.guest_count}
                 </p>
-                {reservation.notes && (
+                {reservation.reservation_notes && (
                   <p>
-                    <strong>📝 Σημειώσεις:</strong> {reservation.notes}
+                    <strong>📝 Σημειώσεις:</strong>{" "}
+                    {reservation.reservation_notes}
                   </p>
                 )}
 
-                {reservation.specialMenu && (
+                {reservation.special_menu && (
                   <div className="bg-red-50 border border-red-200 rounded-md px-4 py-3 space-y-1">
                     <h4 className="font-semibold text-red-700">
                       🎉 Happy Hour
                     </h4>
                     <p className="text-sm font-medium text-red-900">
-                      {reservation.specialMenu.name}
+                      {reservation.special_menu.name}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {reservation.specialMenu.description}
+                      {reservation.special_menu.description}
                     </p>
                   </div>
                 )}
@@ -167,14 +179,16 @@ const ReservationCard = ({
             </Button>
           )}
 
-          <Link to={`/restaurant/${reservation.restaurant_id}`} className="w-full sm:w-auto">
+          <Link
+            to={`/restaurant/${reservation.restaurant_id}`}
+            className="w-full sm:w-auto"
+          >
             <Button
               size="sm"
               variant="secondary"
               className="w-full text-sm px-4"
             >
-              ➡
-              Εστιατόριο
+              ➡ Εστιατόριο
             </Button>
           </Link>
         </div>

@@ -43,7 +43,7 @@ const RestaurantDetailsPage = () => {
     guests: reduxSearchParams.guests || "",
     specialMenu: null,
     coupon: null,
-    notes: "",
+    reservation_notes: "",
   });
 
   const [errorDialog, setErrorDialog] = useState(false);
@@ -82,6 +82,10 @@ const RestaurantDetailsPage = () => {
       setSelectedCategory(menuCategories[0]);
     }
   }, [menuCategories, selectedCategory]);
+
+  const [inWatchlist, setInWatchlist] = useState(
+    restaurant?.is_favorite === true
+  );
 
   if (
     isLoading ||
@@ -160,14 +164,31 @@ const RestaurantDetailsPage = () => {
     setReservation({ ...reservation, coupon: value, specialMenu: null });
   };
 
-  const isInWatchlist = restaurant?.is_favorite === true;
-
   const handleToggleWatchlist = () => {
-    if (!isAuthenticated) {
-      toast.error("Πρέπει να συνδεθείς για να χρησιμοποιήσεις τη Watchlist.");
+    if (!user?.confirmed_user) {
+      toast.error(
+        "Πρέπει να έχεις επιβεβαιώσει τον λογαριασμό σου για να χρησιμοποιήσεις τη Watchlist."
+      );
       return;
     }
-    toggleFavorite({ restaurant_id: restaurant.id });
+
+    if (!restaurant?.id) {
+      toast.error("Δεν υπάρχει διαθέσιμο ID για το εστιατόριο.");
+      return;
+    }
+
+    toggleFavorite(restaurant.id, {
+      onSuccess: (data) => {
+        if (data?.added) {
+          setInWatchlist(true);
+        } else if (data?.removed) {
+          setInWatchlist(false);
+        }
+      },
+      onError: () => {
+        toast.error("Αποτυχία ενημέρωσης Watchlist.");
+      },
+    });
   };
 
   const mergedCoupons = [
@@ -176,6 +197,10 @@ const RestaurantDetailsPage = () => {
       (ac) => !(userCoupons ?? []).some((uc) => uc.id === ac.id)
     ),
   ];
+
+  const usableUserCoupons = (userCoupons ?? []).filter(
+    (c) => c.restaurant_id === restaurant.id && !c.is_used && !c.is_locked
+  );
 
   const restaurantCouponObjects = mergedCoupons.filter(
     (coupon) => coupon.restaurant_id === restaurant.id
@@ -189,7 +214,7 @@ const RestaurantDetailsPage = () => {
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
       <HeroSection
         restaurant={restaurant}
-        isInWatchlist={isInWatchlist}
+        isInWatchlist={inWatchlist}
         handleToggleWatchlist={handleToggleWatchlist}
       />
 
@@ -241,7 +266,7 @@ const RestaurantDetailsPage = () => {
         setReservation={setReservation}
         timeSlots={timeSlots}
         restaurantSpecialMenus={special_menus}
-        userCoupons={userCoupons}
+        userCoupons={usableUserCoupons}
         restaurant={restaurant}
         validMenus={validMenus}
         handleSpecialMenuChange={handleSpecialMenuChange}
@@ -285,16 +310,11 @@ const RestaurantDetailsPage = () => {
               guest_count: parseInt(reservation.guests, 10),
               special_menu_id: reservation.specialMenu,
               coupon_id: reservation.coupon,
-              notes: reservation.notes,
+              reservation_notes: reservation.reservation_notes,
             },
             {
               onSuccess: (created) => {
-                toast.success("Η κράτηση υποβλήθηκε!");
                 navigate(`/confirmation/${created.id}`);
-              },
-              onError: () => {
-                toast.error("⚠️ Κάτι πήγε στραβά κατά την υποβολή.");
-                navigate(`/confirmation/reservation007`);
               },
             }
           );

@@ -21,28 +21,28 @@ const reservationsSlice = createSlice({
         guest_count,
         special_menu_id,
         coupon_id,
-        status: "pending", // Πάντα ξεκινάει ως "pending"
+        status: "pending",
       });
     },
 
     approveReservation: (state, action) => {
       const reservation = state.reservations.find((r) => r.id === action.payload);
       if (reservation && reservation.status === "pending") {
-        reservation.status = "approved"; // Από "pending" σε "approved"
+        reservation.status = "approved";
       }
     },
 
     markAsCompleted: (state, action) => {
       const reservation = state.reservations.find((r) => r.id === action.payload);
       if (reservation && reservation.status === "approved") {
-        reservation.status = "completed"; // Από "approved" σε "completed"
+        reservation.status = "completed";
       }
     },
 
     cancelReservation: (state, action) => {
       const reservation = state.reservations.find((r) => r.id === action.payload);
       if (reservation && (reservation.status === "pending" || reservation.status === "approved")) {
-        reservation.status = "canceled"; // Από "pending" ή "approved" σε "canceled"
+        reservation.status = "canceled";
       }
     },
   },

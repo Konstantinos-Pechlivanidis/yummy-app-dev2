@@ -21,7 +21,7 @@ const ReserveHeroSection = () => (
       <div className="mb-6 relative flex items-center justify-center">
         <div className="absolute w-56 h-56 md:w-64 md:h-64 rounded-full bg-white/25 blur-3xl z-0" />
         <img
-          src="/images/YummyLogo-Big.png"
+          src="/images/yummyLogo-2.png"
           alt="Yummy Logo"
           className="h-40 w-40 md:h-48 md:w-48 object-contain relative z-10"
         />

@@ -8,6 +8,7 @@ import specialMenuReducer from "./specialMenuSlice";
 import couponReducer from "./couponSlice";
 import restaurantReducer from "./restaurantSlice";
 import searchReducer from "./searchSlice";
+import loadingReducer from "./loadingSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     coupons: couponReducer,
     restaurants: restaurantReducer,
     search: searchReducer,
+    loading: loadingReducer,
   },
 });
 

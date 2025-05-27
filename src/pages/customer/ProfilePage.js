@@ -20,6 +20,7 @@ import {
 import FavoriteRestaurantsCard from "../../components/profile/FavoriteRestaurantsCard";
 import PurchasedCouponRestaurantsSection from "../../components/profile/PurchasedCouponRestaurantsCard";
 import { Heart, Ticket, Mail } from "lucide-react";
+import toast from "react-hot-toast";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
@@ -60,7 +61,24 @@ const ProfilePage = () => {
   };
 
   const handleResendEmail = () => resendVerification(profile.email);
-  const handleToggleFavorite = (id) => toggleFavorite(id);
+  const handleToggleFavorite = async (id) => {
+    if (!id) {
+      toast.error("Λείπει το ID του εστιατορίου.");
+      return;
+    }
+
+    try {
+      const result = await toggleFavorite(id);
+
+      if (result?.added) {
+        toast.success("Το εστιατόριο προστέθηκε στα αγαπημένα.");
+      } else if (result?.removed) {
+        toast.success("Το εστιατόριο αφαιρέθηκε από τα αγαπημένα.");
+      }
+    } catch (err) {
+      toast.error("Αποτυχία ενημέρωσης αγαπημένων.");
+    }
+  };
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
@@ -79,7 +97,7 @@ const ProfilePage = () => {
           <div className="mb-6 relative flex items-center justify-center">
             <div className="absolute w-56 h-56 md:w-64 md:h-64 rounded-full bg-white/25 blur-3xl z-0" />
             <img
-              src="/images/YummyLogo-Big.png"
+              src="/images/yummyLogo-2.png"
               alt="Yummy Logo"
               className="h-40 w-40 md:h-48 md:w-48 object-contain relative z-10"
             />
@@ -237,8 +255,8 @@ const ProfilePage = () => {
             </Button>
             <Button
               className="bg-red-600 text-white"
-              onClick={() => {
-                handleToggleFavorite(confirmDialog.restaurant_id);
+              onClick={async () => {
+                await handleToggleFavorite(confirmDialog.restaurant_id);
                 setConfirmDialog({ open: false, restaurant_id: null });
               }}
             >

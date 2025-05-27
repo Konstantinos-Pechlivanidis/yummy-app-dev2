@@ -7,7 +7,6 @@ const ReservationPagination = ({
   itemsPerPage,
   onPageChange,
 }) => {
-  // Αν δεν υπάρχει ανάγκη για pagination, μην εμφανίζεις τίποτα
   if (totalItems <= itemsPerPage || totalPages <= 1) return null;
 
   return (

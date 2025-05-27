@@ -6,7 +6,6 @@ export const translateError = (err) => {
 
   if (!msg || typeof msg !== "string") return "Άγνωστο σφάλμα.";
 
-  // ✅ Αντιστοιχίσεις backend + Joi errors
   const translations = {
     "User already exists": "Ο χρήστης υπάρχει ήδη.",
     "Invalid credentials": "Λανθασμένο email ή κωδικός.",
@@ -22,15 +21,13 @@ export const translateError = (err) => {
     "Server error": "Σφάλμα στον διακομιστή.",
   };
 
-  // ✅ Προσπάθεια απλής αντιστοίχισης
   if (translations[msg]) return translations[msg];
 
-  // ✅ Αντιμετώπιση Joi patterns
   if (msg.includes("must be a valid email")) return "Το email δεν είναι έγκυρο.";
   if (msg.includes("is required")) return "Όλα τα υποχρεωτικά πεδία πρέπει να συμπληρωθούν.";
   if (msg.includes("must be at least")) return "Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες.";
   if (msg.includes("must be a string")) return "Μη έγκυρη μορφή δεδομένων.";
   if (msg.includes("not allowed to be empty")) return "Το πεδίο δεν μπορεί να είναι κενό.";
 
-  return msg; // fallback
+  return msg;
 };

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRestaurantsWithPurchasedCoupons } from "../../hooks/useDummyData";
+import { useRestaurantsWithPurchasedCoupons } from "../../hooks/useCoupons";
 import {
   Card,
   CardHeader,
@@ -58,7 +58,7 @@ const PurchasedCouponRestaurantsSection = ({ user_id }) => {
                   <Link to={`/restaurant/${resto.id}`} key={resto.id}>
                     <div className="border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-all bg-white">
                       <img
-                        src={resto.photos?.[0]}
+                        src={resto.photos?.[0] || "/images/wide10.jpg"}
                         alt={resto.name}
                         className="w-full h-40 sm:h-44 object-cover"
                       />

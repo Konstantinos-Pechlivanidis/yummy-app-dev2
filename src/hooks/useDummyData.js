@@ -11,17 +11,14 @@ import {
 } from "../data/dummyData";
 import { toast } from "react-hot-toast";
 
-// ✅ Axios Instance
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3001/api",
   timeout: 5000,
 });
 
-// ✅ Helper για pagination
 const paginate = (array, page, perPage) =>
   array.slice((page - 1) * perPage, page * perPage);
 
-// ✅ Dummy Testimonials
 const dummyTestimonials = [
   { id: 1, message: "Καταπληκτική εμπειρία!" },
   { id: 2, message: "Γρήγορες κρατήσεις!" },
@@ -92,11 +89,10 @@ export const useDiscountedRestaurants = (page = 1, perPage = 5) =>
         const { data } = await axiosInstance.get(
           `/restaurants/discounted?page=${page}&limit=${perPage}`
         );
-        return data; // { data: [...], total: number }
+        return data;
       } catch (error) {
         console.warn("⚠️ Discounted restaurants fallback to special menus");
 
-        // Map special menus with their restaurant
         const enrichedMenus = special_menus
           .map((menu) => {
             const restaurant = restaurants.find(
@@ -106,7 +102,6 @@ export const useDiscountedRestaurants = (page = 1, perPage = 5) =>
           })
           .filter(Boolean);
 
-        // Pagination
         const start = (page - 1) * perPage;
         const paginated = enrichedMenus.slice(start, start + perPage);
 
@@ -140,7 +135,6 @@ export const useFilteredRestaurants = (filters = {}) =>
           return matchesCuisine && matchesLocation && matchesGuests;
         });
 
-        // Enrich with specialMenu and coupon
         return filtered.map((resto) => {
           const specialMenu = special_menus.find(
             (menu) => menu.restaurant_id === resto.id
@@ -180,9 +174,6 @@ export const useCancelReservation = () => {
 
   return useMutation({
     mutationFn: async ({ reservationId, reason }) => {
-      console.log("📡 Cancelling reservation...");
-
-      // Fake delay (simulate backend)
       await new Promise((res) => setTimeout(res, 1000));
 
       const reservation = reservations.find((r) => r.id === reservationId);
@@ -198,7 +189,6 @@ export const useCancelReservation = () => {
     },
 
     onSuccess: (reservationId) => {
-      console.log("✅ Reservation cancelled:", reservationId);
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
     },
 
@@ -309,7 +299,6 @@ export const usePurchaseCoupon = () => {
   return useMutation({
     mutationFn: async ({ user_id, coupon_id, points }) => {
       try {
-        // 🔁 Real API Call
         await axiosInstance.post("/coupons/purchase", {
           user_id,
           coupon_id,
@@ -324,14 +313,12 @@ export const usePurchaseCoupon = () => {
         );
         if (alreadyPurchased) throw new Error("Already purchased");
 
-        // ➕ Add to dummy
         purchased_coupons.push({
           user_id,
           coupon_id,
           purchasedAt: new Date().toISOString(),
         });
 
-        // ➖ Subtract points
         const user = users.find((u) => u.id === user_id);
         if (user) {
           user.loyalty_points = Math.max(0, user.loyalty_points - points);
@@ -541,7 +528,6 @@ export const useRestaurantsWithPurchasedCoupons = (user_id) =>
     queryKey: ["restaurantsWithPurchasedCoupons", user_id],
     queryFn: async () => {
       try {
-        // 🔁 Πραγματικό API call (υποθέτουμε endpoint όπως `/restaurants/coupons/user/:id`)
         const { data } = await axiosInstance.get(
           `/restaurants/coupons/user/${user_id}`
         );
@@ -550,8 +536,6 @@ export const useRestaurantsWithPurchasedCoupons = (user_id) =>
         console.warn(
           "⚠️ Backend unreachable. Using dummy fallback for coupon restaurants"
         );
-
-        // Dummy fallback
         const userPurchases = purchased_coupons.filter(
           (p) => p.user_id === user_id
         );

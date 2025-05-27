@@ -2,13 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-// Axios instance
 const axiosInstance = axios.create({
   baseURL: "http://localhost:5000/restaurant",
   withCredentials: true,
 });
 
-// 🌐 Μετάφραση σφαλμάτων σε ελληνικά
 const translateRestaurantError = (error) => {
   const message =
     error?.response?.data?.message ||
@@ -25,7 +23,6 @@ const translateRestaurantError = (error) => {
   return "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.";
 };
 
-// ✨ Formatter: απλό restaurant
 const translateRestaurant = (r) => ({
   id: r.id,
   name: r.name || "Χωρίς όνομα",
@@ -46,7 +43,6 @@ const translateRestaurant = (r) => ({
   coupons: null,
 });
 
-// ✨ Formatter: restaurant με nested promo
 const translateRestaurantWithExtras = (r) => ({
   id: r.id,
   name: r.name || "Χωρίς όνομα",
@@ -67,7 +63,6 @@ const translateRestaurantWithExtras = (r) => ({
   coupons: r.coupons ?? null,
 });
 
-// 🔝 Trending (με promo)
 export const useTrendingRestaurants = (page = 1, pageSize = 10) => {
   return useQuery({
     queryKey: ["trendingRestaurants", page, pageSize],
@@ -85,7 +80,6 @@ export const useTrendingRestaurants = (page = 1, pageSize = 10) => {
   });
 };
 
-// 💸 Discounted (special menu-centric)
 export const useDiscountedRestaurants = (page = 1, pageSize = 10) => {
   return useQuery({
     queryKey: ["discountedRestaurants", page, pageSize],
@@ -99,7 +93,6 @@ export const useDiscountedRestaurants = (page = 1, pageSize = 10) => {
   });
 };
 
-// 🔍 Filtered (με promo)
 export const useFilteredRestaurants = (
   filters = {},
   page = 1,
@@ -117,11 +110,10 @@ export const useFilteredRestaurants = (
       try {
         const { data } = await axiosInstance.get(`/?${queryParams}`);
 
-        // ✅ Αν δεν υπάρχουν αποτελέσματα, μην πετάξεις σφάλμα
         if (!data?.restaurants || data.restaurants.length === 0) {
           return {
             ...data,
-            restaurants: [], // empty list
+            restaurants: [],
           };
         }
 
@@ -130,7 +122,6 @@ export const useFilteredRestaurants = (
           restaurants: data.restaurants.map(translateRestaurantWithExtras),
         };
       } catch (error) {
-        // ✅ Αν είναι 404 αλλά αφορά empty list — επέστρεψε κενό
         if (error?.response?.status === 404) {
           return {
             restaurants: [],
@@ -143,8 +134,6 @@ export const useFilteredRestaurants = (
             },
           };
         }
-
-        // ❌ Αν είναι άλλο σφάλμα, πέτα το για να το πιάσει το onError
         throw error;
       }
     },
@@ -153,8 +142,6 @@ export const useFilteredRestaurants = (
   });
 };
 
-
-// 📋 Restaurant details (χωρίς promo inline)
 export const useRestaurantDetails = (id) => {
   return useQuery({
     queryKey: ["restaurant", id],

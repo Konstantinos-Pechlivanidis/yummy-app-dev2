@@ -73,15 +73,23 @@ export const useLogout = () => {
   });
 };
 
-export const useUserProfile = () =>
-  useQuery({
+export const useUserProfile = () => {
+  const dispatch = useDispatch();
+
+  return useQuery({
     queryKey: ["userProfile"],
     queryFn: async () => {
       const { data } = await axiosInstance.get("/profile");
+      dispatch(setUser(data));
+      dispatch({ type: "auth/setAuthenticated", payload: true });
       return data;
+    },
+    onError: () => {
+      dispatch({ type: "auth/setAuthenticated", payload: false });
     },
     retry: false,
   });
+};
 
 export const useUserPoints = () =>
   useQuery({
@@ -143,20 +151,21 @@ export const useToggleFavorite = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (restaurant_id) => {
+    mutationFn: async (id) => {
       const { data } = await axiosInstance.post("/favorites/toggle", {
-        restaurant_id,
+        restaurant_id: id,
       });
       return data;
     },
     onSuccess: () => {
       toast.success("Ενημερώθηκε η λίστα αγαπημένων.");
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
-      queryClient.invalidateQueries({ queryKey: ["userProfile"] }); // optional
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
     },
-    onError: (err) => toast.error(translateError(err)),
+    onError: () => toast.error("Αποτυχία ενημέρωσης αγαπημένων."),
   });
 };
+
 
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();

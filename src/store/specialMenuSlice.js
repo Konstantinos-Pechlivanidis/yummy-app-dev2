@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { special_menus, menu_items } from "../data/dummyData";
 
 const initialState = {
-  special_menus: special_menus, // Προεπιλεγμένα dummy data
+  special_menus: special_menus,
 };
 
 const specialMenuSlice = createSlice({
@@ -12,10 +12,8 @@ const specialMenuSlice = createSlice({
     addSpecialMenu: (state, action) => {
       const { restaurant_id, name, description, selectedItems, discounted_price, timeRange } = action.payload;
 
-      // Φιλτράρει τα διαθέσιμα πιάτα του εστιατορίου
       const availableItems = menu_items.filter(item => item.restaurant_id === restaurant_id);
       
-      // Υπολογίζει την αρχική τιμή από τα επιλεγμένα πιάτα
       const original_price = selectedItems.reduce((total, item) => total + item.price, 0);
       const discount_percentage = ((original_price - discounted_price) / original_price) * 100;
 
@@ -29,7 +27,7 @@ const specialMenuSlice = createSlice({
         discount_percentage,
         photoUrl: "/images/default-menu.jpg",
         selectedItems,
-        availableItems, // Διαθέσιμα πιάτα για επιλογή
+        availableItems,
         timeRange,
         createdAt: new Date().toISOString(),
       };

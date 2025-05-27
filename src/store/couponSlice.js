@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { coupons } from "../data/dummyData";
 
 const initialState = {
-  coupons: coupons || [], // Αν δεν υπάρχουν, αρχικοποιούμε με κενό array
+  coupons: coupons || [],
 };
 
 const couponSlice = createSlice({
@@ -13,7 +13,7 @@ const couponSlice = createSlice({
       const { restaurant_id, description, discount_percentage } = action.payload;
 
       const newCoupon = {
-        id: `coupon${state.coupons.length + 1}`, // Δημιουργία μοναδικού ID
+        id: `coupon${state.coupons.length + 1}`,
         restaurant_id,
         description,
         discount_percentage,

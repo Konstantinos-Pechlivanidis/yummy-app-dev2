@@ -62,7 +62,7 @@ const LoginPage = () => {
           {/* Logo & Heading */}
           <div className="text-left space-y-2">
             <img
-              src="/images/yummyLogo-Big.png"
+              src="/images/yummyLogo-2.png"
               alt="Yummy"
               className="w-14 h-14 drop-shadow"
             />

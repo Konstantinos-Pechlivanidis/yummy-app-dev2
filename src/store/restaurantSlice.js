@@ -1,9 +1,9 @@
-// store/restaurantSlice.js
+
 import { createSlice } from "@reduxjs/toolkit";
 import { restaurants } from "../data/dummyData";
 
 const initialState = {
-  restaurants: restaurants, // Τα αρχικά dummy δεδομένα
+  restaurants: restaurants,
 };
 
 const restaurantSlice = createSlice({

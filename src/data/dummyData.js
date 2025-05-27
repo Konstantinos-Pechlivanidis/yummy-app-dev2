@@ -1538,7 +1538,7 @@ export const reservations = [
     status: "completed",
     special_menu_id: "menu202",
     coupon_id: null,
-    notes: "Καρεκλάκι για μωρό",
+    reservation_notes: "Καρεκλάκι για μωρό",
   },
   {
     id: "reservation008",

@@ -1,11 +1,7 @@
 import { Button } from "../ui/button";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "../ui/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 import {
   Select,
   SelectTrigger,
@@ -45,7 +41,10 @@ const ReservationForm = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-between text-sm sm:text-base py-2.5">
+            <Button
+              variant="outline"
+              className="w-full justify-between text-sm sm:text-base py-2.5"
+            >
               {isValid(reservation.date)
                 ? format(reservation.date, "dd/MM/yyyy")
                 : "Ημερομηνία"}
@@ -64,7 +63,9 @@ const ReservationForm = ({
 
         <Select
           value={reservation.time}
-          onValueChange={(value) => setReservation({ ...reservation, time: value })}
+          onValueChange={(value) =>
+            setReservation({ ...reservation, time: value })
+          }
         >
           <SelectTrigger className="w-full text-sm sm:text-base py-2.5">
             <SelectValue placeholder="Ώρα" />
@@ -83,7 +84,9 @@ const ReservationForm = ({
           min="1"
           placeholder="Αριθμός ατόμων"
           value={reservation.guests}
-          onChange={(e) => setReservation({ ...reservation, guests: e.target.value })}
+          onChange={(e) =>
+            setReservation({ ...reservation, guests: e.target.value })
+          }
           className="w-full text-sm sm:text-base py-2.5"
         />
       </div>
@@ -97,21 +100,27 @@ const ReservationForm = ({
           </p>
         ) : !selectedDate || !selectedTime ? (
           <p className="text-sm text-gray-600 italic">
-            ⏳ Επιλέξτε πρώτα ημερομηνία και ώρα για να δείτε διαθέσιμα Special Menus.
+            ⏳ Επιλέξτε πρώτα ημερομηνία και ώρα για να δείτε διαθέσιμα Special
+            Menus.
           </p>
         ) : validMenus.length === 0 ? (
           <p className="text-sm text-gray-600 italic">
-            ❌ Δεν υπάρχουν διαθέσιμα Special Menus για την επιλεγμένη ημέρα και ώρα.
+            ❌ Δεν υπάρχουν διαθέσιμα Special Menus για την επιλεγμένη ημέρα και
+            ώρα.
           </p>
         ) : (
-          <Select value={reservation.specialMenu} onValueChange={handleSpecialMenuChange}>
+          <Select
+            value={reservation.specialMenu}
+            onValueChange={handleSpecialMenuChange}
+          >
             <SelectTrigger className="w-full text-sm sm:text-base py-2.5">
               <SelectValue placeholder="Επιλέξτε Special Menu" />
             </SelectTrigger>
             <SelectContent>
               {validMenus.map((menu) => (
                 <SelectItem key={menu.id} value={menu.id}>
-                  {menu.name} – €{menu.discounted_price} ({menu.discount_percentage}% έκπτωση)
+                  {menu.name} – €{menu.discountedPrice} (
+                  {menu.discountPercentage}% έκπτωση)
                 </SelectItem>
               ))}
             </SelectContent>
@@ -120,31 +129,50 @@ const ReservationForm = ({
       </div>
 
       {/* Coupon */}
+      {/* Coupon */}
       <div className="space-y-2">
-        <h3 className="text-sm sm:text-base font-semibold">🎟️ Χρήση Κουπονιού</h3>
-        {userCoupons.filter((c) => c.restaurant_id === restaurant.id).length === 0 ? (
+        <h3 className="text-sm sm:text-base font-semibold">
+          🎟️ Χρήση Κουπονιού
+        </h3>
+
+        {userCoupons.length === 0 ? (
           <p className="text-sm text-gray-600 italic">
             💰 Δεν έχεις αγοράσει κουπόνια για αυτό το εστιατόριο.
           </p>
         ) : (
-          <Select value={reservation.coupon} onValueChange={handleCouponChange}>
-            <SelectTrigger className="w-full text-sm sm:text-base py-2.5">
-              <SelectValue placeholder="Επιλέξτε Κουπόνι" />
-            </SelectTrigger>
-            <SelectContent>
-              {userCoupons
-                .filter((c) => c.restaurant_id === restaurant.id)
-                .map((coupon) => (
-                  <SelectItem key={coupon.id} value={coupon.id}>
-                    {coupon.description}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+          (() => {
+            const usableCoupons = userCoupons.filter(
+              (c) =>
+                c.restaurant_id === restaurant.id && !c.is_used && !c.is_locked
+            );
+
+            return usableCoupons.length === 0 ? (
+              <p className="text-sm text-gray-600 italic">
+                💰 Δεν έχεις διαθέσιμα κουπόνια για κράτηση σε αυτό το
+                εστιατόριο.
+              </p>
+            ) : (
+              <Select
+                value={reservation.coupon}
+                onValueChange={handleCouponChange}
+              >
+                <SelectTrigger className="w-full text-sm sm:text-base py-2.5">
+                  <SelectValue placeholder="Επιλέξτε Κουπόνι" />
+                </SelectTrigger>
+                <SelectContent>
+                  {usableCoupons.map((coupon) => (
+                    <SelectItem key={coupon.id} value={coupon.id}>
+                      {coupon.description}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            );
+          })()
         )}
       </div>
 
-      {/* Notes */}
+      {/* reservation_notes */}
       <div className="space-y-3">
         <h3 className="text-sm sm:text-base font-semibold">📝 Σημειώσεις</h3>
         <div className="flex flex-wrap gap-2">
@@ -160,7 +188,9 @@ const ReservationForm = ({
               onClick={() =>
                 setReservation((prev) => ({
                   ...prev,
-                  notes: prev.notes ? `${prev.notes}\n${note}` : note,
+                  reservation_notes: prev.reservation_notes
+                    ? `${prev.reservation_notes}\n${note}`
+                    : note,
                 }))
               }
               className="bg-gray-100 hover:bg-gray-200 text-sm px-3 py-1.5 rounded-md border border-gray-300"
@@ -172,8 +202,10 @@ const ReservationForm = ({
         <textarea
           rows={3}
           placeholder="Γράψε κάτι επιπλέον (π.χ. χωρίς σκαλιά, τραπέζι έξω...)"
-          value={reservation.notes || ""}
-          onChange={(e) => setReservation({ ...reservation, notes: e.target.value })}
+          value={reservation.reservation_notes || ""}
+          onChange={(e) =>
+            setReservation({ ...reservation, reservation_notes: e.target.value })
+          }
           className="w-full border border-gray-300 rounded-md p-3 text-sm sm:text-base"
         />
       </div>

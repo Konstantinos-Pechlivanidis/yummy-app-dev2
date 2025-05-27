@@ -25,7 +25,17 @@ const translateCouponError = (error) => {
   return "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.";
 };
 
-// 🔵 Κουπόνια που έχει αγοράσει ο χρήστης
+export const useRestaurantsWithPurchasedCoupons = () => {
+  return useQuery({
+    queryKey: ["restaurantsWithPurchasedCoupons"],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get("/purchased/restaurants");
+      return data.restaurantsWithPurchasedCoupons;
+    },
+    onError: (err) => toast.error(translateCouponError(err)),
+  });
+};
+
 export const useUserCoupons = (page = 1, pageSize = 10) => {
   return useQuery({
     queryKey: ["userCoupons", page, pageSize],
@@ -39,7 +49,6 @@ export const useUserCoupons = (page = 1, pageSize = 10) => {
   });
 };
 
-// 🟢 Διαθέσιμα κουπόνια για εστιατόριο (όχι αγορασμένα)
 export const useAvailableCoupons = (restaurantId, page = 1, pageSize = 10) => {
   return useQuery({
     queryKey: ["availableCoupons", restaurantId, page, pageSize],
@@ -54,7 +63,6 @@ export const useAvailableCoupons = (restaurantId, page = 1, pageSize = 10) => {
   });
 };
 
-// 🛒 Αγορά κουπονιού
 export const usePurchaseCoupon = () => {
   const queryClient = useQueryClient();
 
@@ -70,18 +78,6 @@ export const usePurchaseCoupon = () => {
       queryClient.invalidateQueries(["restaurantsWithPurchasedCoupons"]);
       queryClient.invalidateQueries(["userCoupons"]);
       queryClient.invalidateQueries(["availableCoupons"]);
-    },
-    onError: (err) => toast.error(translateCouponError(err)),
-  });
-};
-
-// 🧾 Όλα τα εστιατόρια από τα οποία ο χρήστης έχει αγοράσει κουπόνια
-export const useRestaurantsWithPurchasedCoupons = () => {
-  return useQuery({
-    queryKey: ["restaurantsWithPurchasedCoupons"],
-    queryFn: async () => {
-      const { data } = await axiosInstance.get("/purchased/restaurants");
-      return data.restaurantsWithPurchasedCoupons;
     },
     onError: (err) => toast.error(translateCouponError(err)),
   });

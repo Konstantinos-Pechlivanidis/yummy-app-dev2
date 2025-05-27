@@ -1,8 +1,7 @@
-// redux/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: null, // { id, email, name, role, confirmed_user, ... }
+  user: null,
 };
 
 const authSlice = createSlice({

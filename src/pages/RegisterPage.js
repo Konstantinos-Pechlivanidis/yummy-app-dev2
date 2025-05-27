@@ -60,7 +60,7 @@ const RegisterPage = () => {
         >
           {/* Logo & Heading */}
           <div className="text-left space-y-2">
-            <img src="/images/yummyLogo-Big.png" alt="Yummy" className="w-14 h-14 drop-shadow" />
+            <img src="/images/yummyLogo-2.png" alt="Yummy" className="w-14 h-14 drop-shadow" />
             <h1 className="text-3xl font-bold text-gray-900">Δημιουργία Λογαριασμού</h1>
             <p className="text-gray-700 text-sm">Ξεκίνα να κλείνεις τραπέζια εύκολα & γρήγορα!</p>
           </div>

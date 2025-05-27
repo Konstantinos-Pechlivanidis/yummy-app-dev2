@@ -1,10 +1,9 @@
-import { useState, useCallback  } from "react";
-import { useSelector } from "react-redux";
+import { useState, useCallback } from "react";
 import {
   useFilteredReservations,
   useCancelReservation,
-  useRestaurants,
-} from "../../hooks/useDummyData";
+} from "../../hooks/useReservations";
+import { useFilteredRestaurants } from "../../hooks/useRestaurants";
 import ReservationFilterBar from "../../components/reservations/ReservationFilterBar";
 import ReservationCard from "../../components/reservations/ReservationCard";
 import CancelReservationDialog from "../../components/reservations/CancelReservationDialog";
@@ -13,17 +12,15 @@ import ReservationPagination from "../../components/reservations/ReservationPagi
 import Loading from "../../components/Loading";
 
 const MyReservationsPage = () => {
-  const user = useSelector((state) => state.auth.user);
   const [filters, setFilters] = useState({ date: null, status: null });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const {
-    data: { data: reservations = [], total = 0 } = {},
+    data: { reservations = [], Pagination = {} } = {},
     isLoading,
     isError,
   } = useFilteredReservations(
-    user?.id,
     filters.date,
     filters.status,
     currentPage,
@@ -37,25 +34,26 @@ const MyReservationsPage = () => {
   const [resultDialogOpen, setResultDialogOpen] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
 
+  const { data: { restaurants: allRestaurants = [] } = {} } =
+    useFilteredRestaurants({}, 1, 100); // or switch to useRestaurants if paginated elsewhere
+
   const handleCancel = ({ reservationId, reason }) => {
     cancelReservation(
       { reservationId, reason },
       {
         onSuccess: () => {
           setShowCancelDialog(false);
-          setResultMessage("✅ Η κράτηση ακυρώθηκε επιτυχώς.");
+          setResultMessage("Η κράτηση ακυρώθηκε επιτυχώς.");
           setResultDialogOpen(true);
         },
       }
     );
   };
 
-  const { data: allRestaurants = [] } = useRestaurants();
-
   const handleFilterChange = useCallback((filters) => {
-  setFilters(filters);
-  setCurrentPage(1);
-}, []);
+    setFilters(filters);
+    setCurrentPage(1);
+  }, []);
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-10 space-y-10">
@@ -73,39 +71,37 @@ const MyReservationsPage = () => {
         </p>
       ) : reservations.length === 0 ? (
         <p className="text-gray-600 italic text-center">
-          Δεν υπάρχουν κρατήσεις με αυτά τα φίλτρα.
+          Δεν υπάρχουν κρατήσεις.
         </p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reservations.map((res) =>
-              (() => {
-                const restaurant = allRestaurants.find(
-                  (r) => r.id === res.restaurant_id
-                );
-                return (
-                  <ReservationCard
-                    key={res.id}
-                    reservation={res}
-                    restaurantName={restaurant?.name || "Άγνωστο Εστιατόριο"}
-                    restaurantPhoto={restaurant?.photos?.[0]}
-                    restaurantCuisine={restaurant?.cuisine}
-                    restaurantLocation={restaurant?.location}
-                    showCancel={["pending", "confirmed"].includes(res.status)}
-                    onCancel={(res) => {
-                      setSelectedReservation(res);
-                      setShowCancelDialog(true);
-                    }}
-                  />
-                );
-              })()
-            )}
+            {reservations.map((res) => {
+              const restaurant = allRestaurants.find(
+                (r) => r.id === res.restaurant_id
+              );
+              return (
+                <ReservationCard
+                  key={res.id}
+                  reservation={res}
+                  restaurantName={restaurant?.name || "Άγνωστο Εστιατόριο"}
+                  restaurantPhoto={restaurant?.image}
+                  restaurantCuisine={restaurant?.cuisine}
+                  restaurantLocation={restaurant?.location}
+                  showCancel={["pending", "confirmed"].includes(res.status)}
+                  onCancel={(res) => {
+                    setSelectedReservation(res);
+                    setShowCancelDialog(true);
+                  }}
+                />
+              );
+            })}
           </div>
 
           <ReservationPagination
             currentPage={currentPage}
-            totalPages={Math.ceil(total / itemsPerPage)}
-            totalItems={total}
+            totalPages={Math.ceil(Pagination.total / itemsPerPage)}
+            totalItems={Pagination.total}
             itemsPerPage={itemsPerPage}
             onPageChange={setCurrentPage}
           />
