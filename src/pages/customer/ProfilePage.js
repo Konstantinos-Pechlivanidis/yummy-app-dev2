@@ -56,7 +56,7 @@ const ProfilePage = () => {
     return <div className="text-center py-20">🔐 Δεν είσαι συνδεδεμένος.</div>;
 
   const handleUpdateProfile = () => {
-    updateUser({ user_id: profile.id, updates: updatedUser });
+    updateUser({ updates: updatedUser });
     setIsEditing(false);
   };
 

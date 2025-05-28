@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -19,7 +18,7 @@ const LoyaltyCouponsGrid = ({
   onPurchase,
   isPurchasing,
 }) => {
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
+  const [, setSelectedCoupon] = useState(null);
 
   if (!coupons.length) return null;
 
@@ -32,7 +31,9 @@ const LoyaltyCouponsGrid = ({
           <Card
             key={coupon.id}
             className={`overflow-hidden border transition-all duration-300 rounded-2xl shadow-md hover:shadow-xl ${
-              isPurchased ? "bg-green-50 border-green-200" : "bg-blue-50 border-blue-200"
+              isPurchased
+                ? "bg-green-50 border-green-200"
+                : "bg-blue-50 border-blue-200"
             }`}
           >
             <CardHeader className="pb-0">
@@ -55,9 +56,12 @@ const LoyaltyCouponsGrid = ({
               </p>
 
               {isPurchased ? (
-                <Badge className="bg-green-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow-sm">
+                <Button
+                  disabled
+                  className="w-full bg-green-600 text-white font-semibold cursor-default"
+                >
                   Το έχεις ήδη αγοράσει
-                </Badge>
+                </Button>
               ) : (
                 <Dialog>
                   <DialogTrigger asChild>
@@ -77,7 +81,8 @@ const LoyaltyCouponsGrid = ({
                     </DialogHeader>
                     <p className="text-gray-800 mb-4 text-sm sm:text-base leading-relaxed">
                       Θέλεις να εξαργυρώσεις{" "}
-                      <strong>{coupon.required_points} πόντους</strong> για αυτό το κουπόνι;
+                      <strong>{coupon.required_points} πόντους</strong> για αυτό
+                      το κουπόνι;
                     </p>
                     <div className="flex justify-end gap-3 mt-2">
                       <DialogTrigger asChild>
@@ -86,19 +91,12 @@ const LoyaltyCouponsGrid = ({
                       <Button
                         className="bg-green-600 hover:bg-green-700 text-white"
                         onClick={() =>
-                          onPurchase(
-                            {
-                              user_id,
-                              coupon_id: coupon.id,
-                              points: coupon.required_points,
-                            },
-                            {
-                              onSuccess: () =>
-                                toast.success("Η αγορά ολοκληρώθηκε με επιτυχία!"),
-                              onError: () =>
-                                toast.error("Κάτι πήγε στραβά. Δοκιμάστε ξανά."),
-                            }
-                          )
+                          onPurchase(coupon.id, {
+                            onSuccess: () =>
+                              toast.success(
+                                "Η αγορά ολοκληρώθηκε με επιτυχία!"
+                              ),
+                          })
                         }
                       >
                         {isPurchasing ? "Αγοράζω..." : "Επιβεβαίωση"}

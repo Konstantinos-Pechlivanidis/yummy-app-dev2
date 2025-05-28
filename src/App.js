@@ -40,7 +40,7 @@ const LoadingHandler = () => {
 
     const timeout = setTimeout(() => {
       dispatch(hideLoading());
-    }, 2000);
+    }, 3000);
 
     return () => clearTimeout(timeout);
   }, [location.pathname, dispatch]);

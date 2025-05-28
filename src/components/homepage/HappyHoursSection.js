@@ -58,30 +58,43 @@ const HappyHoursSection = () => {
 
             return (
               <Link to={`/restaurant/${resto.id}`} key={menu.id}>
-                <Card className="md:hover:shadow-2xl transition-all duration-300 rounded-2xl overflow-hidden border border-gray-200 bg-white">
-                  <CardContent className="p-0">
+                <Card className="h-[600px] flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300">
+                  {menu.photo_url ? (
                     <img
-                      src={menu.photo_url || "/images/wide10.jpg"}
+                      src={menu.photo_url}
                       alt={menu.name}
                       className="w-full h-40 sm:h-44 object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
+                      <img
+                        src="/images/yummyLogo-2.png"
+                        alt="Yummy Logo"
+                        className="h-12 sm:h-14 object-contain opacity-60"
+                      />
+                    </div>
+                  )}
 
-                    <div className="p-4 sm:p-5 space-y-4 text-sm sm:text-base text-gray-700">
+                  <CardContent className="flex-1 p-4 sm:p-5 flex flex-col justify-between text-sm sm:text-base text-gray-700">
+                    <div className="space-y-3">
                       <div className="flex justify-between items-center gap-2">
-                        <h3 className="text-[1rem] sm:text-lg md:text-xl font-semibold text-gray-900 truncate">
+                        <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 truncate">
                           {resto.name}
                         </h3>
-                        <div className="flex items-center gap-1 text-red-600 text-xs sm:text-sm md:text-base">
+                        <div className="flex items-center gap-1 text-red-600 text-xs sm:text-sm">
                           <Star className="w-4 h-4" />
                           {resto.rating}
                         </div>
                       </div>
 
-                      <p className="text-[12px] sm:text-sm md:text-base text-gray-600 font-medium leading-tight">
+                      <p className="text-xs sm:text-sm text-gray-600 font-medium leading-tight truncate">
                         {resto.cuisine} – {resto.location}
                       </p>
 
-                      <PromoOfferBox menu={menu} dayTranslations={dayTranslations} />
+                      <PromoOfferBox
+                        menu={menu}
+                        dayTranslations={dayTranslations}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -111,7 +124,9 @@ const HappyHoursSection = () => {
                 <Button
                   variant="outline"
                   disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
                 >
                   <PaginationNext />
                 </Button>

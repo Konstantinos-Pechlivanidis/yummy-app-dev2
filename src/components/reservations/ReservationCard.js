@@ -9,8 +9,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { el } from "date-fns/locale";
+import { ImageOff } from "lucide-react";
 
 const statusColors = {
   pending: "bg-yellow-500",
@@ -41,6 +42,7 @@ const ReservationCard = ({
     "eeee dd MMMM yyyy",
     { locale: el }
   );
+
   let formattedTime = reservation.time;
   try {
     const fullDateTime = new Date(
@@ -54,60 +56,70 @@ const ReservationCard = ({
   }
 
   return (
-    <Card className="rounded-2xl border border-gray-200 bg-white shadow hover:shadow-lg transition overflow-hidden">
-      {restaurantPhoto && (
+    <Card className="h-[560px] flex flex-col rounded-2xl border border-gray-200 bg-white shadow hover:shadow-lg transition overflow-hidden">
+      {restaurantPhoto ? (
         <img
           src={restaurantPhoto}
           alt={restaurantName}
           className="w-full h-44 sm:h-52 object-cover"
         />
+      ) : (
+        <div className="w-full h-44 sm:h-52 bg-gray-100 flex items-center justify-center">
+          <img
+            src="/images/yummyLogo-2.png"
+            alt="Yummy Logo"
+            className="h-14 sm:h-16 object-contain opacity-50"
+          />
+        </div>
       )}
 
-      <CardContent className="p-5 space-y-5 text-gray-700 text-sm sm:text-base">
-        {/* Top Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-base sm:text-lg md:text-xl text-gray-900 truncate">
-            {restaurantName}
-          </h3>
-          <Badge
-            className={`${
-              statusColors[reservation.status]
-            } text-white text-xs sm:text-sm px-2 py-1`}
-          >
-            {statusLabels[reservation.status] || "Άγνωστη"}
-          </Badge>
-        </div>
+      <CardContent className="flex-1 flex flex-col justify-between p-5 space-y-5 text-gray-700 text-sm sm:text-base">
+        <div className="space-y-2">
+          {/* Top Header */}
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-base sm:text-lg md:text-xl text-gray-900 truncate">
+              {restaurantName}
+            </h3>
+            <Badge
+              className={`${
+                statusColors[reservation.status]
+              } text-white text-xs sm:text-sm px-2 py-1`}
+            >
+              {statusLabels[reservation.status] || "Άγνωστη"}
+            </Badge>
+          </div>
 
-        {/* Cuisine + Location */}
-        {(restaurantCuisine || restaurantLocation) && (
-          <p className="text-sm sm:text-base text-gray-600 font-medium leading-tight">
-            {restaurantCuisine} – {restaurantLocation}
-          </p>
-        )}
-
-        {/* Info */}
-        <div className="space-y-1 text-sm sm:text-base">
-          <p>
-            <strong>📆</strong> {formattedDate}
-          </p>
-          <p>
-            <strong>🕒</strong> {formattedTime}
-          </p>
-          <p>
-            <strong>👥</strong> {reservation.guest_count} άτομα
-          </p>
-          {reservation.reservation_notes && (
-            <p>
-              <strong>📝</strong> {reservation.reservation_notes}
+          {/* Cuisine + Location */}
+          {(restaurantCuisine || restaurantLocation) && (
+            <p className="text-sm sm:text-base text-gray-600 font-medium leading-tight">
+              {restaurantCuisine} – {restaurantLocation}
             </p>
           )}
-          {reservation.status === "cancelled" &&
-            reservation.cancellationReason && (
-              <p className="text-red-600">
-                <strong>Λόγος ακύρωσης:</strong>{" "}
-                {reservation.cancellationReason}
+
+          {/* Info */}
+          <div className="space-y-1 text-sm sm:text-base">
+            <p>
+              <strong>📆</strong> {formattedDate}
+            </p>
+            <p>
+              <strong>🕒</strong> {formattedTime}
+            </p>
+            <p>
+              <strong>👥</strong> {reservation.guest_count} άτομα
+            </p>
+            {reservation.reservation_notes && (
+              <p>
+                <strong>📝</strong> {reservation.reservation_notes}
               </p>
             )}
+            {reservation.status === "cancelled" &&
+              reservation.cancellationReason && (
+                <p className="text-red-600">
+                  <strong>Λόγος ακύρωσης:</strong>{" "}
+                  {reservation.cancellationReason}
+                </p>
+              )}
+          </div>
         </div>
 
         {/* Actions */}
@@ -141,9 +153,7 @@ const ReservationCard = ({
 
                 {reservation.special_menu && (
                   <div className="bg-red-50 border border-red-200 rounded-md px-4 py-3 space-y-1">
-                    <h4 className="font-semibold text-red-700">
-                      🎉 Happy Hour
-                    </h4>
+                    <h4 className="font-semibold text-red-700">🎉 Happy Hour</h4>
                     <p className="text-sm font-medium text-red-900">
                       {reservation.special_menu.name}
                     </p>

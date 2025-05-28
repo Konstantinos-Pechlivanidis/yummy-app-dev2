@@ -166,17 +166,16 @@ export const useToggleFavorite = () => {
   });
 };
 
-
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ user_id, updates }) => {
-      const { data } = await axiosInstance.put(`/update`, updates); // προσοχή εδώ
+    mutationFn: async ({ updates }) => {
+      const { data } = await axiosInstance.patch(`/update`, updates); // <-- εδώ
       return data;
     },
-    onSuccess: (data) => {
-      toast.success(data.message || "Το προφίλ ενημερώθηκε");
+    onSuccess: () => {
+      toast.success("Το προφίλ ενημερώθηκε");
       queryClient.invalidateQueries(["authStatus"]);
       queryClient.invalidateQueries(["userProfile"]);
     },

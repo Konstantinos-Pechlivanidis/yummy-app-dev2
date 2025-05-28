@@ -74,7 +74,6 @@ export const usePurchaseCoupon = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success("Το κουπόνι αγοράστηκε με επιτυχία!");
       queryClient.invalidateQueries(["restaurantsWithPurchasedCoupons"]);
       queryClient.invalidateQueries(["userCoupons"]);
       queryClient.invalidateQueries(["availableCoupons"]);
