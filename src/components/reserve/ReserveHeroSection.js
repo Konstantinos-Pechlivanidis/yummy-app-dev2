@@ -22,7 +22,11 @@ const ReserveHeroSection = () => (
         <div className="absolute w-56 h-56 md:w-64 md:h-64 rounded-full bg-white/25 blur-3xl z-0" />
         <img
           src="/images/yummyLogo-2.png"
-          alt="Yummy Logo"
+          alt="Λογότυπο Yummy App"
+          width="192"
+          height="192"
+          loading="eager"
+          fetchpriority="high"
           className="h-40 w-40 md:h-48 md:w-48 object-contain relative z-10"
         />
       </div>

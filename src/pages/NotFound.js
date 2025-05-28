@@ -28,7 +28,11 @@ const NotFound = () => {
           {/* Logo */}
           <img
             src="/images/yummyLogo-2.png"
-            alt="Yummy Logo"
+            alt="Λογότυπο Yummy App"
+            width="192"
+            height="192"
+            loading="eager"
+            fetchpriority="high"
             className="w-16 h-16 mx-auto drop-shadow"
           />
 

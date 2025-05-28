@@ -58,7 +58,11 @@ const PurchasedCouponRestaurantsSection = () => {
                     <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
                       <img
                         src="/images/yummyLogo-2.png"
-                        alt="Yummy Logo"
+                        alt="Λογότυπο Yummy App"
+                        width="192"
+                        height="192"
+                        loading="eager"
+                        fetchpriority="high"
                         className="h-12 sm:h-14 object-contain opacity-60"
                       />
                     </div>
@@ -105,7 +109,9 @@ const PurchasedCouponRestaurantsSection = () => {
                     <Button
                       variant="outline"
                       disabled={currentPage === 1}
-                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
                     >
                       <PaginationPrevious />
                     </Button>

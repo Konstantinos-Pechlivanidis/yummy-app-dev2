@@ -14,7 +14,11 @@ const Loading = () => {
           <div className="absolute inset-0 rounded-full border-[6px] border-t-rose-500 border-l-transparent border-b-transparent border-r-transparent animate-spin shadow-[0_0_12px_#f43f5e]"></div>
           <img
             src="/images/yummyLogo-2.png"
-            alt="Λογότυπο Yummy"
+            alt="Λογότυπο Yummy App"
+            width="192"
+            height="192"
+            loading="eager"
+            fetchpriority="high"
             className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 object-contain m-auto drop-shadow-md"
           />
         </div>

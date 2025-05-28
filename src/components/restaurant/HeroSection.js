@@ -1,22 +1,27 @@
 import { Button } from "../ui/button";
 import { Star, Heart } from "lucide-react";
 
-const HeroSection = ({
-  restaurant,
-  isInWatchlist,
-  handleToggleWatchlist,
-}) => {
+const HeroSection = ({ restaurant, isInWatchlist, handleToggleWatchlist }) => {
+  const imageUrl = restaurant?.photos?.[0] || "/images/wide2.jpg";
+  const altText = `Εστιατόριο ${restaurant?.name || "χωρίς όνομα"}`;
+
   return (
     <section
       className="relative h-[450px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl"
-      style={{ backgroundImage: `url('${restaurant.photos || "/images/wide10.jpg"}')` }}
+      style={{ backgroundImage: `url('${imageUrl}')` }}
     >
       <img
-        src={restaurant.photos || "/images/wide10.jpg"}
-        alt={restaurant.name}
+        src={imageUrl}
+        alt={altText}
+        fetchpriority="high"
+        loading="eager"
+        width="1920"
+        height="1080"
         className="absolute inset-0 w-full h-full object-cover"
       />
+
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
+
       <div className="relative z-10 text-white px-6">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight drop-shadow-xl">
           {restaurant.name}

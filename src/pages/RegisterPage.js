@@ -47,7 +47,11 @@ const RegisterPage = () => {
       {/* Background image */}
       <img
         src="/images/wide12.jpg"
-        alt="Register background"
+        alt="Φόντο Εγγραφής - Yummy"
+        width="1920"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
       <div className="absolute inset-0 bg-black/60 z-10" />
@@ -60,31 +64,86 @@ const RegisterPage = () => {
         >
           {/* Logo & Heading */}
           <div className="text-left space-y-2">
-            <img src="/images/yummyLogo-2.png" alt="Yummy" className="w-14 h-14 drop-shadow" />
-            <h1 className="text-3xl font-bold text-gray-900">Δημιουργία Λογαριασμού</h1>
-            <p className="text-gray-700 text-sm">Ξεκίνα να κλείνεις τραπέζια εύκολα & γρήγορα!</p>
+            <img
+              src="/images/yummyLogo-2.png"
+              alt="Yummy"
+              className="w-14 h-14 drop-shadow"
+            />
+            <h1 className="text-3xl font-bold text-gray-900">
+              Δημιουργία Λογαριασμού
+            </h1>
+            <p className="text-gray-700 text-sm">
+              Ξεκίνα να κλείνεις τραπέζια εύκολα & γρήγορα!
+            </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Όνομα</label>
-              <Input id="name" name="name" type="text" required value={formData.name} onChange={handleChange} />
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Όνομα
+              </label>
+              <Input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} />
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Κωδικός</label>
-              <Input id="password" name="password" type="password" required value={formData.password} onChange={handleChange} />
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Κωδικός
+              </label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Τηλέφωνο (προαιρετικό)</label>
-              <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} />
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Τηλέφωνο (προαιρετικό)
+              </label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+              />
             </div>
 
             <div className="flex items-center space-x-2">
@@ -96,7 +155,10 @@ const RegisterPage = () => {
                 onChange={handleChange}
                 className="h-4 w-4 text-primary border-gray-300 rounded"
               />
-              <label htmlFor="newsletterSubscribed" className="text-sm text-gray-700">
+              <label
+                htmlFor="newsletterSubscribed"
+                className="text-sm text-gray-700"
+              >
                 Εγγραφή στο newsletter
               </label>
             </div>
@@ -108,7 +170,7 @@ const RegisterPage = () => {
             >
               {registerMutation.isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loading/>
+                  <Loading />
                   Εγγραφή...
                 </span>
               ) : (
@@ -120,7 +182,10 @@ const RegisterPage = () => {
           {/* Link to Login */}
           <p className="text-sm text-gray-700">
             Έχεις ήδη λογαριασμό;{" "}
-            <Link to="/login" className="text-red-600 font-medium hover:underline">
+            <Link
+              to="/login"
+              className="text-red-600 font-medium hover:underline"
+            >
               Σύνδεση
             </Link>
           </p>

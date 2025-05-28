@@ -90,11 +90,15 @@ const ProfilePage = () => {
         image="https://yummy-app.gr/images/yummyLogo-2.png"
       />
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
-        {/* 🖼 Hero Section */}
+        {/* Hero Section */}
         <section className="relative h-[400px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl">
           <img
             src="/images/wide8.jpg"
-            alt="hero"
+            alt="Προφίλ Χρήστη - Yummy"
+            loading="eager"
+            fetchpriority="high"
+            width="1920"
+            height="400"
             className="absolute inset-0 object-cover w-full h-full"
           />
           <div className="absolute inset-0 bg-black/60 z-0" />
@@ -106,7 +110,11 @@ const ProfilePage = () => {
               <div className="absolute w-56 h-56 md:w-64 md:h-64 rounded-full bg-white/25 blur-3xl z-0" />
               <img
                 src="/images/yummyLogo-2.png"
-                alt="Yummy Logo"
+                alt="Λογότυπο Yummy App"
+                width="192"
+                height="192"
+                loading="eager"
+                fetchpriority="high"
                 className="h-40 w-40 md:h-48 md:w-48 object-contain relative z-10"
               />
             </div>

@@ -86,12 +86,17 @@ const ConfirmationPage = () => {
         image="https://yummy-app.gr/images/yummyLogo-2.png"
       />
       <div className="relative min-h-screen w-full overflow-hidden">
-        {/* 🖼 Background Image */}
+        {/* Background Image */}
         <img
           src="/images/wide14.jpg"
-          alt="Background"
+          alt="Επιβεβαίωση Κράτησης Yummy"
+          loading="eager"
+          fetchpriority="high"
+          width="1920"
+          height="1080"
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
+
         <div className="absolute inset-0 bg-black/60 z-10" />
 
         {/* ✅ Confirmation Box */}

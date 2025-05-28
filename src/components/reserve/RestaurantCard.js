@@ -15,7 +15,11 @@ const RestaurantCard = ({ resto }) => (
         <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
           <img
             src="/images/yummyLogo-2.png"
-            alt="Yummy Logo"
+            alt="Λογότυπο Yummy App"
+            width="192"
+            height="192"
+            loading="eager"
+            fetchpriority="high"
             className="h-12 sm:h-14 opacity-60 object-contain"
           />
         </div>

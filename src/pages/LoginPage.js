@@ -45,10 +45,14 @@ const LoginPage = () => {
 
   return (
     <div className="relative min-h-full w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
-      {/* 🖼 Background Image */}
+      {/* Background Image */}
       <img
         src="/images/wide11.jpg"
-        alt="Background"
+        alt="Φόντο Σύνδεσης - Yummy"
+        width="1920"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
       <div className="absolute inset-0 bg-black/60 z-10" />
@@ -63,17 +67,26 @@ const LoginPage = () => {
           <div className="text-left space-y-2">
             <img
               src="/images/yummyLogo-2.png"
-              alt="Yummy"
+              alt="Λογότυπο Yummy App"
+              width="192"
+              height="192"
+              loading="eager"
+              fetchpriority="high"
               className="w-14 h-14 drop-shadow"
             />
-            <h1 className="text-3xl font-bold text-gray-900">Σύνδεση στο Yummy</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Σύνδεση στο Yummy
+            </h1>
             <p className="text-gray-700 text-sm">Καλώς ήρθες πίσω 👋</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email
               </label>
               <Input
@@ -89,7 +102,10 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Κωδικός
               </label>
               <Input
@@ -123,7 +139,10 @@ const LoginPage = () => {
           {/* Register link */}
           <p className="text-sm text-gray-700">
             Δεν έχεις λογαριασμό;{" "}
-            <Link to="/register" className="text-red-600 font-medium hover:underline">
+            <Link
+              to="/register"
+              className="text-red-600 font-medium hover:underline"
+            >
               Δημιούργησε τώρα
             </Link>
           </p>

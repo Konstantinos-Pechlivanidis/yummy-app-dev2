@@ -67,7 +67,11 @@ const ReservationCard = ({
         <div className="w-full h-44 sm:h-52 bg-gray-100 flex items-center justify-center">
           <img
             src="/images/yummyLogo-2.png"
-            alt="Yummy Logo"
+            alt="Λογότυπο Yummy App"
+            width="192"
+            height="192"
+            loading="eager"
+            fetchpriority="high"
             className="h-14 sm:h-16 object-contain opacity-50"
           />
         </div>
@@ -153,7 +157,9 @@ const ReservationCard = ({
 
                 {reservation.special_menu && (
                   <div className="bg-red-50 border border-red-200 rounded-md px-4 py-3 space-y-1">
-                    <h4 className="font-semibold text-red-700">🎉 Happy Hour</h4>
+                    <h4 className="font-semibold text-red-700">
+                      🎉 Happy Hour
+                    </h4>
                     <p className="text-sm font-medium text-red-900">
                       {reservation.special_menu.name}
                     </p>

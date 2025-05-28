@@ -12,8 +12,12 @@ const HeroSection = () => {
       {/* Background image */}
       <img
         src="/images/wide3.jpg"
-        alt="hero"
+        alt="Yummy App - Κράτηση τραπεζιού με προσφορές σε εστιατόρια"
+        width="1920"
+        height="1080"
         className="absolute inset-0 object-cover w-full h-full"
+        fetchpriority="high"
+        loading="eager"
       />
 
       {/* Gradient + dark blur overlay */}
@@ -35,7 +39,11 @@ const HeroSection = () => {
           {/* Logo image */}
           <img
             src="/images/yummyLogo-2.png"
-            alt="Yummy Logo"
+            alt="Λογότυπο Yummy App"
+            width="192"
+            height="192"
+            loading="eager"
+            fetchpriority="high"
             className="h-44 w-44 md:h-52 md:w-52 object-contain relative z-10 drop-shadow-2xl"
           />
         </div>
