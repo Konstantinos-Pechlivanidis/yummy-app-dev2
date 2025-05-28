@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import AuthRedirect from "./pages/AuthRedirect";
 import { showLoading, hideLoading } from "./store/loadingSlice";
 import PageLoading from "./components/PageLoading";
+import { HelmetProvider } from "react-helmet-async";
 
 const LoadingHandler = () => {
   const location = useLocation();
@@ -66,8 +67,8 @@ const AppRoutes = () => {
   useEffect(() => {
     if (user?.role === "owner") {
       const publicPaths = ["/", "/reserve", "/restaurant"];
-      const isPublic = publicPaths.some((p) =>
-        location.pathname === p || location.pathname.startsWith(`${p}/`)
+      const isPublic = publicPaths.some(
+        (p) => location.pathname === p || location.pathname.startsWith(`${p}/`)
       );
       if (isPublic) {
         navigate("/dashboard", { replace: true });
@@ -116,46 +117,48 @@ const AppRoutes = () => {
 function App() {
   const isLoading = useSelector((state) => state.loading.isLoading);
   return (
-    <Router>
-      <Toaster
-        position="bottom-center"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: "#ffffff",
-            color: "#1f2937",
-            border: "1px solid #e5e7eb",
-            padding: "16px",
-            fontSize: "16px",
-            borderRadius: "12px",
-            boxShadow: "0 10px 15px rgba(0, 0, 0, 0.1)",
-          },
-          success: {
-            icon: "✅",
+    <HelmetProvider>
+      <Router>
+        <Toaster
+          position="bottom-center"
+          toastOptions={{
+            duration: 4000,
             style: {
-              background: "#ecfdf5",
-              border: "1px solid #10b981",
-              color: "#065f46",
+              background: "#ffffff",
+              color: "#1f2937",
+              border: "1px solid #e5e7eb",
+              padding: "16px",
+              fontSize: "16px",
+              borderRadius: "12px",
+              boxShadow: "0 10px 15px rgba(0, 0, 0, 0.1)",
             },
-          },
-          error: {
-            icon: "❌",
-            style: {
-              background: "#fef2f2",
-              border: "1px solid #ef4444",
-              color: "#991b1b",
+            success: {
+              icon: "✅",
+              style: {
+                background: "#ecfdf5",
+                border: "1px solid #10b981",
+                color: "#065f46",
+              },
             },
-          },
-        }}
-      />
-      <ScrollToTop />
-      <LoadingHandler />
-      <Navbar />
-      <div className="pt-16">
-      {isLoading ? <PageLoading /> : <AppRoutes />}
-      </div>
-      <Footer />
-    </Router>
+            error: {
+              icon: "❌",
+              style: {
+                background: "#fef2f2",
+                border: "1px solid #ef4444",
+                color: "#991b1b",
+              },
+            },
+          }}
+        />
+        <ScrollToTop />
+        <LoadingHandler />
+        <Navbar />
+        <div className="pt-16">
+          {isLoading ? <PageLoading /> : <AppRoutes />}
+        </div>
+        <Footer />
+      </Router>
+    </HelmetProvider>
   );
 }
 

@@ -9,6 +9,7 @@ import SearchBar from "../../components/SearchBar";
 import ReserveResultsGrid from "../../components/reserve/ReserveResultsGrid";
 import PaginationControls from "../../components/reserve/PaginationControls";
 import Loading from "../../components/Loading";
+import SEOHelmet from "../../components/SEOHelmet";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
@@ -61,43 +62,52 @@ const ReserveTablePage = () => {
   };
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
-      <ReserveHeroSection />
-
-      <SearchBar
-        searchParams={filters}
-        setSearchParams={setFilters}
-        timeSlots={timeSlots}
-        onSearch={handleSearch}
+    <>
+      <SEOHelmet
+        title="Κράτηση Τραπεζιού | Yummy App"
+        description="Ανακάλυψε διαθέσιμα εστιατόρια με βάση τα φίλτρα σου και κάνε κράτηση online με Happy Hour εκπτώσεις και κουπόνια ανταμοιβής!"
+        url="https://yummy-app.gr/reserve"
+        image="https://yummy-app.gr/images/yummyLogo-2.png"
       />
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
+        <ReserveHeroSection />
 
-      <motion.section {...fadeIn}>
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-          📍 Αποτελέσματα Αναζήτησης
-        </h2>
+        <SearchBar
+          searchParams={filters}
+          setSearchParams={setFilters}
+          timeSlots={timeSlots}
+          onSearch={handleSearch}
+        />
 
-        {isLoading ? (
-          <Loading />
-        ) : isError ? (
-          <p className="text-center text-red-600">
-            ⚠️ Προέκυψε σφάλμα κατά την ανάκτηση των δεδομένων. Δοκιμάστε ξανά.
-          </p>
-        ) : restaurants.length === 0 ? (
-          <p className="text-center text-gray-600">
-            ❌ Δεν βρέθηκαν εστιατόρια με αυτά τα φίλτρα.
-          </p>
-        ) : (
-          <>
-            <ReserveResultsGrid restaurants={visibleRestaurants} />
-            <PaginationControls
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-            />
-          </>
-        )}
-      </motion.section>
-    </div>
+        <motion.section {...fadeIn}>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            📍 Αποτελέσματα Αναζήτησης
+          </h2>
+
+          {isLoading ? (
+            <Loading />
+          ) : isError ? (
+            <p className="text-center text-red-600">
+              ⚠️ Προέκυψε σφάλμα κατά την ανάκτηση των δεδομένων. Δοκιμάστε
+              ξανά.
+            </p>
+          ) : restaurants.length === 0 ? (
+            <p className="text-center text-gray-600">
+              ❌ Δεν βρέθηκαν εστιατόρια με αυτά τα φίλτρα.
+            </p>
+          ) : (
+            <>
+              <ReserveResultsGrid restaurants={visibleRestaurants} />
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                setCurrentPage={setCurrentPage}
+              />
+            </>
+          )}
+        </motion.section>
+      </div>
+    </>
   );
 };
 

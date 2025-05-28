@@ -11,6 +11,7 @@ import HappyHoursSection from "../../components/homepage/HappyHoursSection";
 import LoyaltyProgram from "../../components/homepage/LoyaltyProgramCard";
 import TrendingRestaurantsCarousel from "../../components/homepage/TrendingRestaurantsCarousel";
 import PurchasedCouponRestaurantsSection from "../../components/homepage/PurchasedCouponRestaurantsSection";
+import SEOHelmet from "../../components/SEOHelmet";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -33,38 +34,31 @@ const HomePage = () => {
   }, []);
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-20">
-      {/* Hero Section */}
-      <HeroSection />
-
-      {/* Search Filter */}
-      <SearchBar
-        searchParams={searchParams}
-        setSearchParams={setSearchParams}
-        timeSlots={timeSlots}
-        onSearch={handleSearch}
+    <>
+      <SEOHelmet
+        title="Yummy | Κράτηση με προσφορές σε εστιατόρια"
+        description="Κλείσε τραπέζι με εκπτώσεις Happy Hour, loyalty πόντους και κουπόνια ανταμοιβής σε δημοφιλή εστιατόρια."
+        url="https://yummy-app.gr/"
+        image="https://yummy-app.gr/images/yummyLogo-2.png"
       />
 
-      {/* Why Yummy */}
-      <WhyYummySection />
-
-      {/* Testimonials */}
-      <TestimonialsCarousel />
-
-      {/* Trending Restaurants */}
-      <TrendingRestaurantsCarousel />
-
-      {/* Discounted Restaurants */}
-      <HappyHoursSection />
-
-      {/* Coupons Purchased By User */}
-      <PurchasedCouponRestaurantsSection user_id="user001" />
-
-      {/* Loyalty Program */}
-      <LoyaltyProgram />
-
-      <HomepageCTAButton />
-    </div>
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-20">
+        <HeroSection />
+        <SearchBar
+          searchParams={searchParams}
+          setSearchParams={setSearchParams}
+          timeSlots={timeSlots}
+          onSearch={handleSearch}
+        />
+        <WhyYummySection />
+        <TestimonialsCarousel />
+        <TrendingRestaurantsCarousel />
+        <HappyHoursSection />
+        <PurchasedCouponRestaurantsSection user_id="user001" />
+        <LoyaltyProgram />
+        <HomepageCTAButton />
+      </div>
+    </>
   );
 };
 

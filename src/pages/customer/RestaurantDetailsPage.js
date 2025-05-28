@@ -27,6 +27,7 @@ import LoyaltyCouponsGrid from "../../components/restaurant/LoyaltyCouponsGrid";
 import ReservationForm from "../../components/restaurant/ReservationForm";
 import ReservationDialogs from "../../components/restaurant/ReservationDialogs";
 import HelpDialogButton from "../../components/restaurant/HelpDialogButton";
+import SEOHelmet from "../../components/SEOHelmet";
 
 const RestaurantDetailsPage = () => {
   const { id } = useParams();
@@ -211,6 +212,13 @@ const RestaurantDetailsPage = () => {
   );
 
   return (
+    <>
+    <SEOHelmet
+      title={`${restaurant.name} | Κράτηση στο Yummy`}
+      description={`Δες το μενού, τις προσφορές και τις εκπτώσεις του ${restaurant.name} – Κάνε κράτηση εύκολα με Happy Hour ή κουπόνι!`}
+      url={`https://yummy-app.gr/restaurant/${restaurant.id}`}
+      image={restaurant.photos?.[0] || "https://yummy.gr/images/yummyLogo-2.png"}
+    />
     <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
       <HeroSection
         restaurant={restaurant}
@@ -324,6 +332,7 @@ const RestaurantDetailsPage = () => {
 
       <HelpDialogButton />
     </div>
+    </>
   );
 };
 
