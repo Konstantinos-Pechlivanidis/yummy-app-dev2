@@ -1,22 +1,29 @@
-// pages/AuthRedirect.jsx
+import { useOwnerAuthStatus } from "../hooks/owner/useOwnerAuth";
+import { useAuthStatus } from "../hooks/customer/useAuth";
 import { useEffect } from "react";
-import { useAuthStatus } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
 
-const AuthRedirect = () => {
-  const { data, isLoading } = useAuthStatus();
+const AuthRedirect = ({ role = "customer" }) => {
   const navigate = useNavigate();
+
+  // Χρησιμοποιούμε και τα δύο hooks πάντα
+  const ownerStatus = useOwnerAuthStatus();
+  const customerStatus = useAuthStatus();
+
+  // Επιλέγουμε το σωστό status μετά την κλήση των hooks
+  const authStatus = role === "owner" ? ownerStatus : customerStatus;
+  const { data, isLoading } = authStatus;
 
   useEffect(() => {
     if (!isLoading) {
       if (data?.loggedIn) {
-        navigate("/"); // ή "/profile" ή "/dashboard"
+        navigate(role === "owner" ? "/owner/dashboard" : "/");
       } else {
-        navigate("/login");
+        navigate(role === "owner" ? "/owner/login" : "/login");
       }
     }
-  }, [data, isLoading, navigate]);
+  }, [data, isLoading, navigate, role]);
 
   return <Loading />;
 };

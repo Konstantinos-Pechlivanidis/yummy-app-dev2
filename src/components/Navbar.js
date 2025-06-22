@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
-import { useLogout } from "../hooks/useAuth";
+import { useLogout } from "../hooks/customer/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 const Navbar = () => {

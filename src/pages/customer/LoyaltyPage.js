@@ -1,5 +1,4 @@
-import { useSelector } from "react-redux";
-import { useUserPoints } from "../../hooks/useAuth";
+import { useUserPoints } from "../../hooks/customer/useAuth";
 import {
   Card,
   CardContent,
@@ -13,7 +12,6 @@ import Loading from "../../components/Loading";
 import SEOHelmet from "../../components/SEOHelmet";
 
 const LoyaltyPage = () => {
-  const { user } = useSelector((state) => state.auth);
 
   const { data, isLoading, isError } = useUserPoints();
 

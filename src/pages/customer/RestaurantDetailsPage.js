@@ -6,14 +6,14 @@ import { toast } from "react-hot-toast";
 
 import { setSearchParams as setSearchParamsAction } from "../../store/searchSlice";
 
-import { useRestaurantDetails } from "../../hooks/useRestaurants";
-import { useCreateReservation } from "../../hooks/useReservations";
-import { useUserPoints, useToggleFavorite } from "../../hooks/useAuth";
+import { useRestaurantDetails } from "../../hooks/customer/useRestaurants";
+import { useCreateReservation } from "../../hooks/customer/useReservations";
+import { useUserPoints, useToggleFavorite } from "../../hooks/customer/useAuth";
 import {
   useUserCoupons,
   useAvailableCoupons,
   usePurchaseCoupon,
-} from "../../hooks/useCoupons";
+} from "../../hooks/customer/useCoupons";
 
 import Loading from "../../components/Loading";
 import { Separator } from "../../components/ui/separator";
@@ -35,7 +35,6 @@ const RestaurantDetailsPage = () => {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.auth.user);
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const reduxSearchParams = useSelector((state) => state.search ?? {});
 
   const [reservation, setReservation] = useState({
@@ -53,7 +52,11 @@ const RestaurantDetailsPage = () => {
 
   const { data: restaurantDetails, isLoading } = useRestaurantDetails(id);
   const restaurant = restaurantDetails?.restaurant;
-  const menu_items = restaurantDetails?.menu_items ?? [];
+
+  const menu_items = useMemo(() => {
+    return restaurantDetails?.menu_items ?? [];
+  }, [restaurantDetails?.menu_items]);
+
   const special_menus = restaurantDetails?.special_menus ?? [];
 
   const { data: loyaltyData, isLoading: isLoadingPoints } = useUserPoints(
@@ -213,125 +216,128 @@ const RestaurantDetailsPage = () => {
 
   return (
     <>
-    <SEOHelmet
-      title={`${restaurant.name} | Κράτηση στο Yummy`}
-      description={`Δες το μενού, τις προσφορές και τις εκπτώσεις του ${restaurant.name} – Κάνε κράτηση εύκολα με Happy Hour ή κουπόνι!`}
-      url={`https://yummy-app.gr/restaurant/${restaurant.id}`}
-      image={restaurant.photos?.[0] || "https://yummy.gr/images/yummyLogo-2.png"}
-    />
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
-      <HeroSection
-        restaurant={restaurant}
-        isInWatchlist={inWatchlist}
-        handleToggleWatchlist={handleToggleWatchlist}
+      <SEOHelmet
+        title={`${restaurant.name} | Κράτηση στο Yummy`}
+        description={`Δες το μενού, τις προσφορές και τις εκπτώσεις του ${restaurant.name} – Κάνε κράτηση εύκολα με Happy Hour ή κουπόνι!`}
+        url={`https://yummy-app.gr/restaurant/${restaurant.id}`}
+        image={
+          restaurant.photos?.[0] || "https://yummy.gr/images/yummyLogo-2.png"
+        }
       />
-
-      <Separator className="my-10" />
-
-      <section className="space-y-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">📜 Μενού</h2>
-        <MenuCategoryTabs
-          categories={menuCategories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 md:px-12 py-8 space-y-16">
+        <HeroSection
+          restaurant={restaurant}
+          isInWatchlist={inWatchlist}
+          handleToggleWatchlist={handleToggleWatchlist}
         />
-        <MenuItemsGrid dishes={filteredDishes} />
-      </section>
 
-      <Separator className="my-10" />
+        <Separator className="my-10" />
 
-      <section className="space-y-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">
-          🍽️ Special Menus
-        </h2>
-        <SpecialMenusGrid menus={special_menus} />
-      </section>
+        <section className="space-y-6">
+          <h2 className="text-3xl font-extrabold text-gray-900">📜 Μενού</h2>
+          <MenuCategoryTabs
+            categories={menuCategories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
+          <MenuItemsGrid dishes={filteredDishes} />
+        </section>
 
-      <Separator className="my-10" />
+        <Separator className="my-10" />
 
-      <section className="space-y-6">
-        <h2 className="text-3xl font-extrabold text-gray-900">
-          🎁 Τα Κουπόνια μου
-        </h2>
-        <p className="text-lg text-gray-700">
-          Έχεις <span className="font-bold text-primary">{loyalty_points}</span>{" "}
-          πόντους.
-        </p>
-        <LoyaltyCouponsGrid
-          coupons={restaurantCouponObjects}
-          userCoupons={userCoupons}
-          loyalty_points={loyalty_points}
-          user_id={user?.id}
-          onPurchase={purchaseCoupon}
-          isPurchasing={isPurchasing}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            🍽️ Special Menus
+          </h2>
+          <SpecialMenusGrid menus={special_menus} />
+        </section>
+
+        <Separator className="my-10" />
+
+        <section className="space-y-6">
+          <h2 className="text-3xl font-extrabold text-gray-900">
+            🎁 Τα Κουπόνια μου
+          </h2>
+          <p className="text-lg text-gray-700">
+            Έχεις{" "}
+            <span className="font-bold text-primary">{loyalty_points}</span>{" "}
+            πόντους.
+          </p>
+          <LoyaltyCouponsGrid
+            coupons={restaurantCouponObjects}
+            userCoupons={userCoupons}
+            loyalty_points={loyalty_points}
+            user_id={user?.id}
+            onPurchase={purchaseCoupon}
+            isPurchasing={isPurchasing}
+          />
+        </section>
+
+        <Separator className="my-10" />
+
+        <ReservationForm
+          reservation={reservation}
+          setReservation={setReservation}
+          timeSlots={timeSlots}
+          restaurantSpecialMenus={special_menus}
+          userCoupons={usableUserCoupons}
+          restaurant={restaurant}
+          validMenus={validMenus}
+          handleSpecialMenuChange={handleSpecialMenuChange}
+          handleCouponChange={handleCouponChange}
+          handleReserve={handleReserve}
+          isSubmitting={isSubmitting}
         />
-      </section>
 
-      <Separator className="my-10" />
+        <Separator className="my-10" />
 
-      <ReservationForm
-        reservation={reservation}
-        setReservation={setReservation}
-        timeSlots={timeSlots}
-        restaurantSpecialMenus={special_menus}
-        userCoupons={usableUserCoupons}
-        restaurant={restaurant}
-        validMenus={validMenus}
-        handleSpecialMenuChange={handleSpecialMenuChange}
-        handleCouponChange={handleCouponChange}
-        handleReserve={handleReserve}
-        isSubmitting={isSubmitting}
-      />
+        <div className="flex justify-center">
+          <Button
+            onClick={() => window.history.back()}
+            className="bg-gray-500 text-white"
+          >
+            ⬅ Επιστροφή
+          </Button>
+        </div>
 
-      <Separator className="my-10" />
+        <ReservationDialogs
+          errorDialog={errorDialog}
+          setErrorDialog={setErrorDialog}
+          confirmSubmit={confirmSubmit}
+          setConfirmSubmit={setConfirmSubmit}
+          onConfirmReservation={() => {
+            setConfirmSubmit(false);
+            dispatch(
+              setSearchParamsAction({
+                date: reservation.date,
+                time: reservation.time,
+                guests: reservation.guests,
+              })
+            );
 
-      <div className="flex justify-center">
-        <Button
-          onClick={() => window.history.back()}
-          className="bg-gray-500 text-white"
-        >
-          ⬅ Επιστροφή
-        </Button>
-      </div>
-
-      <ReservationDialogs
-        errorDialog={errorDialog}
-        setErrorDialog={setErrorDialog}
-        confirmSubmit={confirmSubmit}
-        setConfirmSubmit={setConfirmSubmit}
-        onConfirmReservation={() => {
-          setConfirmSubmit(false);
-          dispatch(
-            setSearchParamsAction({
-              date: reservation.date,
-              time: reservation.time,
-              guests: reservation.guests,
-            })
-          );
-
-          createReservation(
-            {
-              restaurant_id: restaurant.id,
-              user_id: user.id,
-              date: format(reservation.date, "yyyy-MM-dd"),
-              time: reservation.time,
-              guest_count: parseInt(reservation.guests, 10),
-              special_menu_id: reservation.specialMenu,
-              coupon_id: reservation.coupon,
-              reservation_notes: reservation.reservation_notes,
-            },
-            {
-              onSuccess: (created) => {
-                navigate(`/confirmation/${created.id}`);
+            createReservation(
+              {
+                restaurant_id: restaurant.id,
+                user_id: user.id,
+                date: format(reservation.date, "yyyy-MM-dd"),
+                time: reservation.time,
+                guest_count: parseInt(reservation.guests, 10),
+                special_menu_id: reservation.specialMenu,
+                coupon_id: reservation.coupon,
+                reservation_notes: reservation.reservation_notes,
               },
-            }
-          );
-        }}
-        isSubmitting={isSubmitting}
-      />
+              {
+                onSuccess: (created) => {
+                  navigate(`/confirmation/${created.id}`);
+                },
+              }
+            );
+          }}
+          isSubmitting={isSubmitting}
+        />
 
-      <HelpDialogButton />
-    </div>
+        <HelpDialogButton />
+      </div>
     </>
   );
 };

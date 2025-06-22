@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Star } from "lucide-react";
-import { useTrendingRestaurants } from "../../hooks/useRestaurants";
+import { useTrendingRestaurants } from "../../hooks/customer/useRestaurants";
 import Loading from "../Loading";
 import { Card, CardContent } from "../ui/card";
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRestaurantsWithPurchasedCoupons } from "../../hooks/useCoupons";
+import { useRestaurantsWithPurchasedCoupons } from "../../hooks/customer/useCoupons";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import {

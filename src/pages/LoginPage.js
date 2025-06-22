@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLogin } from "../hooks/useAuth";
+import { useLogin } from "../hooks/customer/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "../components/ui/button";

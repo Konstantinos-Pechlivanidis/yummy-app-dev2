@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser, clearUser } from "./store/authSlice";
-import { useAuthStatus } from "./hooks/useAuth";
+import { useAuthStatus } from "./hooks/customer/useAuth";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -105,8 +105,8 @@ const AppRoutes = () => {
       {/* Owner Only */}
       {isAuthenticated && user.role === "owner" && (
         <>
-          <Route path="/dashboard" element={<OwnerDashboard />} />
-          <Route path="/profile" element={<OwnerProfile />} />
+          <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+          <Route path="/owner/profile" element={<OwnerProfile />} />
         </>
       )}
 

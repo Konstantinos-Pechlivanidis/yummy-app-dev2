@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import { restaurants, coupons } from "../../data/dummyData";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { TabsContent } from "../ui/tabs";
 import { Clock, MapPin, Star, Phone, Mail, Ticket, Users } from "lucide-react";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 

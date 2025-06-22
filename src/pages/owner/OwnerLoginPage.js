@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOwnerLogin } from "../../hooks/useOwner";
+import { useOwnerLogin } from "../../hooks/owner/useOwnerAuth";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "../../components/ui/button";

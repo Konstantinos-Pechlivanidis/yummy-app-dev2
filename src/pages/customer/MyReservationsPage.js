@@ -2,8 +2,8 @@ import { useState, useCallback } from "react";
 import {
   useFilteredReservations,
   useCancelReservation,
-} from "../../hooks/useReservations";
-import { useFilteredRestaurants } from "../../hooks/useRestaurants";
+} from "../../hooks/customer/useReservations";
+import { useFilteredRestaurants } from "../../hooks/customer/useRestaurants";
 import ReservationFilterBar from "../../components/reservations/ReservationFilterBar";
 import ReservationCard from "../../components/reservations/ReservationCard";
 import CancelReservationDialog from "../../components/reservations/CancelReservationDialog";

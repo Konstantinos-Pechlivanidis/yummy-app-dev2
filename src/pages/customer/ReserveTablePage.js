@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
-import { useFilteredRestaurants } from "../../hooks/useRestaurants";
+import { useFilteredRestaurants } from "../../hooks/customer/useRestaurants";
 import { setSearchParams as setSearchParamsAction } from "../../store/searchSlice";
 
 import ReserveHeroSection from "../../components/reserve/ReserveHeroSection";

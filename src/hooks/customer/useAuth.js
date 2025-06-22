@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useDispatch } from "react-redux";
-import { setUser, clearUser } from "../store/authSlice";
+import { setUser, clearUser } from "../../store/authSlice";
 import { toast } from "react-hot-toast";
-import { translateError } from "../utils/translateError";
+import { translateError } from "../../utils/translateError";
 import { useNavigate } from "react-router-dom";
 
 const axiosInstance = axios.create({

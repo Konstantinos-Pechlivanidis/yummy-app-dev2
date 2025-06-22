@@ -1,7 +1,10 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
-import { updateRestaurantProfile } from "../../store/restaurantSlice";
-import { useResendVerification } from "../../hooks/useAuth";
+import { useState, useEffect } from "react";
+import { useOwnerProfile } from "../../hooks/owner/useOwnerAuth";
+import {
+  useOwnerRestaurant,
+  useUpdateOwnerRestaurant,
+} from "../../hooks/owner/useOwnerRestaurant";
+import { useResendVerification } from "../../hooks/owner/useOwnerAuth";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import {
@@ -12,30 +15,49 @@ import {
 } from "../../components/ui/card";
 import { Label } from "../../components/ui/label";
 import { Separator } from "../../components/ui/separator";
-import { format } from "date-fns";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 
 const OwnerProfile = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const restaurants = useSelector((state) => state.menus.restaurants);
-  const restaurant = restaurants.find((r) => r.ownerId === user?.id);
+  const { data: user, isLoading: loadingUser } = useOwnerProfile();
+  const { data: restaurant, isLoading: loadingRestaurant } =
+    useOwnerRestaurant();
+  const { mutate: updateRestaurant } = useUpdateOwnerRestaurant();
+  const { mutate: resendVerification, isLoading: resending } =
+    useResendVerification();
 
   const [ownerData, setOwnerData] = useState({
-    name: user.name || "",
-    email: user.email || "",
-    phone: user.phone || "",
+    name: "",
+    email: "",
+    phone: "",
   });
 
   const [restaurantData, setRestaurantData] = useState({
-    phone: restaurant?.contact?.phone || "",
-    email: restaurant?.contact?.email || "",
-    facebook: restaurant?.contact?.socialMedia?.facebook || "",
-    instagram: restaurant?.contact?.socialMedia?.instagram || "",
+    phone: "",
+    email: "",
+    facebook: "",
+    instagram: "",
   });
 
-  const { mutate: resendVerification, isLoading: resending } = useResendVerification();
+  useEffect(() => {
+    if (user) {
+      setOwnerData({
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
+      });
+    }
+
+    if (restaurant) {
+      setRestaurantData({
+        phone: restaurant.contact?.phone || "",
+        email: restaurant.contact?.email || "",
+        facebook: restaurant.contact?.socialMedia?.facebook || "",
+        instagram: restaurant.contact?.socialMedia?.instagram || "",
+      });
+    }
+  }, [user, restaurant]);
 
   const handleOwnerChange = (field, value) => {
     setOwnerData((prev) => ({ ...prev, [field]: value }));
@@ -49,36 +71,40 @@ const OwnerProfile = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Αν θέλεις να ενημερώνεις και τα owner data στον backend:
-    // dispatch(updateProfile(ownerData))  <-- μόνο αν υποστηρίζεται
+    if (!restaurant?.id) {
+      toast.error("Δεν βρέθηκε το εστιατόριο.");
+      return;
+    }
 
-    dispatch(
-      updateRestaurantProfile({
-        restaurant_id: restaurant.id,
+    updateRestaurant({
+      id: restaurant.id,
+      contact: {
         phone: restaurantData.phone,
         email: restaurantData.email,
         socialMedia: {
           facebook: restaurantData.facebook,
           instagram: restaurantData.instagram,
         },
-      })
-    );
-
-    toast.success("Το προφίλ ενημερώθηκε με επιτυχία!");
-  };
-
-  const handleResend = () => {
-    resendVerification(user.email, {
-      onSuccess: () =>
-        toast.success("Στάλθηκε ξανά email επιβεβαίωσης."),
+      },
     });
   };
 
+  const handleResend = () => {
+    if (user?.email) {
+      resendVerification(user.email, {
+        onSuccess: () => toast.success("Στάλθηκε ξανά email επιβεβαίωσης."),
+      });
+    }
+  };
+
+  if (loadingUser || loadingRestaurant) return <p>Φόρτωση...</p>;
+
   return (
     <div className="container mx-auto px-4 py-10 max-w-4xl space-y-6">
-      <h1 className="text-3xl font-bold text-center text-gray-800">👤 Προφίλ Ιδιοκτήτη</h1>
+      <h1 className="text-3xl font-bold text-center text-gray-800">
+        👤 Προφίλ Ιδιοκτήτη
+      </h1>
 
-      {/* ❗ Banner επιβεβαίωσης */}
       {!user.confirmed_user && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded relative">
           📧 Δεν έχεις επιβεβαιώσει ακόμα το email σου.
@@ -94,10 +120,11 @@ const OwnerProfile = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-10">
-        {/* 👤 Κάρτα Ιδιοκτήτη */}
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">👤 Προφίλ Ιδιοκτήτη</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              👤 Προφίλ Ιδιοκτήτη
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
@@ -106,6 +133,7 @@ const OwnerProfile = () => {
                 id="name"
                 value={ownerData.name}
                 onChange={(e) => handleOwnerChange("name", e.target.value)}
+                disabled
               />
             </div>
 
@@ -115,6 +143,7 @@ const OwnerProfile = () => {
                 id="email"
                 value={ownerData.email}
                 onChange={(e) => handleOwnerChange("email", e.target.value)}
+                disabled
               />
             </div>
 
@@ -124,6 +153,7 @@ const OwnerProfile = () => {
                 id="phone"
                 value={ownerData.phone}
                 onChange={(e) => handleOwnerChange("phone", e.target.value)}
+                disabled
               />
             </div>
 
@@ -139,40 +169,51 @@ const OwnerProfile = () => {
               <div>
                 <p className="text-sm text-gray-500">🕒 Ημερομηνία Εγγραφής</p>
                 <p className="text-md font-semibold text-gray-800">
-                  {format(new Date(user.createdAt), "dd/MM/yyyy")}
+                  {user.createdAt
+                    ? format(new Date(user.createdAt), "dd/MM/yyyy")
+                    : "Ημερομηνία μη διαθέσιμη"}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* 🏪 Κάρτα Καταστήματος */}
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">🏪 Προφίλ Καταστήματος</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              🏪 Προφίλ Καταστήματος
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
               <Label>📛 Όνομα Εστιατορίου</Label>
-              <p className="text-gray-700 mt-1">{restaurant.name}</p>
+              <p className="text-gray-700 mt-1">{restaurant?.name}</p>
             </div>
 
             <div>
               <Label>📍 Διεύθυνση</Label>
               <p className="text-gray-700 mt-1">
-                {restaurant.address.street} {restaurant.address.number},{" "}
-                {restaurant.address.area}, {restaurant.address.postalCode}
+                {restaurant?.address?.street} {restaurant?.address?.number},{" "}
+                {restaurant?.address?.area}, {restaurant?.address?.postalCode}
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label>📞 Τηλέφωνο</Label>
-                <Input name="phone" value={restaurantData.phone} onChange={handleRestaurantChange} />
+                <Input
+                  name="phone"
+                  value={restaurantData.phone}
+                  onChange={handleRestaurantChange}
+                />
               </div>
               <div>
                 <Label>📧 Email</Label>
-                <Input name="email" value={restaurantData.email} onChange={handleRestaurantChange} />
+                <Input
+                  name="email"
+                  value={restaurantData.email}
+                  onChange={handleRestaurantChange}
+                />
               </div>
             </div>
 

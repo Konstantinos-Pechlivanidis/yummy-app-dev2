@@ -12,8 +12,8 @@ import {
 import { Card, CardContent } from "../ui/card";
 import Loading from "../Loading";
 import PromoOfferBox from "./PromoOfferBox";
-import { useDiscountedRestaurants } from "../../hooks/useRestaurants";
-import { useScreenConfig } from "../../hooks/useScreenConfig";
+import { useDiscountedRestaurants } from "../../hooks/customer/useRestaurants";
+import { useScreenConfig } from "../../hooks/customer/useScreenConfig";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },

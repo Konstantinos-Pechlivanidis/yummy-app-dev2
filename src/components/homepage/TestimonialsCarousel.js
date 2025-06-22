@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Card } from "../ui/card";
 import Loading from "../Loading";
-import { useTestimonials } from "../../hooks/useTestimonials";
+import { useTestimonials } from "../../hooks/customer/useTestimonials";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
