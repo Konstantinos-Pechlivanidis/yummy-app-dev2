@@ -7,7 +7,7 @@ import { translateError } from "../utils/translateError";
 import { useNavigate } from "react-router-dom";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/user",
+  baseURL: "http://localhost:5000/api/v1/user",
   withCredentials: true,
 });
 
@@ -23,6 +23,7 @@ export const useAuthStatus = () =>
 
 export const useRegister = () => {
   const queryClient = useQueryClient();
+  const dispatch = useDispatch(); // <--- πρόσθεσε αυτό
 
   return useMutation({
     mutationFn: async (formData) => {
@@ -31,6 +32,7 @@ export const useRegister = () => {
     },
     onSuccess: (data) => {
       toast.success(data.message);
+      dispatch(setUser(data.user));
       queryClient.invalidateQueries(["authStatus"]);
     },
     onError: (err) => toast.error(translateError(err)),

@@ -10,7 +10,7 @@ export const users = [
     favoriteRestaurants: ["resto006", "resto007", "resto008", "resto009"],
     preferredMenus: ["menu001"],
     preferredCuisines: ["Vegan", "Ασιατική"],
-    newsletterSubscribed: true,
+    newsletter_subscribed: true,
     profileImage: "/images/mobile1.jpg",
     createdAt: "2024-01-01T12:00:00Z",
     updatedAt: "2024-02-01T12:00:00Z",

@@ -35,7 +35,20 @@ const ProfilePage = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { data: profile } = useUserProfile();
   const { data: points } = useUserPoints();
-  const { data: favoritesData } = useFavoriteRestaurants(1, ITEMS_PER_PAGE);
+  const {
+    data: favoritesData,
+    isLoading: favoritesLoading,
+    error: favoritesErrorData,
+  } = useFavoriteRestaurants(1, ITEMS_PER_PAGE);
+
+  const favorites = favoritesData?.favoriteRestaurants || [];
+
+  // Αν δεν φορτώνει και έχουμε error με το συγκεκριμένο μήνυμα
+  const showEmptyFavorites =
+    !favoritesLoading &&
+    (favorites.length === 0 ||
+      favoritesErrorData?.response?.data?.error === "User has no favorites.");
+
   const { mutate: toggleFavorite } = useToggleFavorite();
   const { mutate: logout } = useLogout();
   const { mutate: updateUser } = useUpdateUser();
@@ -189,9 +202,10 @@ const ProfilePage = () => {
             Αγαπημένα Εστιατόρια
           </h2>
           <FavoriteRestaurantsCard
-            favorites={favoritesData?.favoriteRestaurants || []}
+            favorites={favorites}
             total={favoritesData?.Pagination?.total || 0}
-            isLoading={!favoritesData}
+            isLoading={favoritesLoading}
+            showEmptyMessage={showEmptyFavorites}
             onConfirmRemove={(id) =>
               setConfirmDialog({ open: true, restaurant_id: id })
             }

@@ -25,6 +25,7 @@ const FavoriteRestaurantsCard = ({
   favorites = [],
   isLoading,
   onConfirmRemove,
+  showEmptyMessage = false,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -46,9 +47,9 @@ const FavoriteRestaurantsCard = ({
         <CardContent className="pt-4">
           {isLoading ? (
             <Loading />
-          ) : paginatedData.length === 0 ? (
+          ) : showEmptyMessage ? (
             <p className="text-gray-500 text-center py-6 text-sm sm:text-base">
-              Δεν έχεις προσθέσει αγαπημένα εστιατόρια.
+              Δεν έχεις αποθηκευμένα αγαπημένα εστιατόρια.
             </p>
           ) : (
             <>

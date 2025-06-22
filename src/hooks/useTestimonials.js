@@ -3,7 +3,7 @@ import axios from "axios";
 
 const fetchTestimonials = async (page = 1, limit = 10) => {
   const { data } = await axios.get(
-    `http://localhost:5000/testimonials/all?page=${page}&limit=${limit}`,
+    `http://localhost:5000/api/v1/testimonials/all?page=${page}&limit=${limit}`,
     { withCredentials: true }
   );
   return data.allTestimonials;

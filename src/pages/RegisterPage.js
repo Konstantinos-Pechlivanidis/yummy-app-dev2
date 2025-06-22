@@ -24,7 +24,7 @@ const RegisterPage = () => {
     password: "",
     phone: "",
     role: "customer",
-    newsletterSubscribed: true,
+    newsletter_subscribed: true,
   });
 
   const handleChange = (e) => {
@@ -148,15 +148,15 @@ const RegisterPage = () => {
 
             <div className="flex items-center space-x-2">
               <input
-                id="newsletterSubscribed"
-                name="newsletterSubscribed"
+                id="newsletter_subscribed"
+                name="newsletter_subscribed"
                 type="checkbox"
-                checked={formData.newsletterSubscribed}
+                checked={formData.newsletter_subscribed}
                 onChange={handleChange}
                 className="h-4 w-4 text-primary border-gray-300 rounded"
               />
               <label
-                htmlFor="newsletterSubscribed"
+                htmlFor="newsletter_subscribed"
                 className="text-sm text-gray-700"
               >
                 Εγγραφή στο newsletter

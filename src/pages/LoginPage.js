@@ -158,14 +158,14 @@ const LoginPage = () => {
           {/* Social logins */}
           <div className="space-y-3">
             <a
-              href="http://localhost:5000/user/auth/google"
+              href="http://localhost:5000/api/v1/user/auth/google"
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm"
             >
               <FcGoogle size={20} />
               Σύνδεση με Google
             </a>
             <a
-              href="http://localhost:5000/user/auth/facebook"
+              href="http://localhost:5000/api/v1/user/auth/facebook"
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm text-blue-700"
             >
               <FaFacebook size={20} />
