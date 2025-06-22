@@ -31,6 +31,7 @@ import AuthRedirect from "./pages/AuthRedirect";
 import { showLoading, hideLoading } from "./store/loadingSlice";
 import PageLoading from "./components/PageLoading";
 import { HelmetProvider } from "react-helmet-async";
+import OwnerLoginPage from "./pages/owner/OwnerLoginPage";
 
 const LoadingHandler = () => {
   const location = useLocation();
@@ -89,6 +90,7 @@ const AppRoutes = () => {
       <Route path="/restaurant/:id" element={<RestaurantDetailsPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/login-owner" element={<OwnerLoginPage />} />
 
       {/* Customer Only */}
       {isAuthenticated && user.role === "customer" && (

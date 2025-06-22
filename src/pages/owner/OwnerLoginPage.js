@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useLogin } from "../hooks/useAuth";
-import { useNavigate, Link } from "react-router-dom";
+import { useOwnerLogin } from "../../hooks/useOwner";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import Loading from "../components/Loading";
+import Loading from "../../components/Loading";
 
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
@@ -14,9 +14,9 @@ const fadeIn = {
   transition: { duration: 0.6 },
 };
 
-const LoginPage = () => {
+const OwnerLoginPage = () => {
   const navigate = useNavigate();
-  const loginMutation = useLogin();
+  const loginMutation = useOwnerLogin();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,13 +31,11 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     loginMutation.mutate(formData, {
-      onSuccess: ({ user }) => {
-        if (!user.confirmed_user) {
-          navigate("/profile");
-        } else if (user.role === "owner") {
-          navigate("/dashboard");
+      onSuccess: ({ owner }) => {
+        if (!owner.confirmed_user) {
+          navigate("/owner/profile");
         } else {
-          navigate("/");
+          navigate("/dashboard");
         }
       },
     });
@@ -45,7 +43,6 @@ const LoginPage = () => {
 
   return (
     <div className="relative min-h-full w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
-      {/* Background Image */}
       <img
         src="/images/wide11.jpg"
         alt="Φόντο Σύνδεσης - Yummy"
@@ -57,30 +54,23 @@ const LoginPage = () => {
       />
       <div className="absolute inset-0 bg-black/60 z-10" />
 
-      {/* Login Form */}
       <div className="relative z-20 flex items-start justify-start min-h-screen">
         <motion.div
           {...fadeIn}
           className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6 my-auto ml-6 mr-6 md:ml-36 sm:my-auto sm:ml-10"
         >
-          {/* Header */}
           <div className="text-left space-y-2">
             <img
               src="/images/yummyLogo-2.png"
               alt="Λογότυπο Yummy App"
-              width="192"
-              height="192"
-              loading="eager"
-              fetchpriority="high"
               className="w-14 h-14 drop-shadow"
             />
             <h1 className="text-3xl font-bold text-gray-900">
-              Σύνδεση στο Yummy
+              Σύνδεση Ιδιοκτήτη
             </h1>
             <p className="text-gray-700 text-sm">Καλώς ήρθες πίσω 👋</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
@@ -136,28 +126,6 @@ const LoginPage = () => {
             </Button>
           </form>
 
-          {/* Links */}
-          <p className="text-sm text-gray-700">
-            Δεν έχεις λογαριασμό;{" "}
-            <Link
-              to="/register"
-              className="text-red-600 font-medium hover:underline"
-            >
-              Δημιούργησε τώρα
-            </Link>
-          </p>
-
-          <p className="text-sm text-gray-700">
-            Είσαι ιδιοκτήτης;{" "}
-            <Link
-              to="/login-owner"
-              className="text-blue-600 font-medium hover:underline"
-            >
-              Σύνδεση ως ιδιοκτήτης
-            </Link>
-          </p>
-
-          {/* Divider */}
           <div className="relative text-center text-sm text-gray-500">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -165,17 +133,16 @@ const LoginPage = () => {
             <span className="relative bg-white px-4">ή</span>
           </div>
 
-          {/* Social Logins */}
           <div className="space-y-3">
             <a
-              href="http://localhost:5000/api/v1/user/auth/google"
+              href="http://localhost:5000/api/v1/owner/auth/google"
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm"
             >
               <FcGoogle size={20} />
               Σύνδεση με Google
             </a>
             <a
-              href="http://localhost:5000/api/v1/user/auth/facebook"
+              href="http://localhost:5000/api/v1/owner/auth/facebook"
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm text-blue-700"
             >
               <FaFacebook size={20} />
@@ -188,4 +155,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default OwnerLoginPage;
