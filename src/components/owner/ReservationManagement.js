@@ -11,7 +11,7 @@ import {
 } from "../ui/dialog";
 import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
 import { Badge } from "../ui/badge";
-import { Check, XCircle } from "lucide-react";
+import { Check, XCircle, Calendar as CalendarIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,8 +23,17 @@ import {
   useOwnerCancelReservation,
 } from "../../hooks/customer/useReservations";
 
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
+import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
+
 const STATUS_OPTIONS = [
-  { value: "", label: "Όλες" },
   { value: "pending", label: "Αναμονή" },
   { value: "confirmed", label: "Εγκεκριμένες" },
   { value: "completed", label: "Ολοκληρωμένες" },
@@ -60,38 +69,31 @@ const ReservationManagement = () => {
   const qc = useQueryClient();
 
   // Filters & pagination
-  const [statusFilter, setStatusFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState(""); // yyyy-MM-dd
+  const [statusFilter, setStatusFilter] = useState(""); // "" means no filter
+  const [dateFilter, setDateFilter] = useState("");     // yyyy-MM-dd or ""
+  const selectedDate = useMemo(
+    () => (dateFilter ? new Date(dateFilter) : null),
+    [dateFilter]
+  );
+
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  // Fetch owner reservations (NOTE: hook signature is (date, status, page, pageSize))
-  const {
-    data,
-    isLoading,
-    isFetching,
-    error,
-  } = useOwnerFilteredReservations(dateFilter || undefined, statusFilter || undefined, page, pageSize);
+  // Fetch owner reservations
+  const { data, isLoading, isFetching, error } = useOwnerFilteredReservations(
+    dateFilter || undefined,
+    statusFilter || undefined,
+    page,
+    pageSize
+  );
 
   const reservations = useMemo(() => data?.reservations ?? [], [data]);
   const pagination = data?.Pagination;
 
-  // Owner actions (separate hooks)
-  const {
-    mutate: confirmReservation,
-    isPending: confirming,
-  } = useOwnerConfirmReservation();
-
-  const {
-    mutate: completeReservation,
-    isPending: completing,
-  } = useOwnerCompleteReservation();
-
-  const {
-    mutate: cancelReservation,
-    isPending: canceling,
-  } = useOwnerCancelReservation();
-
+  // Owner actions
+  const { mutate: confirmReservation, isPending: confirming } = useOwnerConfirmReservation();
+  const { mutate: completeReservation, isPending: completing } = useOwnerCompleteReservation();
+  const { mutate: cancelReservation, isPending: canceling } = useOwnerCancelReservation();
   const patching = confirming || completing || canceling;
 
   // Dialog state
@@ -133,7 +135,6 @@ const ReservationManagement = () => {
   const canComplete = (s) => s === "confirmed";
   const canCancel = (s) => s === "pending" || s === "confirmed";
 
-  // Confirm button inside dialog
   const handleConfirm = () => {
     if (!selectedReservation || !actionType) return;
 
@@ -193,35 +194,82 @@ const ReservationManagement = () => {
     <section className="space-y-4">
       {/* Filters */}
       <div className="flex flex-col md:flex-row md:items-end gap-3">
+        {/* Status (shadcn Select) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium mb-1">Κατάσταση</label>
-          <select
-            className="border rounded-md px-3 py-2"
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
-          >
-            {STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2">
+            <Select
+              value={statusFilter || undefined} // undefined shows placeholder
+              onValueChange={(v) => {
+                setStatusFilter(v);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Όλες" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {statusFilter && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setStatusFilter("");
+                  setPage(1);
+                }}
+              >
+                Καθαρισμός
+              </Button>
+            )}
+          </div>
         </div>
 
+        {/* Date (shadcn Popover + Calendar) */}
         <div className="flex flex-col">
           <label className="text-sm font-medium mb-1">Ημερομηνία</label>
-          <input
-            type="date"
-            className="border rounded-md px-3 py-2"
-            value={dateFilter}
-            onChange={(e) => {
-              setDateFilter(e.target.value);
-              setPage(1);
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-[220px] justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "dd/MM/yyyy") : "Επιλέξτε ημερομηνία"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate || undefined}
+                  onSelect={(d) => {
+                    if (!d) return;
+                    const iso = format(d, "yyyy-MM-dd");
+                    setDateFilter(iso);
+                    setPage(1);
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            {dateFilter && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setDateFilter("");
+                  setPage(1);
+                }}
+              >
+                Καθαρισμός
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex-1" />
@@ -229,7 +277,9 @@ const ReservationManagement = () => {
         <div className="text-sm text-gray-600">
           {isFetching ? "Φόρτωση..." : ""}
           {pagination && !isFetching
-            ? `Προβολή ${pagination.viewedRecords - pagination.recordsOnCurrentPage + 1}–${pagination.viewedRecords} από ${pagination.total}`
+            ? `Προβολή ${
+                pagination.viewedRecords - pagination.recordsOnCurrentPage + 1
+              }–${pagination.viewedRecords} από ${pagination.total}`
             : ""}
         </div>
       </div>

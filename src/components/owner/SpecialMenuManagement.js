@@ -1,5 +1,5 @@
 // components/owner/SpecialMenuManagement.jsx
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -14,13 +14,20 @@ import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 
-// Reuseable axios instance settings (cookies for auth)
+// ---- Consistent API base (same pattern as your hooks) ----
+const API_BASE =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_BASE_URL) ||
+  process.env.REACT_APP_API_BASE_URL ||
+  "http://localhost:5000";
+
 const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${API_BASE}/api/v1`,
   withCredentials: true,
 });
 
-// simple 30-min slots if you later want time-based availability
+// optional: time slots (kept for future availability UI)
 const timeSlots = Array.from({ length: 48 }, (_, i) => {
   const hour = String(Math.floor(i / 2)).padStart(2, "0");
   const minute = i % 2 === 0 ? "00" : "30";
@@ -46,20 +53,20 @@ const SpecialMenuManagement = () => {
     discounted_price: "",
     availability: {
       type: "permanent", // "permanent" | "daysOfWeek" | "range"
-      daysOfWeek: [], // e.g., ["Mon","Tue"] if you later implement it
+      daysOfWeek: [],
       timeRange: { start: "12:00", end: "22:00" },
     },
   });
 
   // Mutations
-  const createSpecialMenuMutation = useMutation({
+  const createSpecialMenu = useMutation({
     mutationFn: async (payload) => {
       const { data } = await api.post("/specialMenus", payload);
       return data?.specialMenu;
     },
   });
 
-  const linkItemMutation = useMutation({
+  const linkItem = useMutation({
     mutationFn: async ({ special_menu_id, menu_item_id }) => {
       const { data } = await api.post("/special-menu-items", {
         special_menu_id,
@@ -69,8 +76,8 @@ const SpecialMenuManagement = () => {
     },
   });
 
-  const recomputePricesMutation = useMutation({
-    // We PATCH discounted_price to itself (or same value) to trigger recompute on server
+  const recomputePrices = useMutation({
+    // We PATCH discounted_price to itself to trigger recompute on server
     mutationFn: async ({ id, discounted_price }) => {
       const { data } = await api.patch(`/specialMenus/${id}`, {
         discounted_price,
@@ -79,14 +86,13 @@ const SpecialMenuManagement = () => {
     },
   });
 
-  const deleteSpecialMenuMutation = useMutation({
+  const deleteSpecialMenu = useMutation({
     mutationFn: async (id) => {
       const { data } = await api.delete(`/specialMenus/${id}`);
       return data;
     },
   });
 
-  // Effects: basic error surfacing for initial load
   useEffect(() => {
     if (error) {
       toast.error(error?.response?.data?.message || "Αποτυχία φόρτωσης δεδομένων.");
@@ -120,8 +126,8 @@ const SpecialMenuManagement = () => {
     }
 
     try {
-      // 1) create special menu (server ignores client original/discount% and will recompute)
-      const created = await createSpecialMenuMutation.mutateAsync({
+      // 1) Create special menu (server computes original_price/discount_percentage)
+      const created = await createSpecialMenu.mutateAsync({
         name: menuData.name.trim(),
         description: (menuData.description || "").trim() || null,
         discounted_price: parseFloat(menuData.discounted_price),
@@ -130,20 +136,20 @@ const SpecialMenuManagement = () => {
         availability: menuData.availability || null,
       });
 
-      // 2) link selected items
+      // 2) Link selected items
       await Promise.all(
         selectedItems.map((menu_item_id) =>
-          linkItemMutation.mutateAsync({ special_menu_id: created.id, menu_item_id })
+          linkItem.mutateAsync({ special_menu_id: created.id, menu_item_id })
         )
       );
 
-      // 3) force recompute of original_price & discount_percentage after linking
-      await recomputePricesMutation.mutateAsync({
+      // 3) Recompute prices after linking
+      await recomputePrices.mutateAsync({
         id: created.id,
         discounted_price: parseFloat(menuData.discounted_price),
       });
 
-      // 4) refresh owner restaurant (so table updates)
+      // 4) Refresh owner restaurant (so the table updates)
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["ownerRestaurant"] }),
         qc.invalidateQueries({ queryKey: ["ownerOverview"] }),
@@ -152,16 +158,14 @@ const SpecialMenuManagement = () => {
       toast.success("Το special menu δημιουργήθηκε!");
       closeDialog();
     } catch (e) {
-      const msg =
-        e?.response?.data?.message ||
-        "Η δημιουργία special menu απέτυχε.";
+      const msg = e?.response?.data?.message || "Η δημιουργία special menu απέτυχε.";
       toast.error(msg);
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await deleteSpecialMenuMutation.mutateAsync(id);
+      await deleteSpecialMenu.mutateAsync(id);
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["ownerRestaurant"] }),
         qc.invalidateQueries({ queryKey: ["ownerOverview"] }),
@@ -173,9 +177,7 @@ const SpecialMenuManagement = () => {
   };
 
   const isSaving =
-    createSpecialMenuMutation.isPending ||
-    linkItemMutation.isPending ||
-    recomputePricesMutation.isPending;
+    createSpecialMenu.isPending || linkItem.isPending || recomputePrices.isPending;
 
   return (
     <section>
@@ -221,7 +223,7 @@ const SpecialMenuManagement = () => {
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(menu.id)}
-                      disabled={deleteSpecialMenuMutation.isPending}
+                      disabled={deleteSpecialMenu.isPending}
                     >
                       <Trash className="w-4 h-4" />
                     </Button>
@@ -251,7 +253,7 @@ const SpecialMenuManagement = () => {
                   variant="destructive"
                   className="flex-1"
                   onClick={() => handleDelete(menu.id)}
-                  disabled={deleteSpecialMenuMutation.isPending}
+                  disabled={deleteSpecialMenu.isPending}
                 >
                   <Trash className="w-4 h-4 mr-1" /> Διαγραφή
                 </Button>
@@ -289,7 +291,7 @@ const SpecialMenuManagement = () => {
               onChange={(e) => setMenuData({ ...menuData, discounted_price: e.target.value })}
             />
 
-            {/* Availability skeleton (kept simple; backend stores JSONB) */}
+            {/* Availability skeleton (simple) */}
             <div className="grid gap-2">
               <label className="text-sm font-medium">Διαθεσιμότητα</label>
               <Select
@@ -309,7 +311,6 @@ const SpecialMenuManagement = () => {
                 </SelectContent>
               </Select>
 
-              {/* Simple time range controls (optional) */}
               <div className="grid grid-cols-2 gap-2">
                 <Select
                   value={menuData.availability?.timeRange?.start ?? "12:00"}
