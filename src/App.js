@@ -39,11 +39,9 @@ const LoadingHandler = () => {
 
   useEffect(() => {
     dispatch(showLoading());
-
     const timeout = setTimeout(() => {
       dispatch(hideLoading());
-    }, 3000);
-
+    }, 1500); // Reduced timeout for better UX
     return () => clearTimeout(timeout);
   }, [location.pathname, dispatch]);
 
@@ -52,8 +50,6 @@ const LoadingHandler = () => {
 
 const AppRoutes = () => {
   const dispatch = useDispatch();
-  const location = useLocation();
-  const navigate = useNavigate();
   const { data, isLoading } = useAuthStatus();
   const user = useSelector((state) => state.auth.user);
 
@@ -65,19 +61,7 @@ const AppRoutes = () => {
     }
   }, [data, dispatch]);
 
-  useEffect(() => {
-    if (user?.role === "owner") {
-      const publicPaths = ["/", "/reserve", "/restaurant"];
-      const isPublic = publicPaths.some(
-        (p) => location.pathname === p || location.pathname.startsWith(`${p}/`)
-      );
-      if (isPublic) {
-        navigate("/dashboard", { replace: true });
-      }
-    }
-  }, [user, location.pathname, navigate]);
-
-  if (isLoading) return null;
+  if (isLoading) return <PageLoading />; // Show loading indicator while checking auth
 
   const isAuthenticated = !!user;
 
@@ -155,9 +139,9 @@ function App() {
         <ScrollToTop />
         <LoadingHandler />
         <Navbar />
-        <div className="pt-16">
+        <main className="pt-16">
           {isLoading ? <PageLoading /> : <AppRoutes />}
-        </div>
+        </main>
         <Footer />
       </Router>
     </HelmetProvider>

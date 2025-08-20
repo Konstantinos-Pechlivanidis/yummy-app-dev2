@@ -2,8 +2,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+const API_BASE =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_BASE_URL) ||
+  process.env.REACT_APP_API_BASE_URL ||
+  "http://localhost:5000";
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1/coupons",
+  baseURL: `${API_BASE}/api/v1/coupons`,
   withCredentials: true,
 });
 
@@ -19,12 +26,12 @@ const translateCouponError = (error) => {
   if (message.includes("No coupons found")) return "Δεν βρέθηκαν κουπόνια.";
   if (message.includes("Failed to fetch user coupons")) return "Αποτυχία φόρτωσης κουπονιών.";
   if (message.includes("Failed to load available coupons")) return "Δεν ήταν δυνατή η ανάκτηση διαθέσιμων κουπονιών.";
-  if (message.includes("Failed to purchase coupon")) return "Αποτυχία αγοράς κουπονιού.";
+  if (message.includes("Αποτυχία αγοράς")) return "Αποτυχία αγοράς κουπονιού.";
   if (message.includes("coupon_id is required")) return "Δεν στάλθηκε το κουπόνι.";
-
   return "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.";
 };
 
+/** Εστιατόρια στα οποία ο χρήστης έχει αγορασμένα κουπόνια */
 export const useRestaurantsWithPurchasedCoupons = () => {
   return useQuery({
     queryKey: ["restaurantsWithPurchasedCoupons"],
@@ -36,6 +43,7 @@ export const useRestaurantsWithPurchasedCoupons = () => {
   });
 };
 
+/** Τα κουπόνια του χρήστη με pagination */
 export const useUserCoupons = (page = 1, pageSize = 10) => {
   return useQuery({
     queryKey: ["userCoupons", page, pageSize],
@@ -49,6 +57,7 @@ export const useUserCoupons = (page = 1, pageSize = 10) => {
   });
 };
 
+/** Διαθέσιμα κουπόνια για συγκεκριμένο εστιατόριο (pagination at outer query) */
 export const useAvailableCoupons = (restaurantId, page = 1, pageSize = 10) => {
   return useQuery({
     queryKey: ["availableCoupons", restaurantId, page, pageSize],
@@ -63,20 +72,66 @@ export const useAvailableCoupons = (restaurantId, page = 1, pageSize = 10) => {
   });
 };
 
+/** Αγορά κουπονιού (REST alias) */
 export const usePurchaseCoupon = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (couponId) => {
-      const { data } = await axiosInstance.post("/purchase", {
-        coupon_id: couponId,
-      });
+      // New REST-style alias. If you prefer the old route, call POST /purchase with { coupon_id }.
+      const { data } = await axiosInstance.post(`/${couponId}/purchase`);
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["restaurantsWithPurchasedCoupons"]);
-      queryClient.invalidateQueries(["userCoupons"]);
-      queryClient.invalidateQueries(["availableCoupons"]);
+      toast.success("Αγοράστηκε!");
+      queryClient.invalidateQueries({ queryKey: ["restaurantsWithPurchasedCoupons"] });
+      queryClient.invalidateQueries({ queryKey: ["userCoupons"] });
+      queryClient.invalidateQueries({ queryKey: ["availableCoupons"] });
+    },
+    onError: (err) => toast.error(translateCouponError(err)),
+  });
+};
+
+export const useCreateCoupon = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload) => {
+      const { data } = await axiosInstance.post("/creation", payload);
+      return data.coupon;
+    },
+    onSuccess: () => {
+      toast.success("Δημιουργήθηκε!");
+      qc.invalidateQueries({ queryKey: ["ownerRestaurant"] });
+    },
+    onError: (err) => toast.error(translateCouponError(err)),
+  });
+};
+
+export const useEditCoupon = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ couponId, ...patch }) => {
+      const { data } = await axiosInstance.patch(`/${couponId}`, patch);
+      return data.coupon;
+    },
+    onSuccess: () => {
+      toast.success("Αποθηκεύτηκε!");
+      qc.invalidateQueries({ queryKey: ["ownerRestaurant"] });
+    },
+    onError: (err) => toast.error(translateCouponError(err)),
+  });
+};
+
+export const useDeleteCoupon = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (couponId) => {
+      const { data } = await axiosInstance.delete(`/${couponId}`);
+      return data.coupon;
+    },
+    onSuccess: () => {
+      toast.success("Διαγράφηκε!");
+      qc.invalidateQueries({ queryKey: ["ownerRestaurant"] });
     },
     onError: (err) => toast.error(translateCouponError(err)),
   });

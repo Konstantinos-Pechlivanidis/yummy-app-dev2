@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useLogout } from "../hooks/customer/useAuth";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 
 const Navbar = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -27,8 +27,8 @@ const Navbar = () => {
   ];
 
   const ownerLinks = [
-    { name: "Πίνακας Ελέγχου", path: "/dashboard" },
-    { name: "Προφίλ", path: "/profile" },
+    { name: "Πίνακας Ελέγχου", path: "/owner/dashboard" },
+    { name: "Προφίλ", path: "/owner/profile" }, // Corrected path
   ];
 
   const renderLinks = () => {
@@ -38,8 +38,7 @@ const Navbar = () => {
     return [];
   };
 
-  const logoLink =
-    isAuthenticated && user?.role === "owner" ? "/dashboard" : "/";
+  const logoLink = isAuthenticated && user?.role === "owner" ? "/owner/dashboard" : "/";
 
   return (
     <nav className="bg-white shadow-md fixed w-full top-0 z-50">
@@ -50,12 +49,12 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex space-x-6">
+        <div className="hidden md:flex items-center space-x-6">
           {renderLinks().map((link) => (
             <Link
               key={link.name}
               to={link.path}
-              className="hover:text-primary transition"
+              className="text-gray-700 hover:text-primary transition font-medium"
             >
               {link.name}
             </Link>
@@ -65,25 +64,25 @@ const Navbar = () => {
         {/* User Menu */}
         <div className="hidden md:flex items-center space-x-4">
           {isAuthenticated ? (
-            <div className="relative group">
-              <Button variant="outline" className="flex items-center space-x-2">
-                <span>{user.name}</span>
-              </Button>
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 hover:bg-gray-100"
-                >
-                  Προφίλ
-                </Link>
-                <Button
-                  onClick={() => setLogoutDialogOpen(true)}
-                  className="w-full text-left px-4 py-2"
-                >
-                  Αποσύνδεση
-                </Button>
-              </div>
-            </div>
+             <div className="relative group">
+               <Button variant="outline" className="flex items-center space-x-2">
+                 <span>{user.name}</span>
+               </Button>
+               <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                 <Link
+                   to={user.role === 'owner' ? '/owner/profile' : '/profile'}
+                   className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                 >
+                   Προφίλ
+                 </Link>
+                 <button
+                   onClick={() => setLogoutDialogOpen(true)}
+                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                 >
+                   Αποσύνδεση
+                 </button>
+               </div>
+             </div>
           ) : (
             <Link to="/login">
               <Button>Σύνδεση</Button>
@@ -120,8 +119,12 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <Button
-              onClick={() => setLogoutDialogOpen(true)}
-              className="w-full text-left px-4 py-2"
+              variant="ghost"
+              onClick={() => {
+                setLogoutDialogOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full justify-start text-red-600"
             >
               Αποσύνδεση
             </Button>
@@ -136,14 +139,16 @@ const Navbar = () => {
           )}
         </div>
       )}
+      
+      {/* Logout Confirmation Dialog */}
       <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <DialogContent className="space-y-4">
           <DialogHeader>
             <DialogTitle>❗ Επιβεβαίωση Αποσύνδεσης</DialogTitle>
+            <DialogDescription>
+              Θέλεις σίγουρα να αποσυνδεθείς από τον λογαριασμό σου;
+            </DialogDescription>
           </DialogHeader>
-          <p className="text-sm text-gray-700">
-            Θέλεις σίγουρα να αποσυνδεθείς από τον λογαριασμό σου;
-          </p>
           <div className="flex justify-end gap-4">
             <Button
               variant="outline"

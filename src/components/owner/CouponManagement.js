@@ -1,57 +1,150 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+// components/dashboard/CouponManagement.jsx
+import { useEffect, useMemo, useState } from "react";
 import { PlusCircle, Trash } from "lucide-react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "../ui/dialog";
 import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
-import { addCoupon, removeCoupon } from "../../store/couponSlice";
 import { Input } from "../ui/input";
-import { TabsContent } from "../ui/tabs";
+import toast from "react-hot-toast";
+
+import { useOwnerRestaurant } from "../../hooks/owner/useOwnerRestaurant";
+import {
+  useCreateCoupon,
+  useDeleteCoupon,
+} from "../../hooks/customer/useCoupons";
+
+const initialForm = {
+  description: "",
+  discount_percentage: "",
+  required_points: "",
+};
 
 const CouponManagement = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const coupons = useSelector((state) => state.coupons.coupons);
-  const restaurants = useSelector((state) => state.menus.restaurants);
+  /* --------------------------- data sources --------------------------- */
+  const { data: restaurant, isLoading: loadingRestaurant } =
+    useOwnerRestaurant();
 
-  const ownerRestaurant = restaurants.find((r) => r.ownerId === user.id);
-  const restaurantCoupons = coupons.filter((coupon) => coupon.restaurant_id === ownerRestaurant?.id);
+  const coupons = useMemo(
+    () => restaurant?.coupons ?? [],
+    [restaurant?.coupons]
+  );
 
+  const {
+    mutate: createCoupon,
+    isPending: creating,
+  } = useCreateCoupon();
+
+  const {
+    mutate: deleteCoupon,
+    isPending: deletingGlobal, // overall pending; we’ll track per-id too for button UI
+  } = useDeleteCoupon();
+
+  /* ------------------------------ local ui ---------------------------- */
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [couponData, setCouponData] = useState({
-    description: "",
-    discount_percentage: "",
-  });
+  const [couponData, setCouponData] = useState(initialForm);
+  const [deletingId, setDeletingId] = useState(null);
 
-  const openDialog = () => {
-    setIsDialogOpen(true);
-    setCouponData({ description: "", discount_percentage: "" });
+  useEffect(() => {
+    if (!isDialogOpen) setCouponData(initialForm);
+  }, [isDialogOpen]);
+
+  const openDialog = () => setIsDialogOpen(true);
+  const closeDialog = () => setIsDialogOpen(false);
+
+  const onChange = (key, val) => {
+    setCouponData((prev) => ({ ...prev, [key]: val }));
   };
 
-  const closeDialog = () => {
-    setIsDialogOpen(false);
+  /* ---------------------------- validations --------------------------- */
+  const validate = () => {
+    const { description, discount_percentage, required_points } = couponData;
+
+    if (!restaurant?.id) {
+      toast.error("Δεν βρέθηκε το εστιατόριο.");
+      return false;
+    }
+
+    if (!description || description.trim().length < 3) {
+      toast.error("Η περιγραφή πρέπει να έχει τουλάχιστον 3 χαρακτήρες.");
+      return false;
+    }
+
+    const pct = Number(discount_percentage);
+    if (!Number.isFinite(pct) || pct <= 0 || pct > 100) {
+      toast.error("Το ποσοστό έκπτωσης πρέπει να είναι 1–100.");
+      return false;
+    }
+
+    const points = Number(required_points);
+    if (!Number.isInteger(points) || points < 0) {
+      toast.error("Οι απαιτούμενοι πόντοι πρέπει να είναι μη αρνητικός ακέραιος.");
+      return false;
+    }
+
+    return true;
   };
 
+  /* ------------------------------ actions ----------------------------- */
   const handleSave = () => {
-    if (!couponData.description || !couponData.discount_percentage) return;
+    if (!validate()) return;
 
-    dispatch(
-      addCoupon({
-        restaurant_id: ownerRestaurant.id,
-        description: couponData.description,
-        discount_percentage: parseFloat(couponData.discount_percentage),
-      })
+    createCoupon(
+      {
+        restaurant_id: restaurant.id,
+        description: couponData.description.trim(),
+        discount_percentage: Number(couponData.discount_percentage),
+        required_points: Number(couponData.required_points),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Το κουπόνι δημιουργήθηκε με επιτυχία!");
+          closeDialog();
+        },
+        onError: (err) => {
+          const msg =
+            err?.response?.data?.message || "Η δημιουργία απέτυχε.";
+          toast.error(msg);
+        },
+      }
     );
-
-    closeDialog();
   };
+
+  const handleDelete = (couponId) => {
+    setDeletingId(couponId);
+    deleteCoupon(couponId, {
+      onSuccess: () => toast.success("Το κουπόνι διαγράφηκε."),
+      onError: (err) => {
+        const msg =
+          err?.response?.data?.message ||
+          "Η διαγραφή απέτυχε.";
+        toast.error(msg);
+      },
+      onSettled: () => setDeletingId(null),
+    });
+  };
+
+  /* ------------------------------- render ----------------------------- */
+  if (loadingRestaurant) {
+    return <p>Φόρτωση...</p>;
+  }
 
   return (
     <section>
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Διαχείριση Κουπονιών</h2>
-        <Button className="bg-green-500 text-white flex items-center" onClick={openDialog}>
-          <PlusCircle className="mr-2" /> Δημιουργία Κουπονιού
+        <Button
+          className="bg-green-500 text-white flex items-center"
+          onClick={openDialog}
+          disabled={!restaurant?.id}
+        >
+          <PlusCircle className="mr-2 h-5 w-5" /> Δημιουργία Κουπονιού
         </Button>
       </div>
 
@@ -61,63 +154,114 @@ const CouponManagement = () => {
           <TableHead>
             <TableRow>
               <TableCell>Περιγραφή</TableCell>
-              <TableCell>Έκπτωση</TableCell>
-              <TableCell>Ενέργειες</TableCell>
+              <TableCell>Έκπτωση (%)</TableCell>
+              <TableCell>Απαιτούμενοι Πόντοι</TableCell>
+              <TableCell className="text-right">Ενέργειες</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {restaurantCoupons.map((coupon) => (
-              <TableRow key={coupon.id}>
-                <TableCell>{coupon.description}</TableCell>
-                <TableCell>{coupon.discount_percentage}%</TableCell>
-                <TableCell>
-                  <Button className="bg-red-500 text-white" onClick={() => dispatch(removeCoupon(coupon.id))}>
-                    <Trash className="w-4 h-4" /> Διαγραφή
-                  </Button>
+            {coupons.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-gray-500">
+                  Δεν υπάρχουν κουπόνια.
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              coupons.map((coupon) => (
+                <TableRow key={coupon.id}>
+                  <TableCell>{coupon.description}</TableCell>
+                  <TableCell>{coupon.discount_percentage}%</TableCell>
+                  <TableCell>{coupon.required_points}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(coupon.id)}
+                      disabled={deletingGlobal || deletingId === coupon.id}
+                    >
+                      <Trash className="w-4 h-4 mr-1" />
+                      {deletingId === coupon.id ? "Διαγραφή..." : "Διαγραφή"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
 
       {/* Mobile View */}
       <div className="md:hidden flex flex-col gap-4">
-        {restaurantCoupons.map((coupon) => (
-          <div key={coupon.id} className="bg-white p-4 rounded-lg shadow-md flex flex-col gap-2">
-            <p className="text-gray-600 font-semibold">📜 {coupon.description}</p>
-            <p className="text-gray-600">💰 Έκπτωση: {coupon.discount_percentage}%</p>
-            <Button className="bg-red-500 text-white flex-1" onClick={() => dispatch(removeCoupon(coupon.id))}>
-              <Trash className="w-4 h-4" /> Διαγραφή
-            </Button>
-          </div>
-        ))}
+        {coupons.length === 0 ? (
+          <div className="text-center text-gray-500">Δεν υπάρχουν κουπόνια.</div>
+        ) : (
+          coupons.map((coupon) => (
+            <div
+              key={coupon.id}
+              className="bg-white p-4 rounded-lg shadow-md flex flex-col gap-2"
+            >
+              <p className="font-semibold">📜 {coupon.description}</p>
+              <p className="text-gray-600">💰 Έκπτωση: {coupon.discount_percentage}%</p>
+              <p className="text-gray-600">⭐ Πόντοι: {coupon.required_points}</p>
+              <Button
+                variant="destructive"
+                className="mt-2"
+                onClick={() => handleDelete(coupon.id)}
+                disabled={deletingGlobal || deletingId === coupon.id}
+              >
+                <Trash className="w-4 h-4 mr-1" />
+                {deletingId === coupon.id ? "Διαγραφή..." : "Διαγραφή"}
+              </Button>
+            </div>
+          ))
+        )}
       </div>
 
-      {/* Dialog για Δημιουργία Κουπονιού */}
-      <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
+      {/* Dialog for Creating a Coupon */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <h2 className="text-lg font-bold">Δημιουργία Κουπονιού</h2>
+            <DialogTitle>Δημιουργία Νέου Κουπονιού</DialogTitle>
+            <DialogDescription>
+              Συμπληρώστε τα στοιχεία του κουπονιού που θέλετε να προσφέρετε.
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 py-4">
             <Input
-              placeholder="Περιγραφή"
+              placeholder="Περιγραφή (π.χ. 15% έκπτωση στα κυρίως)"
               value={couponData.description}
-              onChange={(e) => setCouponData({ ...couponData, description: e.target.value })}
+              onChange={(e) => onChange("description", e.target.value)}
             />
             <Input
               type="number"
               placeholder="Ποσοστό Έκπτωσης (%)"
               value={couponData.discount_percentage}
-              onChange={(e) => setCouponData({ ...couponData, discount_percentage: e.target.value })}
+              onChange={(e) => onChange("discount_percentage", e.target.value)}
+              min={1}
+              max={100}
+            />
+            <Input
+              type="number"
+              placeholder="Απαιτούμενοι Πόντοι"
+              value={couponData.required_points}
+              onChange={(e) => onChange("required_points", e.target.value)}
+              min={0}
+              step={1}
             />
           </div>
 
           <DialogFooter>
-            <Button className="bg-gray-500 text-white" onClick={closeDialog}>Άκυρο</Button>
-            <Button className="bg-green-500 text-white" onClick={handleSave}>Αποθήκευση</Button>
+            <Button variant="outline" onClick={closeDialog}>
+              Άκυρο
+            </Button>
+            <Button
+              className="bg-green-500 text-white"
+              onClick={handleSave}
+              disabled={creating}
+            >
+              {creating ? "Αποθήκευση..." : "Αποθήκευση"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

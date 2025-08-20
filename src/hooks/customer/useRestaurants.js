@@ -2,8 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+const API_BASE =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_API_BASE_URL) ||
+  process.env.REACT_APP_API_BASE_URL ||
+  "http://localhost:5000";
+
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1/restaurant",
+  baseURL: `${API_BASE}/api/v1/restaurant`,
   withCredentials: true,
 });
 
@@ -19,7 +26,6 @@ const translateRestaurantError = (error) => {
     return "Αποτυχία φόρτωσης εστιατορίων.";
   if (message.includes("Failed to load restaurant details"))
     return "Αποτυχία φόρτωσης στοιχείων εστιατορίου.";
-
   return "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.";
 };
 
@@ -87,7 +93,7 @@ export const useDiscountedRestaurants = (page = 1, pageSize = 10) => {
       const { data } = await axiosInstance.get(
         `/discounted?page=${page}&pageSize=${pageSize}`
       );
-      return data; // Δεν γίνεται mapping γιατί είναι special_menus με nested restaurant
+      return data; // επιστρέφει special_menus με nested restaurant
     },
     onError: (err) => toast.error(translateRestaurantError(err)),
   });
@@ -146,7 +152,8 @@ export const useRestaurantDetails = (id) => {
   return useQuery({
     queryKey: ["restaurant", id],
     queryFn: async () => {
-      const { data } = await axiosInstance.get(`/id/${id}`);
+      // χρησιμοποιούμε το REST alias GET /:id
+      const { data } = await axiosInstance.get(`/${id}`);
       return {
         ...data,
         restaurant: translateRestaurant(data.restaurant),

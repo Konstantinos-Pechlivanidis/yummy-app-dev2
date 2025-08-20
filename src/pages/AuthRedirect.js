@@ -1,31 +1,39 @@
-import { useOwnerAuthStatus } from "../hooks/owner/useOwnerAuth";
-import { useAuthStatus } from "../hooks/customer/useAuth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Loading from "../components/Loading";
+import { useAuthStatus } from "../hooks/customer/useAuth"; // 👈 THE FIX: Use the unified hook
+import PageLoading from "../components/PageLoading";
+import toast from "react-hot-toast";
 
-const AuthRedirect = ({ role = "customer" }) => {
+const AuthRedirect = () => {
   const navigate = useNavigate();
-
-  // Χρησιμοποιούμε και τα δύο hooks πάντα
-  const ownerStatus = useOwnerAuthStatus();
-  const customerStatus = useAuthStatus();
-
-  // Επιλέγουμε το σωστό status μετά την κλήση των hooks
-  const authStatus = role === "owner" ? ownerStatus : customerStatus;
-  const { data, isLoading } = authStatus;
+  // Use the single, unified auth status hook. It works for both customers and owners.
+  const { data, isLoading, isError } = useAuthStatus();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (data?.loggedIn) {
-        navigate(role === "owner" ? "/owner/dashboard" : "/");
+    if (!isLoading && data) {
+      if (data.loggedIn && data.user) {
+        // Check the user's role from the successful auth check and navigate accordingly
+        if (data.user.role === "owner") {
+          navigate("/owner/dashboard", { replace: true });
+        } else {
+          // Default to the customer homepage for any other role
+          navigate("/", { replace: true });
+        }
       } else {
-        navigate(role === "owner" ? "/owner/login" : "/login");
+        // If not logged in for any reason, redirect to the main login page
+        toast.error("Η αυτόματη σύνδεση απέτυχε. Παρακαλώ συνδεθείτε ξανά.");
+        navigate("/login", { replace: true });
       }
     }
-  }, [data, isLoading, navigate, role]);
+  }, [data, isLoading, navigate]);
+  
+  if (isError) {
+      toast.error("Παρουσιάστηκε σφάλμα κατά τον έλεγχο της σύνδεσης.");
+      navigate("/login", { replace: true });
+  }
 
-  return <Loading />;
+  // Display a loading indicator while the auth status is being checked
+  return <PageLoading />;
 };
 
 export default AuthRedirect;

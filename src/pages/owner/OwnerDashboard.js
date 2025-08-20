@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { selectAuth } from "../../store/authSlice";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Separator } from "../../components/ui/separator";
@@ -15,7 +16,7 @@ import ReservationManagement from "../../components/owner/ReservationManagement"
 import OverviewManagement from "../../components/owner/OverviewManagement";
 
 const OwnerDashboard = () => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector(selectAuth);
   const navigate = useNavigate();
 
   if (!isAuthenticated || user?.role !== "owner") {

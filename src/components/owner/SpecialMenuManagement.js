@@ -1,54 +1,43 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { format } from "date-fns";
-import { PlusCircle, Trash, CalendarIcon } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "../ui/dialog";
+// components/owner/SpecialMenuManagement.jsx
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { PlusCircle, Trash } from "lucide-react";
+
+import { useOwnerRestaurant } from "../../hooks/owner/useOwnerRestaurant";
+
 import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "../ui/dialog";
 import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "../ui/select";
-import { Calendar } from "../ui/calendar";
-import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
-import { addSpecialMenu, removeSpecialMenu } from "../../store/specialMenuSlice";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 
-const timeSlots = Array.from({ length: 24 * 2 }, (_, i) => {
+// Reuseable axios instance settings (cookies for auth)
+const api = axios.create({
+  baseURL: "/api/v1",
+  withCredentials: true,
+});
+
+// simple 30-min slots if you later want time-based availability
+const timeSlots = Array.from({ length: 48 }, (_, i) => {
   const hour = String(Math.floor(i / 2)).padStart(2, "0");
   const minute = i % 2 === 0 ? "00" : "30";
   return `${hour}:${minute}`;
 });
 
-const greekDays = [
-  "Δευτέρα",
-  "Τρίτη",
-  "Τετάρτη",
-  "Πέμπτη",
-  "Παρασκευή",
-  "Σάββατο",
-  "Κυριακή",
-];
-
 const SpecialMenuManagement = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
-  const special_menus = useSelector((state) => state.special_menus.special_menus);
-  const restaurants = useSelector((state) => state.menus.restaurants);
-  const menu_items = useSelector((state) => state.menus.menu_items);
+  const qc = useQueryClient();
 
-  const ownerRestaurant = restaurants.find((r) => r.ownerId === user.id);
-  const restaurantSpecialMenus = special_menus.filter(
-    (m) => m.restaurant_id === ownerRestaurant?.id
-  );
-  const availableItems = menu_items.filter(
-    (item) => item.restaurant_id === ownerRestaurant?.id
-  );
+  // Pull the owner’s restaurant, its special menus and menu items
+  const { data: restaurant, isLoading, error } = useOwnerRestaurant();
 
+  const specialMenus = restaurant?.special_menus ?? [];
+  const menuItems = restaurant?.menu_items ?? [];
+  const restaurantId = restaurant?.id;
+
+  // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [menuData, setMenuData] = useState({
@@ -56,12 +45,53 @@ const SpecialMenuManagement = () => {
     description: "",
     discounted_price: "",
     availability: {
-      type: "specific",
-      dates: [],
-      daysOfWeek: [],
-      timeRange: { start: "12:00", end: "16:00" },
+      type: "permanent", // "permanent" | "daysOfWeek" | "range"
+      daysOfWeek: [], // e.g., ["Mon","Tue"] if you later implement it
+      timeRange: { start: "12:00", end: "22:00" },
     },
   });
+
+  // Mutations
+  const createSpecialMenuMutation = useMutation({
+    mutationFn: async (payload) => {
+      const { data } = await api.post("/specialMenus", payload);
+      return data?.specialMenu;
+    },
+  });
+
+  const linkItemMutation = useMutation({
+    mutationFn: async ({ special_menu_id, menu_item_id }) => {
+      const { data } = await api.post("/special-menu-items", {
+        special_menu_id,
+        menu_item_id,
+      });
+      return data;
+    },
+  });
+
+  const recomputePricesMutation = useMutation({
+    // We PATCH discounted_price to itself (or same value) to trigger recompute on server
+    mutationFn: async ({ id, discounted_price }) => {
+      const { data } = await api.patch(`/specialMenus/${id}`, {
+        discounted_price,
+      });
+      return data?.specialMenu;
+    },
+  });
+
+  const deleteSpecialMenuMutation = useMutation({
+    mutationFn: async (id) => {
+      const { data } = await api.delete(`/specialMenus/${id}`);
+      return data;
+    },
+  });
+
+  // Effects: basic error surfacing for initial load
+  useEffect(() => {
+    if (error) {
+      toast.error(error?.response?.data?.message || "Αποτυχία φόρτωσης δεδομένων.");
+    }
+  }, [error]);
 
   const openDialog = () => {
     setIsDialogOpen(true);
@@ -70,343 +100,288 @@ const SpecialMenuManagement = () => {
       name: "",
       description: "",
       discounted_price: "",
-      availability: {
-        type: "specific",
-        dates: [],
-        daysOfWeek: [],
-        timeRange: { start: "12:00", end: "16:00" },
-      },
+      availability: { type: "permanent", daysOfWeek: [], timeRange: { start: "12:00", end: "22:00" } },
     });
   };
+  const closeDialog = () => setIsDialogOpen(false);
 
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedItems([]);
+  const handleToggleItem = (id) => {
+    setSelectedItems((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
-  const toggleDay = (day) => {
-    setMenuData((prev) => {
-      const current = prev.availability.daysOfWeek;
-      return {
-        ...prev,
-        availability: {
-          ...prev.availability,
-          daysOfWeek: current.includes(day)
-            ? current.filter((d) => d !== day)
-            : [...current, day],
-        },
-      };
-    });
-  };
-
-  const handleSave = () => {
-    const { name, description, discounted_price, availability } = menuData;
-
-    if (!name || !description || !discounted_price || selectedItems.length === 0)
+  const handleSave = async () => {
+    if (!restaurantId) {
+      toast.error("Δεν βρέθηκε το εστιατόριο.");
       return;
+    }
+    if (!menuData.name || !menuData.discounted_price || selectedItems.length === 0) {
+      toast.error("Συμπληρώστε όνομα, τιμή προσφοράς και επιλέξτε τουλάχιστον ένα πιάτο.");
+      return;
+    }
 
-    dispatch(
-      addSpecialMenu({
-        restaurant_id: ownerRestaurant.id,
-        name,
-        description,
-        discounted_price: parseFloat(discounted_price),
-        selectedItems: availableItems
-          .filter((item) => selectedItems.includes(item.id))
-          .map((item) => ({ id: item.id, name: item.name })),
-        availability,
-      })
-    );
+    try {
+      // 1) create special menu (server ignores client original/discount% and will recompute)
+      const created = await createSpecialMenuMutation.mutateAsync({
+        name: menuData.name.trim(),
+        description: (menuData.description || "").trim() || null,
+        discounted_price: parseFloat(menuData.discounted_price),
+        photo_url: null,
+        restaurant_id: restaurantId,
+        availability: menuData.availability || null,
+      });
 
-    closeDialog();
+      // 2) link selected items
+      await Promise.all(
+        selectedItems.map((menu_item_id) =>
+          linkItemMutation.mutateAsync({ special_menu_id: created.id, menu_item_id })
+        )
+      );
+
+      // 3) force recompute of original_price & discount_percentage after linking
+      await recomputePricesMutation.mutateAsync({
+        id: created.id,
+        discounted_price: parseFloat(menuData.discounted_price),
+      });
+
+      // 4) refresh owner restaurant (so table updates)
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["ownerRestaurant"] }),
+        qc.invalidateQueries({ queryKey: ["ownerOverview"] }),
+      ]);
+
+      toast.success("Το special menu δημιουργήθηκε!");
+      closeDialog();
+    } catch (e) {
+      const msg =
+        e?.response?.data?.message ||
+        "Η δημιουργία special menu απέτυχε.";
+      toast.error(msg);
+    }
   };
 
-  const handleItemSelection = (id) => {
-    setSelectedItems((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+  const handleDelete = async (id) => {
+    try {
+      await deleteSpecialMenuMutation.mutateAsync(id);
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["ownerRestaurant"] }),
+        qc.invalidateQueries({ queryKey: ["ownerOverview"] }),
+      ]);
+      toast.success("Το special menu διαγράφηκε.");
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Η διαγραφή απέτυχε.");
+    }
   };
+
+  const isSaving =
+    createSpecialMenuMutation.isPending ||
+    linkItemMutation.isPending ||
+    recomputePricesMutation.isPending;
 
   return (
     <section>
-      <div className="flex justify-between mb-4">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Διαχείριση Special Menus</h2>
         <Button className="bg-green-600 text-white" onClick={openDialog}>
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Δημιουργία Special Menu
+          <PlusCircle className="w-5 h-5 mr-2" /> Δημιουργία Special Menu
         </Button>
       </div>
 
-      {/* Table */}
-      <div className="hidden md:block">
-        <Table>
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
+        <Table className="min-w-full">
           <TableHead>
             <TableRow>
               <TableCell>Όνομα</TableCell>
-              <TableCell>Περιγραφή</TableCell>
-              <TableCell>Τιμή</TableCell>
-              <TableCell>Ώρες</TableCell>
-              <TableCell>Ενέργειες</TableCell>
+              <TableCell>Τιμή Προσφοράς</TableCell>
+              <TableCell>Αρχική Τιμή</TableCell>
+              <TableCell>Έκπτωση</TableCell>
+              <TableCell className="text-right">Ενέργειες</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {restaurantSpecialMenus.map((menu) => (
-              <TableRow key={menu.id}>
-                <TableCell>{menu.name}</TableCell>
-                <TableCell>{menu.description}</TableCell>
-                <TableCell>€{menu.discounted_price}</TableCell>
-                <TableCell>{menu.availability.type}</TableCell>
-                <TableCell>
-                  {menu.availability.type === "specific" &&
-                    menu.availability.dates?.join(", ")}
-                  {menu.availability.type === "recurring" &&
-                    menu.availability.daysOfWeek?.join(", ")}
-                  {menu.availability.type === "permanent" && "Καθημερινά"}
-                </TableCell>
-                <TableCell>
-                  {menu.availability.timeRange.start} –{" "}
-                  {menu.availability.timeRange.end}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    className="bg-red-500 text-white"
-                    onClick={() => dispatch(removeSpecialMenu(menu.id))}
-                  >
-                    <Trash className="w-4 h-4" />
-                  </Button>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center">Φόρτωση...</TableCell>
+              </TableRow>
+            ) : specialMenus.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-gray-500">
+                  Δεν υπάρχουν special menus.
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              specialMenus.map((menu) => (
+                <TableRow key={menu.id}>
+                  <TableCell>{menu.name}</TableCell>
+                  <TableCell>€{menu.discounted_price}</TableCell>
+                  <TableCell>€{menu.original_price ?? "—"}</TableCell>
+                  <TableCell>{menu.discount_percentage ?? "—"}%</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(menu.id)}
+                      disabled={deleteSpecialMenuMutation.isPending}
+                    >
+                      <Trash className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
 
-      {/* Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={closeDialog}>
-        <DialogContent>
+      {/* Mobile cards */}
+      <div className="md:hidden flex flex-col gap-4">
+        {isLoading ? (
+          <div className="text-center">Φόρτωση...</div>
+        ) : specialMenus.length === 0 ? (
+          <div className="text-center text-gray-500">Δεν υπάρχουν special menus.</div>
+        ) : (
+          specialMenus.map((menu) => (
+            <div key={menu.id} className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold">{menu.name}</h3>
+              <p className="text-gray-600">💰 Προσφορά: €{menu.discounted_price}</p>
+              <p className="text-gray-600">🏷️ Αρχική: €{menu.original_price ?? "—"}</p>
+              <p className="text-gray-600">📉 Έκπτωση: {menu.discount_percentage ?? "—"}%</p>
+              <div className="flex gap-2 mt-3">
+                <Button
+                  variant="destructive"
+                  className="flex-1"
+                  onClick={() => handleDelete(menu.id)}
+                  disabled={deleteSpecialMenuMutation.isPending}
+                >
+                  <Trash className="w-4 h-4 mr-1" /> Διαγραφή
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Create dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[520px]">
           <DialogHeader>
-            <h3 className="text-lg font-bold">Νέο Special Menu</h3>
+            <DialogTitle>Νέο Special Menu</DialogTitle>
+            <DialogDescription>
+              Δημιουργήστε μια προσφορά συνδυάζοντας πιάτα από το μενού σας.
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="grid gap-4 py-4">
             <Input
-              placeholder="Όνομα"
+              placeholder="Όνομα (π.χ. 'Μεσημεριανό Deal')"
               value={menuData.name}
-              onChange={(e) =>
-                setMenuData({ ...menuData, name: e.target.value })
-              }
+              onChange={(e) => setMenuData({ ...menuData, name: e.target.value })}
             />
             <Input
-              placeholder="Περιγραφή"
+              placeholder="Περιγραφή (προαιρετική)"
               value={menuData.description}
-              onChange={(e) =>
-                setMenuData({ ...menuData, description: e.target.value })
-              }
+              onChange={(e) => setMenuData({ ...menuData, description: e.target.value })}
             />
             <Input
-              placeholder="Τιμή (€)"
+              placeholder="Τιμή Προσφοράς (€)"
               type="number"
               value={menuData.discounted_price}
-              onChange={(e) =>
-                setMenuData({ ...menuData, discounted_price: e.target.value })
-              }
+              onChange={(e) => setMenuData({ ...menuData, discounted_price: e.target.value })}
             />
 
-            <div>
-              <label className="text-sm font-semibold block mb-1">
-                Επιλογή Πιάτων
-              </label>
-              {availableItems.map((item) => (
-                <label key={item.id} className="flex gap-2 items-center mb-1">
-                  <Checkbox
-                    checked={selectedItems.includes(item.id)}
-                    onCheckedChange={() => handleItemSelection(item.id)}
-                  />
-                  <span>
-                    {item.name} (€{item.price})
-                  </span>
-                </label>
-              ))}
-            </div>
-
-            {/* Availability Type */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold">
-                Τύπος Διαθεσιμότητας
-              </label>
+            {/* Availability skeleton (kept simple; backend stores JSONB) */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Διαθεσιμότητα</label>
               <Select
-                value={menuData.availability.type}
-                onValueChange={(val) =>
-                  setMenuData((prev) => ({
-                    ...prev,
-                    availability: {
-                      ...prev.availability,
-                      type: val,
-                      ...(val === "specific"
-                        ? { dates: [] }
-                        : val === "recurring"
-                        ? { daysOfWeek: [] }
-                        : {}),
-                    },
+                value={menuData.availability?.type ?? "permanent"}
+                onValueChange={(v) =>
+                  setMenuData((m) => ({
+                    ...m,
+                    availability: { ...(m.availability || {}), type: v },
                   }))
                 }
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Επιλέξτε τύπο" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="specific">
-                    Συγκεκριμένες Ημερομηνίες
-                  </SelectItem>
-                  <SelectItem value="recurring">Επαναλαμβανόμενο</SelectItem>
                   <SelectItem value="permanent">Μόνιμο</SelectItem>
+                  <SelectItem value="daysOfWeek">Ημέρες Εβδομάδας</SelectItem>
+                  <SelectItem value="range">Εύρος Ώρας</SelectItem>
                 </SelectContent>
               </Select>
 
-              {/* Specific Dates */}
-              {menuData.availability.type === "specific" && (
-                <div>
-                  <label className="text-sm text-gray-600 mb-1 block">
-                    Επιλέξτε Ημερομηνίες
-                  </label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                      >
-                        Προσθήκη Ημερομηνίας
-                        <CalendarIcon className="ml-auto w-4 h-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <Calendar
-                        mode="single"
-                        selected={null}
-                        onSelect={(date) =>
-                          setMenuData((prev) => ({
-                            ...prev,
-                            availability: {
-                              ...prev.availability,
-                              dates: [
-                                ...new Set([
-                                  ...prev.availability.dates,
-                                  format(date, "yyyy-MM-dd"),
-                                ]),
-                              ],
-                            },
-                          }))
-                        }
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <div className="text-xs text-gray-500 mt-2">
-                    {menuData.availability.dates?.join(", ")}
-                  </div>
-                </div>
-              )}
-
-              {/* Recurring Days */}
-              {menuData.availability.type === "recurring" && (
-                <div>
-                  <label className="text-sm font-semibold block mb-1">
-                    Επιλογή Ημερών
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {greekDays.map((day) => (
-                      <Button
-                        key={day}
-                        variant={
-                          menuData.availability.daysOfWeek.includes(day)
-                            ? "default"
-                            : "outline"
-                        }
-                        onClick={() => toggleDay(day)}
-                        className="text-sm"
-                      >
-                        {day}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Time Range */}
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <label className="text-sm font-semibold block mb-1">
-                  Ώρα Έναρξης
-                </label>
+              {/* Simple time range controls (optional) */}
+              <div className="grid grid-cols-2 gap-2">
                 <Select
-                  value={menuData.availability.timeRange.start}
-                  onValueChange={(val) =>
-                    setMenuData((prev) => ({
-                      ...prev,
+                  value={menuData.availability?.timeRange?.start ?? "12:00"}
+                  onValueChange={(v) =>
+                    setMenuData((m) => ({
+                      ...m,
                       availability: {
-                        ...prev.availability,
-                        timeRange: {
-                          ...prev.availability.timeRange,
-                          start: val,
-                        },
+                        ...(m.availability || {}),
+                        timeRange: { ...(m.availability?.timeRange || {}), start: v },
                       },
                     }))
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Έναρξη" /></SelectTrigger>
                   <SelectContent>
                     {timeSlots.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="flex-1">
-                <label className="text-sm font-semibold block mb-1">
-                  Ώρα Λήξης
-                </label>
                 <Select
-                  value={menuData.availability.timeRange.end}
-                  onValueChange={(val) =>
-                    setMenuData((prev) => ({
-                      ...prev,
+                  value={menuData.availability?.timeRange?.end ?? "22:00"}
+                  onValueChange={(v) =>
+                    setMenuData((m) => ({
+                      ...m,
                       availability: {
-                        ...prev.availability,
-                        timeRange: {
-                          ...prev.availability.timeRange,
-                          end: val,
-                        },
+                        ...(m.availability || {}),
+                        timeRange: { ...(m.availability?.timeRange || {}), end: v },
                       },
                     }))
                   }
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Λήξη" /></SelectTrigger>
                   <SelectContent>
                     {timeSlots.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <Button
-              className="bg-green-600 text-white w-full"
-              onClick={handleSave}
-            >
-              💾 Αποθήκευση Menu
-            </Button>
+            {/* Items selection */}
+            <div>
+              <label className="text-sm font-medium block mb-2">Επιλογή Πιάτων</label>
+              <div className="max-h-48 overflow-y-auto space-y-2 p-2 border rounded-md">
+                {menuItems.map((item) => (
+                  <label key={item.id} className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={selectedItems.includes(item.id)}
+                      onCheckedChange={() => handleToggleItem(item.id)}
+                    />
+                    <span>{item.name} (€{item.price})</span>
+                  </label>
+                ))}
+                {menuItems.length === 0 && (
+                  <p className="text-sm text-gray-500">Δεν υπάρχουν διαθέσιμα πιάτα.</p>
+                )}
+              </div>
+            </div>
           </div>
 
-          <DialogFooter />
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDialog}>Άκυρο</Button>
+            <Button
+              className="bg-green-600 text-white"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? "Αποθήκευση..." : "Αποθήκευση"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </section>

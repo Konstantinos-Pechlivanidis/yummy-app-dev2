@@ -1,261 +1,444 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+// components/owner/ReservationManagement.jsx
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "../ui/dialog";
 import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
 import { Badge } from "../ui/badge";
-import {
-  approveReservation,
-  cancelReservation,
-  markAsCompleted,
-} from "../../store/reservationsSlice";
 import { Check, XCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
+
+import {
+  useOwnerFilteredReservations,
+  useOwnerConfirmReservation,
+  useOwnerCompleteReservation,
+  useOwnerCancelReservation,
+} from "../../hooks/customer/useReservations";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "Όλες" },
+  { value: "pending", label: "Αναμονή" },
+  { value: "confirmed", label: "Εγκεκριμένες" },
+  { value: "completed", label: "Ολοκληρωμένες" },
+  { value: "cancelled", label: "Ακυρωμένες" },
+];
+
+const renderBadge = (status) => {
+  const cfg =
+    {
+      confirmed: { text: "✅ Εγκεκριμένη", className: "bg-blue-500 text-white" },
+      pending: { text: "⏳ Αναμονή", className: "bg-yellow-500 text-black" },
+      completed: { text: "🏁 Ολοκληρωμένη", className: "bg-green-500 text-white" },
+      cancelled: { text: "❌ Ακυρωμένη", className: "bg-red-500 text-white" },
+    }[status] || { text: "Άγνωστο", className: "bg-gray-500 text-white" };
+  return (
+    <Badge className={`text-md px-3 py-1.5 font-semibold rounded-md ${cfg.className}`}>
+      {cfg.text}
+    </Badge>
+  );
+};
+
+const safeDate = (d) => {
+  try {
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return "—";
+    return format(dt, "dd/MM/yyyy");
+  } catch {
+    return "—";
+  }
+};
 
 const ReservationManagement = () => {
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-  const navigate = useNavigate();
-  const reservations = useSelector((state) => state.reservations.reservations);
-  const restaurants = useSelector((state) => state.menus.restaurants);
-  const dispatch = useDispatch();
+  const qc = useQueryClient();
 
+  // Filters & pagination
+  const [statusFilter, setStatusFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState(""); // yyyy-MM-dd
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  // Fetch owner reservations (NOTE: hook signature is (date, status, page, pageSize))
+  const {
+    data,
+    isLoading,
+    isFetching,
+    error,
+  } = useOwnerFilteredReservations(dateFilter || undefined, statusFilter || undefined, page, pageSize);
+
+  const reservations = useMemo(() => data?.reservations ?? [], [data]);
+  const pagination = data?.Pagination;
+
+  // Owner actions (separate hooks)
+  const {
+    mutate: confirmReservation,
+    isPending: confirming,
+  } = useOwnerConfirmReservation();
+
+  const {
+    mutate: completeReservation,
+    isPending: completing,
+  } = useOwnerCompleteReservation();
+
+  const {
+    mutate: cancelReservation,
+    isPending: canceling,
+  } = useOwnerCancelReservation();
+
+  const patching = confirming || completing || canceling;
+
+  // Dialog state
   const [selectedReservation, setSelectedReservation] = useState(null);
-  const [actionType, setActionType] = useState("");
+  const [actionType, setActionType] = useState(""); // 'approve' | 'complete' | 'cancel'
+  const [cancelReason, setCancelReason] = useState("");
 
-  if (!isAuthenticated || user?.role !== "owner") {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
-        <p className="text-red-500 text-lg">
-          ❌ Δεν έχετε πρόσβαση σε αυτήν τη σελίδα.
-        </p>
-        <Button
-          className="mt-4 bg-gray-500 text-white"
-          onClick={() => navigate("/")}
-        >
-          🏠 Επιστροφή στην Αρχική
-        </Button>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (error) {
+      const msg = error?.response?.data?.message || "Σφάλμα φόρτωσης κρατήσεων.";
+      toast.error(msg);
+    }
+  }, [error]);
 
-  // Λίστα των εστιατορίων που ανήκουν στον owner
-  const ownerRestaurants = restaurants.filter((resto) => resto.ownerId === user.id);
-  
-  // Φιλτράρισμα κρατήσεων που αφορούν τα εστιατόρια του owner
-  const ownerReservations = reservations.filter((res) =>
-    ownerRestaurants.some((resto) => resto.id === res.restaurant_id)
-  );
+  // Sort: pending first, then newest date
+  const sortedReservations = useMemo(() => {
+    const arr = [...reservations];
+    return arr.sort((a, b) => {
+      if (a.status === "pending" && b.status !== "pending") return -1;
+      if (a.status !== "pending" && b.status === "pending") return 1;
+      const ad = new Date(a.date);
+      const bd = new Date(b.date);
+      return bd - ad;
+    });
+  }, [reservations]);
 
-  // Ταξινόμηση: Πρώτα οι "pending" κρατήσεις και μετά οι πιο πρόσφατες
-  const sortedReservations = [...ownerReservations].sort((a, b) => {
-    if (a.status === "pending" && b.status !== "pending") return -1;
-    if (a.status !== "pending" && b.status === "pending") return 1;
-    return new Date(b.date) - new Date(a.date);
-  });
-  // Άνοιγμα του Dialog
   const openDialog = (reservation, action) => {
     setSelectedReservation(reservation);
     setActionType(action);
+    setCancelReason("");
   };
-
-  // Επιβεβαίωση ενέργειας (έγκριση, ακύρωση, ολοκλήρωση)
-  const handleConfirm = () => {
-    if (selectedReservation) {
-      if (
-        actionType === "approve" &&
-        selectedReservation.status === "pending"
-      ) {
-        dispatch(approveReservation(selectedReservation.id));
-      } else if (
-        actionType === "complete" &&
-        selectedReservation.status === "approved"
-      ) {
-        dispatch(markAsCompleted(selectedReservation.id));
-      } else if (actionType === "cancel") {
-        dispatch(cancelReservation(selectedReservation.id));
-      }
-    }
+  const closeDialog = () => {
     setSelectedReservation(null);
     setActionType("");
+    setCancelReason("");
+  };
+
+  const canApprove = (s) => s === "pending";
+  const canComplete = (s) => s === "confirmed";
+  const canCancel = (s) => s === "pending" || s === "confirmed";
+
+  // Confirm button inside dialog
+  const handleConfirm = () => {
+    if (!selectedReservation || !actionType) return;
+
+    if (actionType === "approve") {
+      confirmReservation(selectedReservation.id, {
+        onSuccess: () => {
+          toast.success("Η κράτηση επιβεβαιώθηκε.");
+          qc.invalidateQueries({ queryKey: ["ownerOverview"] });
+          closeDialog();
+        },
+        onError: (err) => {
+          const msg = err?.response?.data?.message || "Αποτυχία επιβεβαίωσης.";
+          toast.error(msg);
+        },
+      });
+      return;
+    }
+
+    if (actionType === "complete") {
+      completeReservation(selectedReservation.id, {
+        onSuccess: () => {
+          toast.success("Η κράτηση ολοκληρώθηκε.");
+          qc.invalidateQueries({ queryKey: ["ownerOverview"] });
+          closeDialog();
+        },
+        onError: (err) => {
+          const msg = err?.response?.data?.message || "Αποτυχία ολοκλήρωσης.";
+          toast.error(msg);
+        },
+      });
+      return;
+    }
+
+    if (actionType === "cancel") {
+      if (!cancelReason.trim()) {
+        toast.error("Απαιτείται λόγος ακύρωσης.");
+        return;
+      }
+      cancelReservation(
+        { reservationId: selectedReservation.id, reason: cancelReason.trim() },
+        {
+          onSuccess: () => {
+            toast.success("Η κράτηση ακυρώθηκε.");
+            qc.invalidateQueries({ queryKey: ["ownerOverview"] });
+            closeDialog();
+          },
+          onError: (err) => {
+            const msg = err?.response?.data?.message || "Αποτυχία ακύρωσης.";
+            toast.error(msg);
+          },
+        }
+      );
+    }
   };
 
   return (
-    <section>
+    <section className="space-y-4">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row md:items-end gap-3">
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">Κατάσταση</label>
+          <select
+            className="border rounded-md px-3 py-2"
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+          >
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">Ημερομηνία</label>
+          <input
+            type="date"
+            className="border rounded-md px-3 py-2"
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+
+        <div className="flex-1" />
+
+        <div className="text-sm text-gray-600">
+          {isFetching ? "Φόρτωση..." : ""}
+          {pagination && !isFetching
+            ? `Προβολή ${pagination.viewedRecords - pagination.recordsOnCurrentPage + 1}–${pagination.viewedRecords} από ${pagination.total}`
+            : ""}
+        </div>
+      </div>
+
+      {/* Desktop Table View */}
       <div className="overflow-x-auto hidden md:block">
         <Table className="min-w-full">
           <TableHead>
             <TableRow>
-              <TableCell>Εστιατόριο</TableCell>
+              <TableCell>ID Κράτησης</TableCell>
               <TableCell>Ημερομηνία</TableCell>
               <TableCell>Ώρα</TableCell>
+              <TableCell>Άτομα</TableCell>
               <TableCell>Κατάσταση</TableCell>
-              <TableCell>Ενέργειες</TableCell>
+              <TableCell className="text-right">Ενέργειες</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedReservations.map((res) => (
-              <TableRow key={res.id}>
-                <TableCell>{res.restaurant_id}</TableCell>
-                <TableCell>{res.date}</TableCell>
-                <TableCell>{res.time}</TableCell>
-                <TableCell>
-                  <Badge
-                    className={`text-md px-3 py-1.5 font-semibold rounded-md ${
-                      res.status === "approved"
-                        ? "bg-blue-500 text-white"
-                        : res.status === "pending"
-                        ? "bg-yellow-600 text-black"
-                        : res.status === "completed"
-                        ? "bg-green-500 text-white"
-                        : "bg-gray-500 text-white"
-                    }`}
-                  >
-                    {res.status === "approved"
-                      ? "✅ Εγκρίθηκε"
-                      : res.status === "pending"
-                      ? "⏳ Αναμονή"
-                      : res.status === "completed"
-                      ? "🏁 Ολοκληρωμένο"
-                      : "❌ Ακυρωμένο"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {res.status === "pending" && (
-                    <>
-                      <Button
-                        className="bg-blue-500 text-white mr-2"
-                        onClick={() => openDialog(res, "approve")}
-                      >
-                        <Check className="w-4 h-4" /> Έγκριση
-                      </Button>
-                      <Button
-                        className="bg-red-500 text-white"
-                        onClick={() => openDialog(res, "cancel")}
-                      >
-                        <XCircle className="w-4 h-4" /> Ακύρωση
-                      </Button>
-                    </>
-                  )}
-                  {res.status === "approved" && (
-                    <>
-                      <Button
-                        className="bg-green-500 text-white mr-2"
-                        onClick={() => openDialog(res, "complete")}
-                      >
-                        <Check className="w-4 h-4" /> Ολοκλήρωση
-                      </Button>
-                      <Button
-                        className="bg-red-500 text-white"
-                        onClick={() => openDialog(res, "cancel")}
-                      >
-                        <XCircle className="w-4 h-4" /> Ακύρωση
-                      </Button>
-                    </>
-                  )}
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  Φόρτωση...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : sortedReservations.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-gray-500">
+                  Δεν βρέθηκαν κρατήσεις.
+                </TableCell>
+              </TableRow>
+            ) : (
+              sortedReservations.map((res) => (
+                <TableRow key={res.id}>
+                  <TableCell>#{res.id}</TableCell>
+                  <TableCell>{safeDate(res.date)}</TableCell>
+                  <TableCell>{res.time}</TableCell>
+                  <TableCell>{res.guest_count ?? "—"}</TableCell>
+                  <TableCell>{renderBadge(res.status)}</TableCell>
+                  <TableCell className="text-right">
+                    {canApprove(res.status) && (
+                      <>
+                        <Button
+                          className="bg-blue-500 text-white mr-2"
+                          onClick={() => openDialog(res, "approve")}
+                          disabled={patching}
+                        >
+                          <Check className="w-4 h-4 mr-1" /> Έγκριση
+                        </Button>
+                        <Button
+                          className="bg-red-500 text-white"
+                          onClick={() => openDialog(res, "cancel")}
+                          disabled={patching}
+                        >
+                          <XCircle className="w-4 h-4 mr-1" /> Ακύρωση
+                        </Button>
+                      </>
+                    )}
+                    {canComplete(res.status) && (
+                      <>
+                        <Button
+                          className="bg-green-500 text-white mr-2"
+                          onClick={() => openDialog(res, "complete")}
+                          disabled={patching}
+                        >
+                          <Check className="w-4 h-4 mr-1" /> Ολοκλήρωση
+                        </Button>
+                        <Button
+                          className="bg-red-500 text-white"
+                          onClick={() => openDialog(res, "cancel")}
+                          disabled={patching}
+                        >
+                          <XCircle className="w-4 h-4 mr-1" /> Ακύρωση
+                        </Button>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
 
-      {/* Mobile View */}
+      {/* Mobile Card View */}
       <div className="md:hidden flex flex-col gap-4">
-        {sortedReservations.map((res) => (
-          <div key={res.id} className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold">{res.restaurant_id}</h3>
-            <p className="text-gray-600">
-              📅 {res.date} | ⏰ {res.time}
-            </p>
-            <p className="mt-2">
-              <Badge
-                className={`text-md px-3 py-1.5 font-semibold rounded-md ${
-                  res.status === "approved"
-                    ? "bg-blue-500 text-white"
-                    : res.status === "pending"
-                    ? "bg-yellow-600 text-black"
-                    : res.status === "completed"
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-500 text-white"
-                }`}
-              >
-                {res.status === "approved"
-                  ? "✅ Εγκρίθηκε"
-                  : res.status === "pending"
-                  ? "⏳ Αναμονή"
-                  : res.status === "completed"
-                  ? "🏁 Ολοκληρωμένο"
-                  : "❌ Ακυρωμένο"}
-              </Badge>
-            </p>
-            <div className="flex gap-2 mt-2">
-              {res.status === "pending" && (
-                <>
-                  <Button
-                    className="bg-blue-500 text-white flex-1"
-                    onClick={() => openDialog(res, "approve")}
-                  >
-                    <Check className="w-4 h-4" /> Έγκριση
-                  </Button>
-                  <Button
-                    className="bg-red-500 text-white flex-1"
-                    onClick={() => openDialog(res, "cancel")}
-                  >
-                    <XCircle className="w-4 h-4" /> Ακύρωση
-                  </Button>
-                </>
-              )}
-              {res.status === "approved" && (
-                <>
-                  <Button
-                    className="bg-green-500 text-white flex-1"
-                    onClick={() => openDialog(res, "complete")}
-                  >
-                    <Check className="w-4 h-4" /> Ολοκλήρωση
-                  </Button>
-                  <Button
-                    className="bg-red-500 text-white flex-1"
-                    onClick={() => openDialog(res, "cancel")}
-                  >
-                    <XCircle className="w-4 h-4" /> Ακύρωση
-                  </Button>
-                </>
-              )}
+        {isLoading ? (
+          <div className="text-center">Φόρτωση...</div>
+        ) : sortedReservations.length === 0 ? (
+          <div className="text-center text-gray-500">Δεν βρέθηκαν κρατήσεις.</div>
+        ) : (
+          sortedReservations.map((res) => (
+            <div key={res.id} className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold">Κράτηση #{res.id}</h3>
+              <p className="text-gray-600">
+                📅 {safeDate(res.date)} | ⏰ {res.time}
+              </p>
+              <p className="text-gray-600">👥 {res.guest_count ?? "—"} άτομα</p>
+              <div className="mt-2">{renderBadge(res.status)}</div>
+              <div className="flex gap-2 mt-4">
+                {canApprove(res.status) && (
+                  <>
+                    <Button
+                      className="bg-blue-500 text-white flex-1"
+                      onClick={() => openDialog(res, "approve")}
+                      disabled={patching}
+                    >
+                      <Check className="w-4 h-4" /> Έγκριση
+                    </Button>
+                    <Button
+                      className="bg-red-500 text-white flex-1"
+                      onClick={() => openDialog(res, "cancel")}
+                      disabled={patching}
+                    >
+                      <XCircle className="w-4 h-4" /> Ακύρωση
+                    </Button>
+                  </>
+                )}
+                {canComplete(res.status) && (
+                  <>
+                    <Button
+                      className="bg-green-500 text-white flex-1"
+                      onClick={() => openDialog(res, "complete")}
+                      disabled={patching}
+                    >
+                      <Check className="w-4 h-4" /> Ολοκλήρωση
+                    </Button>
+                    <Button
+                      className="bg-red-500 text-white flex-1"
+                      onClick={() => openDialog(res, "cancel")}
+                      disabled={patching}
+                    >
+                      <XCircle className="w-4 h-4" /> Ακύρωση
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {/* Dialog Επιβεβαίωσης */}
-      {selectedReservation && (
-        <Dialog
-          open={selectedReservation !== null}
-          onOpenChange={() => setSelectedReservation(null)}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <h2 className="text-lg font-bold">
-                {actionType === "approve"
-                  ? "Έγκριση Κράτησης"
-                  : actionType === "complete"
-                  ? "Ολοκλήρωση Κράτησης"
-                  : "Ακύρωση Κράτησης"}
-              </h2>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                className="bg-gray-500 text-white"
-                onClick={() => setSelectedReservation(null)}
-              >
-                Άκυρο
-              </Button>
-              <Button className="text-white bg-red-500" onClick={handleConfirm}>
-                {actionType === "cancel" ? "Ακύρωση" : "Επιβεβαίωση"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+      {/* Pagination */}
+      {pagination && (
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1 || isFetching}
+          >
+            Προηγούμενη
+          </Button>
+          <span className="text-sm text-gray-700">Σελίδα {page}</span>
+          <Button
+            variant="outline"
+            onClick={() => {
+              const viewed = pagination.viewedRecords ?? 0;
+              const total = pagination.total ?? 0;
+              if (viewed < total) setPage((p) => p + 1);
+            }}
+            disabled={isFetching || (pagination.viewedRecords ?? 0) >= (pagination.total ?? 0)}
+          >
+            Επόμενη
+          </Button>
+        </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog open={!!selectedReservation} onOpenChange={(open) => !open && closeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {actionType === "approve"
+                ? "Έγκριση Κράτησης"
+                : actionType === "complete"
+                ? "Ολοκλήρωση Κράτησης"
+                : "Ακύρωση Κράτησης"}
+            </DialogTitle>
+            <DialogDescription>
+              Είστε σίγουροι ότι θέλετε να προχωρήσετε σε αυτή την ενέργεια;
+            </DialogDescription>
+          </DialogHeader>
+
+          {actionType === "cancel" && (
+            <div className="mt-2">
+              <label className="text-sm font-medium mb-1 block">Λόγος Ακύρωσης</label>
+              <textarea
+                className="w-full border rounded-md px-3 py-2"
+                rows={4}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Π.χ. Μη διαθεσιμότητα τραπεζιού"
+              />
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDialog}>
+              Άκυρο
+            </Button>
+            <Button
+              className={actionType === "cancel" ? "bg-red-500 text-white" : "bg-green-500 text-white"}
+              onClick={handleConfirm}
+              disabled={patching}
+            >
+              {patching ? "Επεξεργασία..." : "Επιβεβαίωση"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

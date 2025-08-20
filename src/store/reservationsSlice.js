@@ -1,52 +1,59 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { reservations } from "../data/dummyData";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:5000/api/v1",
+  withCredentials: true,
+});
 
 const initialState = {
-  reservations: reservations,
+  reservations: [],
+  status: 'idle',
+  error: null,
 };
+
+export const updateReservationStatus = createAsyncThunk(
+  'reservations/updateStatus',
+  async ({ reservationId, status, cancellation_reason = null }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch('/reservations/owner', {
+        reservation_id: reservationId,
+        status,
+        cancellation_reason,
+      });
+      return response.data.reservation;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 const reservationsSlice = createSlice({
   name: "reservations",
   initialState,
   reducers: {
-    addReservation: (state, action) => {
-      const { user_id, restaurant_id, date, time, guest_count, special_menu_id, coupon_id } = action.payload;
-
-      state.reservations.push({
-        id: `reservation${state.reservations.length + 1}`,
-        user_id,
-        restaurant_id,
-        date,
-        time,
-        guest_count,
-        special_menu_id,
-        coupon_id,
-        status: "pending",
+    setReservations: (state, action) => {
+        state.reservations = action.payload;
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(updateReservationStatus.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateReservationStatus.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const index = state.reservations.findIndex(r => r.id === action.payload.id);
+        if (index !== -1) {
+          state.reservations[index] = action.payload;
+        }
+      })
+      .addCase(updateReservationStatus.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
-    },
-
-    approveReservation: (state, action) => {
-      const reservation = state.reservations.find((r) => r.id === action.payload);
-      if (reservation && reservation.status === "pending") {
-        reservation.status = "approved";
-      }
-    },
-
-    markAsCompleted: (state, action) => {
-      const reservation = state.reservations.find((r) => r.id === action.payload);
-      if (reservation && reservation.status === "approved") {
-        reservation.status = "completed";
-      }
-    },
-
-    cancelReservation: (state, action) => {
-      const reservation = state.reservations.find((r) => r.id === action.payload);
-      if (reservation && (reservation.status === "pending" || reservation.status === "approved")) {
-        reservation.status = "canceled";
-      }
-    },
   },
 });
 
-export const { addReservation, approveReservation, markAsCompleted, cancelReservation } = reservationsSlice.actions;
+export const { setReservations } = reservationsSlice.actions;
 export default reservationsSlice.reducer;

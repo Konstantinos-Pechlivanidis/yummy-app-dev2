@@ -30,15 +30,9 @@ const OwnerLoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    loginMutation.mutate(formData, {
-      onSuccess: ({ owner }) => {
-        if (!owner.confirmed_user) {
-          navigate("/owner/profile");
-        } else {
-          navigate("/dashboard");
-        }
-      },
-    });
+    // The navigation logic is now correctly handled inside the useOwnerLogin hook.
+    // This component simply calls the mutation.
+    loginMutation.mutate(formData);
   };
 
   return (
