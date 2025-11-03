@@ -106,18 +106,28 @@ const formatHappyHours = (list) => {
 };
 
 const OverviewManagement = () => {
-  // Preferred: aggregated list of all owner restaurants with counts
+  // Overview returns: { restaurant: {...}, statistics: {...} }
   const { data: overviewData, isLoading: loadingOverview } = useOwnerOverview();
 
   // Fallback: if overview API returns empty/undefined, show at least the single owner restaurant record
   const { data: ownerRestaurant, isLoading: loadingOwner } = useOwnerRestaurant();
 
   const restaurants = useMemo(() => {
-    const list = Array.isArray(overviewData) ? overviewData : [];
-    if (list.length > 0) {
-      return list.map(normalizeRestaurant);
+    // Handle new structure: { restaurant, statistics }
+    if (overviewData?.restaurant) {
+      const restaurant = normalizeRestaurant({
+        ...overviewData.restaurant,
+        // Merge statistics as counts if needed
+        coupons_count: overviewData.statistics?.total_coupons,
+        reservations_count: overviewData.statistics?.total_reservations,
+      });
+      return [restaurant];
     }
-    // fallback: build a single-item list from ownerRestaurant if available
+    // Legacy: if array is returned
+    if (Array.isArray(overviewData)) {
+      return overviewData.map(normalizeRestaurant);
+    }
+    // Fallback: build a single-item list from ownerRestaurant if available
     return ownerRestaurant ? [normalizeRestaurant(ownerRestaurant)] : [];
   }, [overviewData, ownerRestaurant]);
 

@@ -1,10 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
-  withCredentials: true,
-});
+import { menuItemApi } from "../config/api";
 
 const initialState = {
   menu_items: [],
@@ -15,28 +10,28 @@ const initialState = {
 
 export const addMenuItem = createAsyncThunk('menus/addMenuItem', async (itemData, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/menuItems', itemData);
-      return response.data.menu_item;
+      const response = await menuItemApi.post('/', itemData);
+      return response.data.menuItem || response.data.menu_item || response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
 });
 
 export const editMenuItem = createAsyncThunk('menus/editMenuItem', async ({ id, ...updatedData }, { rejectWithValue }) => {
     try {
-        const response = await axiosInstance.patch(`/menuItems/${id}`, updatedData);
-        return response.data.menu_item;
+        const response = await menuItemApi.patch(`/${id}`, updatedData);
+        return response.data.menuItem || response.data.menu_item || response.data;
     } catch (error) {
-        return rejectWithValue(error.response.data);
+        return rejectWithValue(error.response?.data || error.message);
     }
 });
 
 export const removeMenuItem = createAsyncThunk('menus/removeMenuItem', async ({ id, restaurant_id }, { rejectWithValue }) => {
     try {
-        await axiosInstance.delete(`/menuItems/${id}`, { data: { restaurant_id } });
+        await menuItemApi.delete(`/${id}`, { data: { restaurant_id } });
         return id;
     } catch (error) {
-        return rejectWithValue(error.response.data);
+        return rejectWithValue(error.response?.data || error.message);
     }
 });
 

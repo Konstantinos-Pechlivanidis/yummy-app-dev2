@@ -4,16 +4,24 @@ import { Star } from "lucide-react";
 import { useTrendingRestaurants } from "../../hooks/customer/useRestaurants";
 import Loading from "../Loading";
 import { Card, CardContent } from "../ui/card";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
+import { IMAGES } from "../../constants/images";
 
 const TrendingRestaurantsCarousel = () => {
-  const { data, isLoading } = useTrendingRestaurants();
+  const { data, isLoading, error } = useTrendingRestaurants();
   const trendingRestaurants = data?.allTrendingRestaurants ?? [];
+
+  // Debug logging
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.log('[TrendingRestaurantsCarousel] Hook state:', {
+      isLoading,
+      hasData: !!data,
+      trendingCount: trendingRestaurants.length,
+      fullData: data,
+      error: error?.message
+    });
+  }
 
   return (
     <motion.section {...fadeIn} className="px-4 sm:px-6 md:px-10 py-8">
@@ -23,6 +31,12 @@ const TrendingRestaurantsCarousel = () => {
 
       {isLoading ? (
         <Loading />
+      ) : trendingRestaurants.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">
+            Δεν βρέθηκαν δημοφιλή εστιατόρια αυτή τη στιγμή.
+          </p>
+        </div>
       ) : (
         <div className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 -mx-4 px-4">
           {trendingRestaurants.map((resto) => (
@@ -37,11 +51,12 @@ const TrendingRestaurantsCarousel = () => {
                       src={resto.photos[0]}
                       alt={resto.name}
                       className="w-full h-40 sm:h-44 object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
                       <img
-                        src="/images/yummyLogo-2.png"
+                        src={IMAGES.LOGO}
                         alt="Λογότυπο Yummy App"
                         width="192"
                         height="192"
@@ -74,8 +89,8 @@ const TrendingRestaurantsCarousel = () => {
                             🎉 Happy Hour
                           </div>
                           <p className="text-red-900 font-medium text-sm sm:text-base line-clamp-2">
-                            {resto.special_menus.name} |{" "}
-                            {resto.special_menus.discount_percentage}% έκπτωση
+                            {resto.special_menus?.name || "Happy Hour"} |{" "}
+                            {resto.special_menus?.discount_percentage || 0}% έκπτωση
                           </p>
                         </div>
                       )}
@@ -86,7 +101,7 @@ const TrendingRestaurantsCarousel = () => {
                             🎁 Κουπόνι Ανταμοιβής
                           </div>
                           <p className="text-blue-900 font-medium text-sm sm:text-base line-clamp-2">
-                            {resto.coupons.description}
+                            {resto.coupons?.description || "Κουπόνι διαθέσιμο"}
                           </p>
                         </div>
                       )}

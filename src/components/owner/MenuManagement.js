@@ -15,22 +15,11 @@ import { Input } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
 import toast from "react-hot-toast";
 
-import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useOwnerRestaurant } from "../../hooks/owner/useOwnerRestaurant";
-
-/* --------------------------------- axios -------------------------------- */
-const API_BASE =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_API_BASE_URL) ||
-  process.env.REACT_APP_API_BASE_URL ||
-  "http://localhost:5000";
-
-const api = axios.create({
-  baseURL: `${API_BASE}/api/v1/menuItems`,
-  withCredentials: true,
-});
+import { menuItemApi } from "../../config/api";
+import { queryKeys } from "../../config/queryKeys";
+import { translateApiError } from "../../utils/apiErrorHandler";
 
 /* ----------------------------- helper fns ----------------------------- */
 const initialItem = {
@@ -114,46 +103,52 @@ const MenuManagement = () => {
   /* ------------------------------- mutations ------------------------------- */
   const { mutate: createItem, isPending: creating } = useMutation({
     mutationFn: async (payload) => {
-      const { data } = await api.post("/", payload);
-      return data.menu_item;
+      const { data } = await menuItemApi.post("/", payload);
+      return data.menuItem || data.menu_item || data;
     },
     onSuccess: () => {
       toast.success("Το πιάτο δημιουργήθηκε με επιτυχία!");
-      queryClient.invalidateQueries({ queryKey: ["ownerRestaurant"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.ownerRestaurant(),
+      });
       setIsDialogOpen(false);
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || "Η δημιουργία απέτυχε.");
+      toast.error(translateApiError(err, "owner"));
     },
   });
 
   const { mutate: updateItem, isPending: updating } = useMutation({
     mutationFn: async ({ id, ...patch }) => {
       // controller expects restaurant_id for ownership on update
-      const { data } = await api.patch(`/${id}`, patch);
-      return data.menu_item;
+      const { data } = await menuItemApi.patch(`/${id}`, patch);
+      return data.menuItem || data.menu_item || data;
     },
     onSuccess: () => {
       toast.success("Το πιάτο ενημερώθηκε.");
-      queryClient.invalidateQueries({ queryKey: ["ownerRestaurant"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.ownerRestaurant(),
+      });
       setIsDialogOpen(false);
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || "Η αποθήκευση απέτυχε.");
+      toast.error(translateApiError(err, "owner"));
     },
   });
 
   const { mutate: deleteItem, isPending: deletingGlobal } = useMutation({
     mutationFn: async (id) => {
       // DELETE /menuItems/:id (ownership enforced server-side)
-      await api.delete(`/${id}`);
+      await menuItemApi.delete(`/${id}`);
     },
     onSuccess: () => {
       toast.success("Το πιάτο διαγράφηκε.");
-      queryClient.invalidateQueries({ queryKey: ["ownerRestaurant"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.ownerRestaurant(),
+      });
     },
     onError: (err) => {
-      toast.error(err?.response?.data?.message || "Η διαγραφή απέτυχε.");
+      toast.error(translateApiError(err, "owner"));
     },
     onSettled: () => setDeletingId(null),
   });

@@ -1,6 +1,7 @@
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { format, parseISO } from "date-fns";
+import { IMAGES } from "../../constants/images";
 
 const dayTranslations = {
   Monday: "Δευτέρα",
@@ -33,11 +34,12 @@ const SpecialMenusGrid = ({ menus = [] }) => {
               src={menu.photoUrl}
               alt={menu.name}
               className="w-full h-40 sm:h-44 object-cover"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
               <img
-                src="/images/yummyLogo-2.png"
+                src={IMAGES.LOGO}
                 alt="Λογότυπο Yummy App"
                 width="192"
                 height="192"
@@ -56,17 +58,21 @@ const SpecialMenusGrid = ({ menus = [] }) => {
 
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
                 <Badge className="bg-red-600 text-white text-xs sm:text-sm px-3 py-1 rounded-full shadow-sm">
-                  -{menu.discount_percentage}% | {menu.name}
+                  -{menu.discount_percentage || 0}% | {menu.name || "Προσφορά"}
                 </Badge>
 
-                <p className="font-medium text-gray-800">{menu.description}</p>
+                {menu.description && (
+                  <p className="font-medium text-gray-800">{menu.description}</p>
+                )}
 
                 <div className="flex items-center gap-3">
-                  <span className="text-gray-500 line-through">
-                    €{menu.original_price}
-                  </span>
+                  {menu.original_price && (
+                    <span className="text-gray-500 line-through">
+                      €{menu.original_price}
+                    </span>
+                  )}
                   <span className="text-red-600 text-lg sm:text-xl font-extrabold">
-                    €{menu.discounted_price}
+                    €{menu.discounted_price || menu.price || "—"}
                   </span>
                 </div>
 

@@ -1,19 +1,15 @@
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { motion } from "framer-motion";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../constants/animations";
+import { IMAGES } from "../constants/images";
 
 const NotFound = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* 🌄 Background */}
       <img
-        src="/images/wide10.jpg"
+        src={IMAGES.BACKGROUND_PROFILE}
         alt="404 Background"
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
@@ -27,7 +23,7 @@ const NotFound = () => {
         >
           {/* Logo */}
           <img
-            src="/images/yummyLogo-2.png"
+            src={IMAGES.LOGO}
             alt="Λογότυπο Yummy App"
             width="192"
             height="192"

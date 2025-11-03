@@ -12,7 +12,7 @@ const loadingSlice = createSlice({
     hideLoading: (state) => {
       state.isLoading = false;
     },
-    triggerLoading: (state, action) => {
+    triggerLoading: (state) => {
       state.isLoading = true;
     },
   },

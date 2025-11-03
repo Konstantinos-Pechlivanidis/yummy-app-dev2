@@ -10,12 +10,7 @@ import { toast } from "react-hot-toast";
 import { format, parseISO } from "date-fns";
 import { el } from "date-fns/locale";
 import SEOHelmet from "../../components/SEOHelmet";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
 
 const ConfirmationPage = () => {
   const { id } = useParams();
@@ -74,7 +69,7 @@ const ConfirmationPage = () => {
       formattedTime = format(fullDateTime, "HH:mm");
     }
   } catch (err) {
-    console.warn("Invalid time format:", reservation.time);
+    // Invalid time format - using original value
   }
 
   return (

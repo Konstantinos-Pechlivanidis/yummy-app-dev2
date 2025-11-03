@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "../ui/card";
 import { Star } from "lucide-react";
+import { memo } from "react";
+import { IMAGES } from "../../constants/images";
 
-const RestaurantCard = ({ resto }) => (
+const RestaurantCard = memo(({ resto }) => (
   <Link to={`/restaurant/${resto.id}`}>
     <Card className="h-[460px] sm:h-[500px] flex flex-col overflow-hidden border border-gray-200 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300">
       {resto.photos?.[0] ? (
@@ -10,11 +12,12 @@ const RestaurantCard = ({ resto }) => (
           src={resto.photos[0]}
           alt={resto.name}
           className="w-full h-40 sm:h-44 object-cover"
+          loading="lazy"
         />
       ) : (
         <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
           <img
-            src="/images/yummyLogo-2.png"
+            src={IMAGES.LOGO}
             alt="Λογότυπο Yummy App"
             width="192"
             height="192"
@@ -71,6 +74,8 @@ const RestaurantCard = ({ resto }) => (
       </CardContent>
     </Card>
   </Link>
-);
+));
+
+RestaurantCard.displayName = "RestaurantCard";
 
 export default RestaurantCard;

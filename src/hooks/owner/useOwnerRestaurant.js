@@ -1,52 +1,51 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { toast } from "react-hot-toast";
-
-const API_BASE =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_API_BASE_URL) ||
-  process.env.REACT_APP_API_BASE_URL ||
-  "http://localhost:5000";
-
-const axiosInstance = axios.create({
-  baseURL: `${API_BASE}/api/v1/restaurant`,
-  withCredentials: true,
-});
-
-const translateRestaurantError = (error) => {
-  const message =
-    error?.response?.data?.message || error?.message || "Παρουσιάστηκε σφάλμα.";
-
-  if (message.includes("Unauthorized")) return "Δεν είστε συνδεδεμένος.";
-  if (message.includes("Forbidden")) return "Δεν έχετε δικαίωμα πρόσβασης.";
-  if (message.includes("not found")) return "Δεν βρέθηκε το εστιατόριο.";
-  return message;
-};
+import { restaurantApi } from "../../config/api";
+import { queryKeys } from "../../config/queryKeys";
+import { translateApiError } from "../../utils/apiErrorHandler";
 
 /** GET: To εστιατόριο του ιδιοκτήτη (με όλα τα σχετικά: menu items, specials, coupons, reservations) */
 export const useOwnerRestaurant = () => {
   return useQuery({
-    queryKey: ["ownerRestaurant"],
+    queryKey: queryKeys.ownerRestaurant(),
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/owner");
-      return data.restaurant;
+      const { data } = await restaurantApi.get("/owner");
+      return data.restaurant || data;
     },
     retry: false,
-    onError: (err) => toast.error(translateRestaurantError(err)),
+    onError: (err) => toast.error(translateApiError(err, "owner")),
   });
 };
 
 /** GET: Επισκόπηση ιδιοκτήτη (σύνολα + happy hours) */
 export const useOwnerOverview = () => {
   return useQuery({
-    queryKey: ["ownerOverview"],
+    queryKey: queryKeys.ownerOverview(),
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/owner/overview");
-      return data.restaurants || [];
+      const { data } = await restaurantApi.get("/owner/overview");
+      // Backend returns: { restaurant: {...}, statistics: {...} }
+      // Handle both object response and legacy array response (for compatibility)
+      if (data.restaurant && data.statistics) {
+        return {
+          restaurant: data.restaurant,
+          statistics: data.statistics || {},
+        };
+      }
+      // Legacy support: if backend returns array
+      if (Array.isArray(data.restaurants)) {
+        return {
+          restaurant: data.restaurants[0] || null,
+          statistics: data.statistics || {},
+        };
+      }
+      // Fallback: return data as-is
+      return {
+        restaurant: data.restaurant || null,
+        statistics: data.statistics || {},
+      };
     },
     retry: false,
-    onError: (err) => toast.error(translateRestaurantError(err)),
+    onError: (err) => toast.error(translateApiError(err, "owner")),
   });
 };
 
@@ -57,14 +56,18 @@ export const useUpdateOwnerContact = () => {
   return useMutation({
     mutationFn: async ({ id, contact }) => {
       const payload = { contact }; // controller δέχεται ΜΟΝΟ contact
-      const { data } = await axiosInstance.patch(`/${id}`, payload);
-      return data.restaurant;
+      const { data } = await restaurantApi.patch(`/${id}`, payload);
+      return data.restaurant || data;
     },
     onSuccess: () => {
       toast.success("Το προφίλ του εστιατορίου ενημερώθηκε.");
-      queryClient.invalidateQueries({ queryKey: ["ownerRestaurant"] });
-      queryClient.invalidateQueries({ queryKey: ["ownerOverview"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.ownerRestaurant(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.ownerOverview(),
+      });
     },
-    onError: (err) => toast.error(translateRestaurantError(err)),
+    onError: (err) => toast.error(translateApiError(err, "owner")),
   });
 };

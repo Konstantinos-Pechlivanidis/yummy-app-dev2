@@ -1,10 +1,6 @@
 import { motion } from "framer-motion";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
+import { IMAGES } from "../../constants/images";
 
 const HeroSection = () => {
   return (
@@ -38,7 +34,7 @@ const HeroSection = () => {
 
           {/* Logo image */}
           <img
-            src="/images/yummyLogo-2.png"
+            src={IMAGES.LOGO}
             alt="Λογότυπο Yummy App"
             width="192"
             height="192"

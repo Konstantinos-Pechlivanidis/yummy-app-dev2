@@ -1,11 +1,13 @@
 // components/owner/SpecialMenuManagement.jsx
 import { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { PlusCircle, Trash } from "lucide-react";
 
 import { useOwnerRestaurant } from "../../hooks/owner/useOwnerRestaurant";
+import { specialMenuApi, specialMenuItemApi } from "../../config/api";
+import { queryKeys } from "../../config/queryKeys";
+import { translateApiError } from "../../utils/apiErrorHandler";
 
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "../ui/dialog";
@@ -13,19 +15,6 @@ import { Table, TableHead, TableRow, TableCell, TableBody } from "../ui/table";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
-
-// ---- Consistent API base (same pattern as your hooks) ----
-const API_BASE =
-  (typeof import.meta !== "undefined" &&
-    import.meta.env &&
-    import.meta.env.VITE_API_BASE_URL) ||
-  process.env.REACT_APP_API_BASE_URL ||
-  "http://localhost:5000";
-
-const api = axios.create({
-  baseURL: `${API_BASE}/api/v1`,
-  withCredentials: true,
-});
 
 // optional: time slots (kept for future availability UI)
 const timeSlots = Array.from({ length: 48 }, (_, i) => {
@@ -61,35 +50,47 @@ const SpecialMenuManagement = () => {
   // Mutations
   const createSpecialMenu = useMutation({
     mutationFn: async (payload) => {
-      const { data } = await api.post("/specialMenus", payload);
-      return data?.specialMenu;
+      const { data } = await specialMenuApi.post("/", payload);
+      return data?.specialMenu || data;
+    },
+    onError: (err) => {
+      toast.error(translateApiError(err, "owner"));
     },
   });
 
   const linkItem = useMutation({
     mutationFn: async ({ special_menu_id, menu_item_id }) => {
-      const { data } = await api.post("/special-menu-items", {
+      const { data } = await specialMenuItemApi.post("/", {
         special_menu_id,
         menu_item_id,
       });
       return data;
+    },
+    onError: (err) => {
+      toast.error(translateApiError(err, "owner"));
     },
   });
 
   const recomputePrices = useMutation({
     // We PATCH discounted_price to itself to trigger recompute on server
     mutationFn: async ({ id, discounted_price }) => {
-      const { data } = await api.patch(`/specialMenus/${id}`, {
+      const { data } = await specialMenuApi.patch(`/${id}`, {
         discounted_price,
       });
-      return data?.specialMenu;
+      return data?.specialMenu || data;
+    },
+    onError: (err) => {
+      toast.error(translateApiError(err, "owner"));
     },
   });
 
   const deleteSpecialMenu = useMutation({
     mutationFn: async (id) => {
-      const { data } = await api.delete(`/specialMenus/${id}`);
+      const { data } = await specialMenuApi.delete(`/${id}`);
       return data;
+    },
+    onError: (err) => {
+      toast.error(translateApiError(err, "owner"));
     },
   });
 
@@ -151,8 +152,8 @@ const SpecialMenuManagement = () => {
 
       // 4) Refresh owner restaurant (so the table updates)
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["ownerRestaurant"] }),
-        qc.invalidateQueries({ queryKey: ["ownerOverview"] }),
+        qc.invalidateQueries({ queryKey: queryKeys.ownerRestaurant() }),
+        qc.invalidateQueries({ queryKey: queryKeys.ownerOverview() }),
       ]);
 
       toast.success("Το special menu δημιουργήθηκε!");
@@ -167,12 +168,12 @@ const SpecialMenuManagement = () => {
     try {
       await deleteSpecialMenu.mutateAsync(id);
       await Promise.all([
-        qc.invalidateQueries({ queryKey: ["ownerRestaurant"] }),
-        qc.invalidateQueries({ queryKey: ["ownerOverview"] }),
+        qc.invalidateQueries({ queryKey: queryKeys.ownerRestaurant() }),
+        qc.invalidateQueries({ queryKey: queryKeys.ownerOverview() }),
       ]);
       toast.success("Το special menu διαγράφηκε.");
     } catch (e) {
-      toast.error(e?.response?.data?.message || "Η διαγραφή απέτυχε.");
+      // Error already handled in mutation onError
     }
   };
 

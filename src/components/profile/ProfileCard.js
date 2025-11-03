@@ -6,7 +6,7 @@ import {
   CardContent,
 } from "../ui/card";
 import { Button } from "../ui/button";
-import { Camera, Pencil, LogOut } from "lucide-react";
+import { Pencil, LogOut } from "lucide-react";
 
 const ProfileCard = ({ user, onEdit, onLogout }) => {
   return (

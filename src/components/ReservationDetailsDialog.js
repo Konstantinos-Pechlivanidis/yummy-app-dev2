@@ -35,27 +35,35 @@ const ReservationDetailsDialog = ({ reservationId }) => {
 
         {isLoading ? (
           <Loading />
-        ) : isError ? (
+        ) : isError || !res ? (
           <p className="text-red-600 text-sm">⚠️ Σφάλμα κατά την ανάκτηση.</p>
         ) : (
           <div className="text-sm text-gray-700 space-y-3">
             <div className="flex justify-between items-center">
               <p>
-                <strong>Ημερομηνία:</strong> {res.date}
+                <strong>Ημερομηνία:</strong> {res.date || "—"}
               </p>
-              <Badge className={statusColor[res.status]}>
-                {res.status.toUpperCase()}
-              </Badge>
+              {res.status && (
+                <Badge className={statusColor[res.status] || "bg-gray-500"}>
+                  {res.status.toUpperCase()}
+                </Badge>
+              )}
             </div>
-            <p>
-              <strong>Ώρα:</strong> {res.time}
-            </p>
-            <p>
-              <strong>Άτομα:</strong> {res.guest_count}
-            </p>
-            <p>
-              <strong>Εστιατόριο:</strong> {res.restaurant_id}
-            </p>
+            {res.time && (
+              <p>
+                <strong>Ώρα:</strong> {res.time}
+              </p>
+            )}
+            {res.guest_count && (
+              <p>
+                <strong>Άτομα:</strong> {res.guest_count}
+              </p>
+            )}
+            {res.restaurant_id && (
+              <p>
+                <strong>Εστιατόριο:</strong> {res.restaurant_id}
+              </p>
+            )}
             {res.special_menu_id && (
               <p>
                 <strong>Special Menu:</strong> {res.special_menu_id}

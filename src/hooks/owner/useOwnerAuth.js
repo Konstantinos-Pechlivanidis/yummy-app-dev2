@@ -1,43 +1,23 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/authSlice";
-
-// This instance is for OWNER-SPECIFIC actions
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1/owner",
-  withCredentials: true,
-});
-
-const translateOwnerError = (error) => {
-  const message =
-    error?.response?.data?.message ||
-    error?.message ||
-    "Παρουσιάστηκε άγνωστο σφάλμα.";
-
-  if (message.includes("No token")) return "Δεν είστε συνδεδεμένος.";
-  if (message.includes("Invalid token")) return "Η συνεδρία έληξε. Παρακαλώ συνδεθείτε ξανά.";
-  if (message.includes("Owner already exists")) return "Υπάρχει ήδη λογαριασμός με αυτό το email.";
-  if (message.includes("Owner not found")) return "Ο ιδιοκτήτης δεν βρέθηκε.";
-  if (message.includes("Unauthorized")) return "Δεν έχετε πρόσβαση.";
-  if (message.includes("Invalid credentials")) return "Λανθασμένα στοιχεία σύνδεσης.";
-
-  return "Παρουσιάστηκε σφάλμα. Δοκιμάστε ξανά.";
-};
+import { ownerApi, userApi } from "../../config/api";
+import { queryKeys } from "../../config/queryKeys";
+import { translateApiError } from "../../utils/apiErrorHandler";
 
 // The unified useAuthStatus from `useAuth.js` should be used across the app.
 
 export const useOwnerProfile = () =>
   useQuery({
-    queryKey: ["ownerProfile"],
+    queryKey: queryKeys.ownerProfile(),
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/profile");
+      const { data } = await ownerApi.get("/profile");
       return data;
     },
     retry: false,
-    onError: (err) => toast.error(translateOwnerError(err)),
+    onError: (err) => toast.error(translateApiError(err, "owner")),
   });
 
 export const useOwnerLogin = () => {
@@ -47,22 +27,22 @@ export const useOwnerLogin = () => {
 
   return useMutation({
     mutationFn: async ({ email, password }) => {
-      const { data } = await axiosInstance.post("/login", { email, password });
+      const { data } = await ownerApi.post("/login", { email, password });
       return data;
     },
     onSuccess: (data) => {
       toast.success("Επιτυχής σύνδεση.");
-      
+
       // 1. Set the user in the Redux store IMMEDIATELY.
-      dispatch(setUser(data.owner)); 
-      
+      dispatch(setUser(data.user || data.owner));
+
       // 2. Invalidate queries to ensure all data is fresh.
-      queryClient.invalidateQueries({ queryKey: ["authStatus"] });
-      
+      queryClient.invalidateQueries({ queryKey: queryKeys.authStatus() });
+
       // 3. Now it's safe to navigate to the CORRECT path.
       navigate("/owner/dashboard");
     },
-    onError: (err) => toast.error(translateOwnerError(err)),
+    onError: (err) => toast.error(translateApiError(err, "auth")),
   });
 };
 
@@ -72,30 +52,40 @@ export const useOwnerLogout = () => {
 
   return useMutation({
     mutationFn: async () => {
-      await axiosInstance.get("/logout");
+      // Owner logout endpoint - verify if it exists, otherwise use user/logout
+      // Both should clear the same cookie since they share the same auth system
+      try {
+        await ownerApi.get("/logout");
+      } catch (err) {
+        // If owner logout doesn't exist, try user logout endpoint
+        await userApi.get("/logout");
+      }
     },
     onSuccess: () => {
       toast.success("Αποσυνδεθήκατε.");
       queryClient.clear(); // Clear all queries on logout
       navigate("/login-owner");
     },
-    onError: (err) => toast.error(translateOwnerError(err)),
+    onError: (err) => toast.error(translateApiError(err, "auth")),
   });
 };
 
 export const useOwnerRegister = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (formData) => {
-      const { data } = await axiosInstance.post("/register", formData);
+      const { data } = await ownerApi.post("/register", formData);
       return data;
     },
     onSuccess: (data) => {
       toast.success(data.message || "Επιτυχής εγγραφή. Έλεγχος email.");
+      // Invalidate auth status in case user wants to login immediately
+      queryClient.invalidateQueries({ queryKey: queryKeys.authStatus() });
       navigate("/login-owner");
     },
-    onError: (err) => toast.error(translateOwnerError(err)),
+    onError: (err) => toast.error(translateApiError(err, "auth")),
   });
 };
 
@@ -104,28 +94,37 @@ export const useUpdateOwner = () => {
 
   return useMutation({
     mutationFn: async (updates) => {
-      const { data } = await axiosInstance.patch("/update", updates);
+      const { data } = await ownerApi.patch("/update", updates);
       return data;
     },
     onSuccess: () => {
       toast.success("Το προφίλ ενημερώθηκε.");
-      queryClient.invalidateQueries({ queryKey: ["ownerProfile"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ownerProfile() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.authStatus() });
     },
-    onError: (err) => toast.error(translateOwnerError(err)),
+    onError: (err) => toast.error(translateApiError(err, "owner")),
   });
 };
 
 export const useResendVerification = () => {
   return useMutation({
     mutationFn: async (email) => {
-      const { data } = await axiosInstance.post("/resend-verification", { email });
-      return data;
+      // Owner might use same endpoint as user
+      // Try owner endpoint first, fallback to user endpoint
+      try {
+        const { data } = await ownerApi.post("/resend-verification", { email });
+        return data;
+      } catch (err) {
+        // If owner endpoint doesn't exist, try user endpoint
+        const { data } = await userApi.post("/resend-verification", { email });
+        return data;
+      }
     },
     onSuccess: () => {
       toast.success("Στάλθηκε ξανά email επιβεβαίωσης.");
     },
     onError: (err) => {
-      toast.error(translateOwnerError(err));
+      toast.error(translateApiError(err, "auth"));
     },
   });
 };

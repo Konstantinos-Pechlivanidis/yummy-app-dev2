@@ -1,11 +1,6 @@
 import { motion } from "framer-motion";
 import { Card } from "../ui/card";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
 
 const features = [
   {

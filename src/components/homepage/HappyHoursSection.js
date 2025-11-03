@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { Button } from "../ui/button";
 import {
+  Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
@@ -14,23 +15,19 @@ import Loading from "../Loading";
 import PromoOfferBox from "./PromoOfferBox";
 import { useDiscountedRestaurants } from "../../hooks/customer/useRestaurants";
 import { useScreenConfig } from "../../hooks/customer/useScreenConfig";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
+import { IMAGES } from "../../constants/images";
 
 const HappyHoursSection = () => {
   const { itemsPerPage } = useScreenConfig();
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
-    data: { allDiscountedRestaurants: discountedMenus = [], Pagination } = {},
+    data: { allDiscountedRestaurants: discountedMenus = [], Pagination: paginationInfo } = {},
     isLoading: discountedLoading,
   } = useDiscountedRestaurants(currentPage, itemsPerPage);
 
-  const totalPages = Math.ceil((Pagination?.total || 0) / itemsPerPage);
+  const totalPages = Math.ceil((paginationInfo?.total || 0) / itemsPerPage);
 
   const dayTranslations = {
     Monday: "Δευτέρα",
@@ -50,6 +47,12 @@ const HappyHoursSection = () => {
 
       {discountedLoading ? (
         <Loading />
+      ) : discountedMenus.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500 text-lg">
+            Δεν υπάρχουν διαθέσιμες δυναμικές εκπτώσεις αυτή τη στιγμή.
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {discountedMenus.map((menu) => {
@@ -64,11 +67,12 @@ const HappyHoursSection = () => {
                       src={menu.photo_url}
                       alt={menu.name}
                       className="w-full h-40 sm:h-44 object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-40 sm:h-44 bg-gray-50 flex items-center justify-center">
                       <img
-                        src="/images/yummyLogo-2.png"
+                        src={IMAGES.LOGO}
                         alt="Λογότυπο Yummy App"
                         width="192"
                         height="192"

@@ -1,15 +1,11 @@
 import { motion } from "framer-motion";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
+import { IMAGES } from "../../constants/images";
 
 const ReserveHeroSection = () => (
   <section className="relative h-[400px] flex items-center justify-center text-center rounded-3xl overflow-hidden shadow-xl">
     <img
-      src="/images/wide2.jpg"
+      src={IMAGES.BACKGROUND_PROFILE}
       alt="hero"
       className="absolute inset-0 object-cover w-full h-full"
     />
@@ -21,7 +17,7 @@ const ReserveHeroSection = () => (
       <div className="mb-6 relative flex items-center justify-center">
         <div className="absolute w-56 h-56 md:w-64 md:h-64 rounded-full bg-white/25 blur-3xl z-0" />
         <img
-          src="/images/yummyLogo-2.png"
+          src={IMAGES.LOGO}
           alt="Λογότυπο Yummy App"
           width="192"
           height="192"

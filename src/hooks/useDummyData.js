@@ -1,3 +1,15 @@
+/**
+ * DEV-ONLY: Dummy Data Hooks
+ * 
+ * WARNING: This file is for development/testing purposes only.
+ * It provides fallback dummy data when the backend API is unavailable.
+ * 
+ * In production, ensure all these hooks are replaced with real API hooks
+ * from src/hooks/customer/ and src/hooks/owner/ directories.
+ * 
+ * TODO: Remove or move to separate dev/ folder once backend is fully operational.
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import {
@@ -38,7 +50,7 @@ export const useTestimonials = (page = 1, perPage = 3) =>
         );
         return data;
       } catch (error) {
-        console.warn("⚠️ Testimonials API fallback to dummy");
+        // Testimonials API fallback to dummy
         return paginate(dummyTestimonials, page, perPage);
       }
     },
@@ -54,7 +66,7 @@ export const useTrendingRestaurants = (page = 1, perPage = 5) =>
         );
         return data;
       } catch (error) {
-        console.warn("⚠️ Trending restaurants fallback to dummy");
+        // Trending restaurants fallback to dummy
 
         // Sort by rating
         const sorted = [...restaurants].sort((a, b) => b.rating - a.rating);
@@ -91,7 +103,7 @@ export const useDiscountedRestaurants = (page = 1, perPage = 5) =>
         );
         return data;
       } catch (error) {
-        console.warn("⚠️ Discounted restaurants fallback to special menus");
+        // Discounted restaurants fallback to special menus
 
         const enrichedMenus = special_menus
           .map((menu) => {
@@ -123,7 +135,7 @@ export const useFilteredRestaurants = (filters = {}) =>
         });
         return data;
       } catch (error) {
-        console.warn("⚠️ Filtered restaurants fallback to dummy");
+        // Filtered restaurants fallback to dummy
 
         const filtered = restaurants.filter((r) => {
           const matchesCuisine =
@@ -162,7 +174,7 @@ export const useUserReservations = (user_id) =>
         );
         return data;
       } catch (error) {
-        console.warn("⚠️ User reservations fallback to dummy");
+        // User reservations fallback to dummy
         return reservations.filter((r) => r.user_id === user_id);
       }
     },
@@ -188,12 +200,12 @@ export const useCancelReservation = () => {
       return reservationId;
     },
 
-    onSuccess: (reservationId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
     },
 
-    onError: (error) => {
-      console.error("❌ Cancellation failed:", error.message);
+    onError: () => {
+      // Cancellation failed
     },
   });
 };
@@ -206,7 +218,7 @@ export const useReservationDetails = (id) =>
         const { data } = await axiosInstance.get(`/reservations/${id}`);
         return data;
       } catch (error) {
-        console.warn("⚠️ Reservation details fallback to dummy");
+        // Reservation details fallback to dummy
         return reservations.find((r) => r.id === id);
       }
     },
@@ -225,7 +237,7 @@ export const useCreateReservation = () => {
         );
         return data;
       } catch (error) {
-        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        // Backend unreachable. Using dummy fallback.
 
         // Fallback dummy logic:
         const newDummy = {
@@ -243,8 +255,8 @@ export const useCreateReservation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
     },
-    onError: (error) => {
-      console.error("❌ Error creating reservation:", error);
+    onError: () => {
+      // Error creating reservation
     },
   });
 };
@@ -257,7 +269,7 @@ export const useRestaurantDetails = (id) =>
         const { data } = await axiosInstance.get(`/restaurants/${id}`);
         return data;
       } catch (error) {
-        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        // Backend unreachable. Using dummy fallback.
 
         const restaurant = restaurants.find((r) => r.id === id);
 
@@ -282,7 +294,7 @@ export const useUserCoupons = (user_id) =>
         const { data } = await axiosInstance.get(`/coupons/user/${user_id}`);
         return data;
       } catch (error) {
-        console.warn("⚠️ API fallback: useUserCoupons()");
+        // API fallback: useUserCoupons()
         return purchased_coupons
           .filter((entry) => entry.user_id === user_id)
           .map((entry) =>
@@ -306,7 +318,7 @@ export const usePurchaseCoupon = () => {
         });
         return { user_id, coupon_id };
       } catch (error) {
-        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        // Backend unreachable. Using dummy fallback.
 
         const alreadyPurchased = purchased_coupons.some(
           (p) => p.user_id === user_id && p.coupon_id === coupon_id
@@ -339,8 +351,8 @@ export const usePurchaseCoupon = () => {
       queryClient.invalidateQueries(["loyalty_points", variables.user_id]);
     },
 
-    onError: (error) => {
-      console.error("❌ Αποτυχία αγοράς κουπονιού:", error);
+    onError: () => {
+      // Αποτυχία αγοράς κουπονιού
       toast.error("Η αγορά απέτυχε!");
     },
   });
@@ -354,7 +366,7 @@ export const useUserById = (user_id) =>
         const { data } = await axiosInstance.get(`/users/${user_id}`);
         return data;
       } catch (error) {
-        console.warn("🧪 Fallback to dummy user");
+        // Fallback to dummy user
         return users.find((u) => u.id === user_id);
       }
     },
@@ -413,8 +425,8 @@ export const useDeleteReservation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reservations"] });
     },
-    onError: (err) => {
-      console.error("❌ Error deleting reservation:", err);
+    onError: () => {
+      // Error deleting reservation
     },
   });
 };
@@ -428,7 +440,7 @@ export const useUpdateUser = () => {
         const { data } = await axiosInstance.patch(`/users/${user_id}`, updates);
         return data;
       } catch (error) {
-        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        // Backend unreachable. Using dummy fallback.
         const user = users.find((u) => u.id === user_id);
         if (!user) throw new Error("User not found");
         Object.assign(user, updates);
@@ -458,7 +470,7 @@ export const useFavoriteRestaurants = (user_id, page = 1, limit = 6) =>
 
         return data; // expected shape: { data: [...], total }
       } catch (error) {
-        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        // Backend unreachable. Using dummy fallback.
 
         const user = users.find((u) => u.id === user_id);
         if (!user) throw new Error("User not found");
@@ -501,7 +513,7 @@ export const useToggleWatchlist = () => {
         );
         return data; // expected: updated favorite list or success flag
       } catch (error) {
-        console.warn("⚠️ Backend unreachable. Using dummy fallback.");
+        // Backend unreachable. Using dummy fallback.
         const user = users.find((u) => u.id === user_id);
         if (!user) throw new Error("User not found");
 
@@ -533,9 +545,7 @@ export const useRestaurantsWithPurchasedCoupons = (user_id) =>
         );
         return data;
       } catch (error) {
-        console.warn(
-          "⚠️ Backend unreachable. Using dummy fallback for coupon restaurants"
-        );
+        // Backend unreachable. Using dummy fallback for coupon restaurants
         const userPurchases = purchased_coupons.filter(
           (p) => p.user_id === user_id
         );
@@ -587,7 +597,7 @@ export const useFilteredReservations = (
 
         return data; // { data: [...], total }
       } catch (error) {
-        console.warn("⚠️ Backend failed. Using dummy data fallback.");
+        // Backend failed. Using dummy data fallback.
 
         // 1. Φιλτράρισμα μόνο για τον συγκεκριμένο χρήστη
         let filtered = reservations.filter((res) => res.user_id === user_id);
@@ -640,7 +650,7 @@ export const useRestaurants = () =>
         const { data } = await axiosInstance.get("/restaurants");
         return data; // expected: full list of restaurant objects
       } catch (error) {
-        console.warn("⚠️ Backend unavailable. Using dummy restaurants.");
+        // Backend unavailable. Using dummy restaurants.
         return restaurants; // fallback from dummyData.js
       }
     },

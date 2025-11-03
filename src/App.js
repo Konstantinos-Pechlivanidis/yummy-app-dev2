@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  useNavigate,
   useLocation,
 } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,24 +13,29 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./lib/ScrollToTop";
 import { Toaster } from "react-hot-toast";
-
-import HomePage from "./pages/customer/HomePage";
-import LoyaltyPage from "./pages/customer/LoyaltyPage";
-import ReserveTablePage from "./pages/customer/ReserveTablePage";
-import RestaurantDetailsPage from "./pages/customer/RestaurantDetailsPage";
-import MyReservationsPage from "./pages/customer/MyReservationsPage";
-import ConfirmationPage from "./pages/customer/Confirmation";
-import ProfilePage from "./pages/customer/ProfilePage";
-import OwnerDashboard from "./pages/owner/OwnerDashboard";
-import OwnerProfile from "./pages/owner/OwnerProfile";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import NotFound from "./pages/NotFound";
-import AuthRedirect from "./pages/AuthRedirect";
-import { showLoading, hideLoading } from "./store/loadingSlice";
 import PageLoading from "./components/PageLoading";
+import { showLoading, hideLoading } from "./store/loadingSlice";
 import { HelmetProvider } from "react-helmet-async";
-import OwnerLoginPage from "./pages/owner/OwnerLoginPage";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { TIME } from "./constants/times";
+
+// Lazy load heavy pages for better performance
+const HomePage = lazy(() => import("./pages/customer/HomePage"));
+const LoyaltyPage = lazy(() => import("./pages/customer/LoyaltyPage"));
+const ReserveTablePage = lazy(() => import("./pages/customer/ReserveTablePage"));
+const RestaurantDetailsPage = lazy(() => import("./pages/customer/RestaurantDetailsPage"));
+const MyReservationsPage = lazy(() => import("./pages/customer/MyReservationsPage"));
+const ConfirmationPage = lazy(() => import("./pages/customer/Confirmation"));
+const ProfilePage = lazy(() => import("./pages/customer/ProfilePage"));
+const OwnerDashboard = lazy(() => import("./pages/owner/OwnerDashboard"));
+const OwnerProfile = lazy(() => import("./pages/owner/OwnerProfile"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AuthRedirect = lazy(() => import("./pages/AuthRedirect"));
+const ForgotPasswordPage = lazy(() => import("./pages/customer/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/customer/ResetPasswordPage"));
+const OwnerLoginPage = lazy(() => import("./pages/owner/OwnerLoginPage"));
 
 const LoadingHandler = () => {
   const location = useLocation();
@@ -41,7 +45,7 @@ const LoadingHandler = () => {
     dispatch(showLoading());
     const timeout = setTimeout(() => {
       dispatch(hideLoading());
-    }, 1500); // Reduced timeout for better UX
+    }, TIME.LOADING_TIMEOUT);
     return () => clearTimeout(timeout);
   }, [location.pathname, dispatch]);
 
@@ -75,6 +79,8 @@ const AppRoutes = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login-owner" element={<OwnerLoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
       {/* Customer Only */}
       {isAuthenticated && user.role === "customer" && (
@@ -140,7 +146,15 @@ function App() {
         <LoadingHandler />
         <Navbar />
         <main className="pt-16">
-          {isLoading ? <PageLoading /> : <AppRoutes />}
+          <ErrorBoundary>
+            {isLoading ? (
+              <PageLoading />
+            ) : (
+              <Suspense fallback={<PageLoading />}>
+                <AppRoutes />
+              </Suspense>
+            )}
+          </ErrorBoundary>
         </main>
         <Footer />
       </Router>

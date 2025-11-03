@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import HomepageCTAButton from "../../components/homepage/HomepageCTAButton";
@@ -12,6 +12,7 @@ import LoyaltyProgram from "../../components/homepage/LoyaltyProgramCard";
 import TrendingRestaurantsCarousel from "../../components/homepage/TrendingRestaurantsCarousel";
 import PurchasedCouponRestaurantsSection from "../../components/homepage/PurchasedCouponRestaurantsSection";
 import SEOHelmet from "../../components/SEOHelmet";
+import { generateTimeSlots } from "../../utils/timeUtils";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -19,18 +20,13 @@ const HomePage = () => {
   const reduxSearchParams = useSelector((state) => state.search ?? {});
   const [searchParams, setSearchParams] = useState(reduxSearchParams);
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     dispatch(setSearchParamsAction(searchParams));
     navigate("/reserve");
-  };
+  }, [dispatch, navigate, searchParams]);
 
   const timeSlots = useMemo(() => {
-    const slots = [];
-    for (let h = 10; h < 24; h++) {
-      slots.push(`${h.toString().padStart(2, "0")}:00`);
-      slots.push(`${h.toString().padStart(2, "0")}:30`);
-    }
-    return slots;
+    return generateTimeSlots();
   }, []);
 
   return (
@@ -54,7 +50,7 @@ const HomePage = () => {
         <TestimonialsCarousel />
         <TrendingRestaurantsCarousel />
         <HappyHoursSection />
-        <PurchasedCouponRestaurantsSection user_id="user001" />
+        <PurchasedCouponRestaurantsSection />
         <LoyaltyProgram />
         <HomepageCTAButton />
       </div>

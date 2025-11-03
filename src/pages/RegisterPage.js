@@ -7,12 +7,9 @@ import { Input } from "../components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import Loading from "../components/Loading";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { getOAuthUrl } from "../config/api";
+import { fadeIn } from "../constants/animations";
+import { IMAGES } from "../constants/images";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -46,7 +43,7 @@ const RegisterPage = () => {
     <div className="relative min-h-full w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
       {/* Background image */}
       <img
-        src="/images/wide12.jpg"
+        src={IMAGES.BACKGROUND_REGISTER}
         alt="Φόντο Εγγραφής - Yummy"
         width="1920"
         height="1080"
@@ -65,7 +62,7 @@ const RegisterPage = () => {
           {/* Logo & Heading */}
           <div className="text-left space-y-2">
             <img
-              src="/images/yummyLogo-2.png"
+              src={IMAGES.LOGO}
               alt="Yummy"
               className="w-14 h-14 drop-shadow"
             />
@@ -201,7 +198,7 @@ const RegisterPage = () => {
           {/* Social Logins */}
           <div className="space-y-3">
             <a
-              href="http://localhost:5000/user/auth/google"
+              href={getOAuthUrl("google", "user")}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm"
             >
               <FcGoogle size={20} />
@@ -209,7 +206,7 @@ const RegisterPage = () => {
             </a>
 
             <a
-              href="http://localhost:5000/user/auth/facebook"
+              href={getOAuthUrl("facebook", "user")}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm text-blue-700"
             >
               <FaFacebook size={20} />

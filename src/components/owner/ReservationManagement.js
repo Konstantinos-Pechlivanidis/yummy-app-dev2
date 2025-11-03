@@ -22,6 +22,10 @@ import {
   useOwnerCompleteReservation,
   useOwnerCancelReservation,
 } from "../../hooks/customer/useReservations";
+import { queryKeys } from "../../config/queryKeys";
+import { PAGINATION } from "../../constants/pagination";
+import { RESERVATION_STATUS } from "../../constants/statuses";
+import { getReservationBadgeConfig } from "../../utils/statusUtils";
 
 import {
   Select,
@@ -34,20 +38,14 @@ import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 
 const STATUS_OPTIONS = [
-  { value: "pending", label: "Αναμονή" },
-  { value: "confirmed", label: "Εγκεκριμένες" },
-  { value: "completed", label: "Ολοκληρωμένες" },
-  { value: "cancelled", label: "Ακυρωμένες" },
+  { value: RESERVATION_STATUS.PENDING, label: "Αναμονή" },
+  { value: RESERVATION_STATUS.CONFIRMED, label: "Εγκεκριμένες" },
+  { value: RESERVATION_STATUS.COMPLETED, label: "Ολοκληρωμένες" },
+  { value: RESERVATION_STATUS.CANCELLED, label: "Ακυρωμένες" },
 ];
 
 const renderBadge = (status) => {
-  const cfg =
-    {
-      confirmed: { text: "✅ Εγκεκριμένη", className: "bg-blue-500 text-white" },
-      pending: { text: "⏳ Αναμονή", className: "bg-yellow-500 text-black" },
-      completed: { text: "🏁 Ολοκληρωμένη", className: "bg-green-500 text-white" },
-      cancelled: { text: "❌ Ακυρωμένη", className: "bg-red-500 text-white" },
-    }[status] || { text: "Άγνωστο", className: "bg-gray-500 text-white" };
+  const cfg = getReservationBadgeConfig(status);
   return (
     <Badge className={`text-md px-3 py-1.5 font-semibold rounded-md ${cfg.className}`}>
       {cfg.text}
@@ -77,7 +75,7 @@ const ReservationManagement = () => {
   );
 
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = PAGINATION.ITEMS_PER_PAGE_LARGE;
 
   // Fetch owner reservations
   const { data, isLoading, isFetching, error } = useOwnerFilteredReservations(
@@ -112,8 +110,8 @@ const ReservationManagement = () => {
   const sortedReservations = useMemo(() => {
     const arr = [...reservations];
     return arr.sort((a, b) => {
-      if (a.status === "pending" && b.status !== "pending") return -1;
-      if (a.status !== "pending" && b.status === "pending") return 1;
+      if (a.status === RESERVATION_STATUS.PENDING && b.status !== RESERVATION_STATUS.PENDING) return -1;
+      if (a.status !== RESERVATION_STATUS.PENDING && b.status === RESERVATION_STATUS.PENDING) return 1;
       const ad = new Date(a.date);
       const bd = new Date(b.date);
       return bd - ad;
@@ -133,7 +131,6 @@ const ReservationManagement = () => {
 
   const canApprove = (s) => s === "pending";
   const canComplete = (s) => s === "confirmed";
-  const canCancel = (s) => s === "pending" || s === "confirmed";
 
   const handleConfirm = () => {
     if (!selectedReservation || !actionType) return;
@@ -142,7 +139,7 @@ const ReservationManagement = () => {
       confirmReservation(selectedReservation.id, {
         onSuccess: () => {
           toast.success("Η κράτηση επιβεβαιώθηκε.");
-          qc.invalidateQueries({ queryKey: ["ownerOverview"] });
+          qc.invalidateQueries({ queryKey: queryKeys.ownerOverview() });
           closeDialog();
         },
         onError: (err) => {
@@ -157,7 +154,7 @@ const ReservationManagement = () => {
       completeReservation(selectedReservation.id, {
         onSuccess: () => {
           toast.success("Η κράτηση ολοκληρώθηκε.");
-          qc.invalidateQueries({ queryKey: ["ownerOverview"] });
+          qc.invalidateQueries({ queryKey: queryKeys.ownerOverview() });
           closeDialog();
         },
         onError: (err) => {
@@ -178,7 +175,7 @@ const ReservationManagement = () => {
         {
           onSuccess: () => {
             toast.success("Η κράτηση ακυρώθηκε.");
-            qc.invalidateQueries({ queryKey: ["ownerOverview"] });
+            qc.invalidateQueries({ queryKey: queryKeys.ownerOverview() });
             closeDialog();
           },
           onError: (err) => {

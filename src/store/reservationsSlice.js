@@ -1,10 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000/api/v1",
-  withCredentials: true,
-});
+import { reservationApi } from "../config/api";
 
 const initialState = {
   reservations: [],
@@ -16,14 +11,14 @@ export const updateReservationStatus = createAsyncThunk(
   'reservations/updateStatus',
   async ({ reservationId, status, cancellation_reason = null }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.patch('/reservations/owner', {
+      const response = await reservationApi.patch('/owner/status', {
         reservation_id: reservationId,
         status,
         cancellation_reason,
       });
-      return response.data.reservation;
+      return response.data.reservation || response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );

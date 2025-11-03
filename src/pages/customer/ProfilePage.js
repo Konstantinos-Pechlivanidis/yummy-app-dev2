@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   useUserProfile,
@@ -22,14 +22,10 @@ import PurchasedCouponRestaurantsSection from "../../components/profile/Purchase
 import { Heart, Ticket, Mail } from "lucide-react";
 import toast from "react-hot-toast";
 import SEOHelmet from "../../components/SEOHelmet";
+import { fadeIn } from "../../constants/animations";
+import { PAGINATION } from "../../constants/pagination";
 
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
-
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = PAGINATION.DEFAULT_ITEMS_PER_PAGE;
 
 const ProfilePage = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -66,16 +62,14 @@ const ProfilePage = () => {
     phone: profile?.phone,
   });
 
-  if (!profile)
-    return <div className="text-center py-20">🔐 Δεν είσαι συνδεδεμένος.</div>;
-
   const handleUpdateProfile = () => {
     updateUser({ updates: updatedUser });
     setIsEditing(false);
   };
 
   const handleResendEmail = () => resendVerification(profile.email);
-  const handleToggleFavorite = async (id) => {
+  
+  const handleToggleFavorite = useCallback(async (id) => {
     if (!id) {
       toast.error("Λείπει το ID του εστιατορίου.");
       return;
@@ -92,7 +86,10 @@ const ProfilePage = () => {
     } catch (err) {
       toast.error("Αποτυχία ενημέρωσης αγαπημένων.");
     }
-  };
+  }, [toggleFavorite]);
+
+  if (!profile)
+    return <div className="text-center py-20">🔐 Δεν είσαι συνδεδεμένος.</div>;
 
   return (
     <>
@@ -218,7 +215,7 @@ const ProfilePage = () => {
             <Ticket className="text-purple-600" size={20} />
             Τα Κουπόνια μου
           </h2>
-          <PurchasedCouponRestaurantsSection user_id={profile.id} />
+          <PurchasedCouponRestaurantsSection />
         </motion.section>
 
         {/* 📝 Edit Dialog */}

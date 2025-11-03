@@ -1,21 +1,16 @@
 import { useState } from "react";
 import { useOwnerLogin } from "../../hooks/owner/useOwnerAuth";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import Loading from "../../components/Loading";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { getOAuthUrl } from "../../config/api";
+import { fadeIn } from "../../constants/animations";
 
 const OwnerLoginPage = () => {
-  const navigate = useNavigate();
   const loginMutation = useOwnerLogin();
 
   const [formData, setFormData] = useState({
@@ -102,6 +97,14 @@ const OwnerLoginPage = () => {
                 placeholder="••••••••"
                 className="mt-1"
               />
+              <div className="mt-1 text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Ξέχασες τον κωδικό;
+                </Link>
+              </div>
             </div>
 
             <Button
@@ -129,14 +132,14 @@ const OwnerLoginPage = () => {
 
           <div className="space-y-3">
             <a
-              href="http://localhost:5000/api/v1/owner/auth/google"
+              href={getOAuthUrl("google", "owner")}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm"
             >
               <FcGoogle size={20} />
               Σύνδεση με Google
             </a>
             <a
-              href="http://localhost:5000/api/v1/owner/auth/facebook"
+              href={getOAuthUrl("facebook", "owner")}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm text-blue-700"
             >
               <FaFacebook size={20} />

@@ -11,24 +11,11 @@ import {
 } from "../ui/dialog";
 import { format } from "date-fns";
 import { el } from "date-fns/locale";
-import { ImageOff } from "lucide-react";
+import { getReservationStatusColor, getReservationStatusLabel } from "../../utils/statusUtils";
+import { RESERVATION_STATUS } from "../../constants/statuses";
+import { memo } from "react";
 
-const statusColors = {
-  pending: "bg-yellow-500",
-  confirmed: "bg-green-500",
-  completed: "bg-blue-500",
-  cancelled: "bg-red-500",
-};
-
-const statusLabels = {
-  pending: "Εκκρεμεί",
-  approved: "Επιβεβαιωμένη",
-  confirmed: "Επιβεβαιωμένη",
-  completed: "Ολοκληρωμένη",
-  cancelled: "Ακυρωμένη",
-};
-
-const ReservationCard = ({
+const ReservationCard = memo(({
   reservation,
   restaurantName,
   restaurantPhoto,
@@ -37,22 +24,34 @@ const ReservationCard = ({
   showCancel = false,
   onCancel = null,
 }) => {
-  const formattedDate = format(
-    new Date(reservation.date),
-    "eeee dd MMMM yyyy",
-    { locale: el }
-  );
+  if (!reservation || !reservation.date) {
+    return null;
+  }
 
-  let formattedTime = reservation.time;
+  let formattedDate = reservation.date;
   try {
-    const fullDateTime = new Date(
-      `${reservation.date.split("T")[0]}T${reservation.time}`
+    formattedDate = format(
+      new Date(reservation.date),
+      "eeee dd MMMM yyyy",
+      { locale: el }
     );
-    if (!isNaN(fullDateTime)) {
-      formattedTime = format(fullDateTime, "HH:mm");
+  } catch (err) {
+    // Invalid date - using original value
+  }
+
+  let formattedTime = reservation.time || "";
+  try {
+    if (reservation.date && reservation.time) {
+      const datePart = reservation.date.includes("T") 
+        ? reservation.date.split("T")[0]
+        : reservation.date.split(" ")[0];
+      const fullDateTime = new Date(`${datePart}T${reservation.time}`);
+      if (!isNaN(fullDateTime.getTime())) {
+        formattedTime = format(fullDateTime, "HH:mm");
+      }
     }
   } catch (err) {
-    console.warn("⛔ Invalid time value:", reservation.time);
+    // Invalid time value - using original value
   }
 
   return (
@@ -86,10 +85,10 @@ const ReservationCard = ({
             </h3>
             <Badge
               className={`${
-                statusColors[reservation.status]
+                getReservationStatusColor(reservation.status)
               } text-white text-xs sm:text-sm px-2 py-1`}
             >
-              {statusLabels[reservation.status] || "Άγνωστη"}
+              {getReservationStatusLabel(reservation.status)}
             </Badge>
           </div>
 
@@ -116,7 +115,7 @@ const ReservationCard = ({
                 <strong>📝</strong> {reservation.reservation_notes}
               </p>
             )}
-            {reservation.status === "cancelled" &&
+            {reservation.status === RESERVATION_STATUS.CANCELLED &&
               reservation.cancellationReason && (
                 <p className="text-red-600">
                   <strong>Λόγος ακύρωσης:</strong>{" "}
@@ -211,6 +210,8 @@ const ReservationCard = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+ReservationCard.displayName = "ReservationCard";
 
 export default ReservationCard;

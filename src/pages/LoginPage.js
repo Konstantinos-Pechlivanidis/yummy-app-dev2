@@ -7,12 +7,9 @@ import { Input } from "../components/ui/input";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import Loading from "../components/Loading";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { getOAuthUrl } from "../config/api";
+import { fadeIn } from "../constants/animations";
+import { IMAGES } from "../constants/images";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -47,7 +44,7 @@ const LoginPage = () => {
     <div className="relative min-h-full w-4xl overflow-hidden rounded-none md:rounded-3xl md:mx-16 md:my-auto">
       {/* Background Image */}
       <img
-        src="/images/wide11.jpg"
+        src={IMAGES.BACKGROUND_LOGIN}
         alt="Φόντο Σύνδεσης - Yummy"
         width="1920"
         height="1080"
@@ -66,7 +63,7 @@ const LoginPage = () => {
           {/* Header */}
           <div className="text-left space-y-2">
             <img
-              src="/images/yummyLogo-2.png"
+              src={IMAGES.LOGO}
               alt="Λογότυπο Yummy App"
               width="192"
               height="192"
@@ -118,6 +115,14 @@ const LoginPage = () => {
                 placeholder="••••••••"
                 className="mt-1"
               />
+              <div className="mt-1 text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Ξέχασες τον κωδικό;
+                </Link>
+              </div>
             </div>
 
             <Button
@@ -168,14 +173,14 @@ const LoginPage = () => {
           {/* Social Logins */}
           <div className="space-y-3">
             <a
-              href="http://localhost:5000/api/v1/user/auth/google"
+              href={getOAuthUrl("google", "user")}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm"
             >
               <FcGoogle size={20} />
               Σύνδεση με Google
             </a>
             <a
-              href="http://localhost:5000/api/v1/user/auth/facebook"
+              href={getOAuthUrl("facebook", "user")}
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-100 text-sm text-blue-700"
             >
               <FaFacebook size={20} />

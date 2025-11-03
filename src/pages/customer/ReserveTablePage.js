@@ -10,12 +10,7 @@ import ReserveResultsGrid from "../../components/reserve/ReserveResultsGrid";
 import PaginationControls from "../../components/reserve/PaginationControls";
 import Loading from "../../components/Loading";
 import SEOHelmet from "../../components/SEOHelmet";
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6 },
-};
+import { fadeIn } from "../../constants/animations";
 
 const ReserveTablePage = () => {
   const searchParams = useSelector((state) => state.search ?? {});

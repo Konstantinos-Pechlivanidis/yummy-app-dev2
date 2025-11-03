@@ -14,7 +14,6 @@ const LoyaltyCouponsGrid = ({
   coupons = [],
   userCoupons = [],
   loyalty_points = 0,
-  user_id,
   onPurchase,
   isPurchasing,
 }) => {
